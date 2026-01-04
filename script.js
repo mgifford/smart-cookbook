@@ -262,6 +262,25 @@ function cookbookApp() {
 
   const ounceToGrams = 28.3495;
 
+  const roundToStep = (value, step, min = 0) => {
+    if (!Number.isFinite(value)) return 0;
+    const rounded = Math.round(value / step) * step;
+    return rounded < min ? min : rounded;
+  };
+
+  const trimZeros = (str) => String(str).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+
+  const toFractionQuarter = (val) => {
+    const rounded = Math.round(val * 4) / 4;
+    const whole = Math.floor(rounded);
+    const frac = +(rounded - whole).toFixed(2);
+    const map = { 0: '', 0.25: '1/4', 0.5: '1/2', 0.75: '3/4' };
+    const fracStr = map[frac] || trimZeros(rounded.toFixed(2));
+    if (whole > 0 && fracStr) return `${whole} ${fracStr}`;
+    if (whole > 0) return `${whole}`;
+    return fracStr || '0';
+  };
+
   const packagedUnitWeights = {
     'can_14_5_oz': 411,
     'can_15_oz': 425,
@@ -393,21 +412,22 @@ function cookbookApp() {
       if (!res.ok) throw new Error('nutrition fetch failed');
       const text = await res.text();
       const parsed = jsyaml.load(text);
-      if (Array.isArray(parsed)) {
-        parsed.forEach(item => {
-          const key = normalizeKey(item.name || item.id || '');
-          if (!key) return;
-          nutritionMap[key] = {
-            calories: Number(item.calories_kcal) || 0,
-            protein: Number(item.protein_g) || 0,
-            fat: Number(item.fat_g) || 0,
-            carbs: Number(item.carbs_g) || 0,
-            fiber: Number(item.fiber_g) || 0
-          };
-        });
-      }
+      if (!Array.isArray(parsed)) throw new Error('nutrition format invalid');
+      parsed.forEach(item => {
+        const key = normalizeKey(item.name || item.id || '');
+        if (!key) return;
+        nutritionMap[key] = {
+          calories: Number(item.calories_kcal) || 0,
+          protein: Number(item.protein_g) || 0,
+          fat: Number(item.fat_g) || 0,
+          carbs: Number(item.carbs_g) || 0,
+          fiber: Number(item.fiber_g) || 0
+        };
+      });
+      if (Object.keys(nutritionMap).length === 0) throw new Error('nutrition map empty');
       return true; // Success
-    } catch (_) {
+    } catch (err) {
+      console.error('[ERROR] Nutrition load failed:', err);
       return false; // Failure
     }
   };
@@ -440,7 +460,10 @@ function cookbookApp() {
     // Check glossary first to map name variation → canonical name
     const canonicalKey = glossaryMap[key] || key;
     const entry = nutritionMap[canonicalKey];
-    if (!entry || !grams || grams <= 0) return null;
+    if (!entry || !grams || grams <= 0) {
+      if (!entry) console.warn('[WARN] No nutrition entry for', canonicalKey, 'from', name);
+      return null;
+    }
     const factor = grams / 100;
     return {
       calories: Math.round(entry.calories * factor),
@@ -523,6 +546,7 @@ function cookbookApp() {
     debugMode,
     nutritionLoaded: false,
     nutritionError: null,
+    nutritionVersion: 0,
     init() {
       console.log('[DEBUG] init() called');
       console.log('[DEBUG] recipes array:', this.recipes);
@@ -534,6 +558,7 @@ function cookbookApp() {
       }).then((success) => {
         if (success) {
           this.nutritionLoaded = true;
+          this.nutritionVersion += 1;
           console.log('[DEBUG] Nutrition loaded');
         } else {
           this.nutritionError = true;
@@ -546,10 +571,12 @@ function cookbookApp() {
     current: clone(firstRecipe),
     servings: firstRecipe.meta.base_servings,
     hasUnsavedChanges: false,
-    wwMode: false,
-    vegMode: false,
-    scienceMode: false,
-    precisionMode: true,    showCopyright: false,    yamlText: '',
+    wwMode: true,
+    vegMode: true,
+    scienceMode: true,
+    precisionMode: false,
+    showCopyright: false,
+    yamlText: '',
     bookmarkletCode: 'javascript:(async()=>{try{const ld=[...document.querySelectorAll("script[type=\\"application/ld+json\\"]")].map(e=>{try{return JSON.parse(e.textContent)}catch{return null}}).flat().filter(Boolean);const r=ld.find(n=>{const t=n["@type"];return Array.isArray(t)?t.includes("Recipe"):t==="Recipe"});if(!r)throw new Error("No JSON-LD recipe found");const toA=v=>Array.isArray(v)?v:(v?[v]:[]);const norm=name=>String(name).replace(/[\\n\\r\\t\\u00AD\\u200B\\u200C\\u200D\\u2060\\xA0]+/g," ").replace(/½/g,"1/2").replace(/¼/g,"1/4").replace(/¾/g,"3/4").replace(/⅓/g,"1/3").replace(/⅔/g,"2/3").replace(/⅕/g,"1/5").replace(/⅖/g,"2/5").replace(/⅗/g,"3/5").replace(/⅘/g,"4/5").replace(/⅙/g,"1/6").replace(/⅚/g,"5/6").replace(/⅛/g,"1/8").replace(/⅜/g,"3/8").replace(/⅝/g,"5/8").replace(/⅞/g,"7/8").replace(/\\s+/g," ").trim();const m=new Map();toA(r.recipeIngredient).forEach(raw=>{const normalized=norm(raw);if(!m.has(normalized))m.set(normalized,{name:normalized,qty_g:0,vol_est:normalized,function:"",ww_points:0,substitutions:[]})});const ing=Array.from(m.values());const steps=toA(r.recipeInstructions).map(s=>typeof s==="string"?s.trim():String(s&&s.text||s&&s["@type"]||"").trim()).filter(Boolean);let src=r.url||r.mainEntityOfPage;if(typeof src==="object")src=src["@id"]||src.url||"";src=src||location.href;const y=[];y.push("meta:");y.push(`  name: ${r.name||"Unknown Recipe"}`);y.push(`  source: ${src}`);y.push(`  base_servings: ${r.recipeYield||1}`);y.push(`  prep_time: ${r.totalTime||""}`);y.push("ingredients:");ing.forEach(i=>{y.push(`  - name: ${i.name}`);y.push(`    qty_g: ${i.qty_g}`);y.push(`    vol_est: "${i.vol_est}"`);y.push("    function: ");y.push("    ww_points: ");y.push("    substitutions: []")});y.push("steps:");steps.forEach(s=>y.push(`  - ${s.replace(/\\n/g," ")}`));y.push("history: []");const txt=y.join("\\n");await navigator.clipboard.writeText(txt);alert("Recipe YAML copied! Paste into import box, then fill in qty_g values.")}catch(e){alert("Bookmarklet error: "+e.message)}})();',
     prefs: loadPrefs() || defaultPrefs,
 
@@ -754,6 +781,14 @@ function cookbookApp() {
       return (qty * this.servings) / base;
     },
 
+    adjustServings() {
+      let s = Number(this.servings) || 1;
+      if (s < 1) s = 1;
+      if (s >= 50) s = Math.round(s / 10) * 10;
+      else s = Math.round(s);
+      this.servings = s;
+    },
+
     findWWSub(ing) {
       if (!this.wwMode) return null;
       return ing.substitutions.find(sub => (sub.tags || []).includes('ww')) || null;
@@ -765,47 +800,61 @@ function cookbookApp() {
     },
 
     displayIngredients() {
+      const _v = this.nutritionVersion;
       console.log('[DEBUG] displayIngredients called, current.ingredients:', this.current?.ingredients);
       if (!this.current || !this.current.ingredients) {
         console.log('[DEBUG] No current or ingredients!');
         return [];
       }
       return this.current.ingredients.map(ing => {
-        // Priority: veg > ww if both enabled
         const vegSub = this.findVegSub(ing);
-        const wwSub = vegSub ? null : this.findWWSub(ing);
-        const activeSub = vegSub || wwSub;
+        const wwSub = this.findWWSub(ing);
         const baseName = sanitizeText(ing.name);
         const baseVol = sanitizeText(ing.vol_est);
-        const activeName = activeSub ? sanitizeText(activeSub.name) : baseName;
-        const activeVol = activeSub && activeSub.vol_est ? sanitizeText(activeSub.vol_est) : '';
         
-        // Check if ingredient should NOT scale (e.g., "2 cans", "1 box")
+        // Debug: log what we found
+        if (vegSub || wwSub) {
+          console.log(`[DEBUG] Suggestions for ${baseName}:`, {
+            vegSub: vegSub?.name,
+            wwSub: wwSub?.name,
+            substitutions: ing.substitutions
+          });
+        }
+        
+        // No auto-swap; surface suggestions instead
         const shouldScale = ing.no_scale !== true;
-        const baseQty = activeSub ? ing.qty_g * activeSub.ratio : ing.qty_g;
-        const qty = shouldScale ? this.scaledQty(baseQty) : baseQty;
-        
-        const nutrition = ingredientNutrition(activeName, qty);
+        const qty = shouldScale ? this.scaledQty(ing.qty_g) : ing.qty_g;
+        const nutrition = ingredientNutrition(baseName, qty);
         const nutritionTooltip = nutrition
           ? `${nutrition.calories} kcal • P ${nutrition.protein}g • F ${nutrition.fat}g • C ${nutrition.carbs}g${nutrition.fiber ? ' • Fiber ' + nutrition.fiber + 'g' : ''}`
           : '';
+        
+        // Prioritize veg, then ww
+        const suggestion = vegSub
+          ? { icon: '🌿', text: `Vegetarian: ${vegSub.name}${vegSub.science_note ? ' - ' + vegSub.science_note : ''}` }
+          : wwSub
+            ? { icon: '⚖️', text: `Weight Watchers: ${wwSub.name}${wwSub.science_note ? ' - ' + wwSub.science_note : ''}` }
+            : null;
+        
         return {
           name: baseName,
-          displayName: activeSub ? `${activeName} ${vegSub ? '(Veg)' : '(WW)'}` : baseName,
+          displayName: baseName,
           qty_g: qty,
-          vol_est: activeSub ? activeVol : baseVol,
+          vol_est: baseVol,
           function: ing.function,
-          ww_points: activeSub ? activeSub.ww_points : ing.ww_points,
-          science_note: activeSub ? activeSub.science_note : '',
-          swapped: Boolean(activeSub),
+          ww_points: ing.ww_points,
+          science_note: suggestion ? suggestion.text : '',
+          swapped: false,
           estimated: ing.estimated === true,
           nutrition,
-          nutritionTooltip
+          nutritionTooltip,
+          suggestion
         };
       });
     },
 
     nutritionSummary() {
+      const _v = this.nutritionVersion;
       const base = { calories: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 };
       this.displayIngredients().forEach(ing => {
         if (!ing.nutrition) return;
@@ -846,20 +895,27 @@ function cookbookApp() {
     gramToVolume(name, grams) {
       const density = densityPerCup[name] || 240;
       const cups = grams / density;
-      if (cups >= 1) return `${cups.toFixed(2)} cups`;
+      if (cups >= 1) {
+        const val = roundToStep(cups, 0.25, 0.25);
+        return `${toFractionQuarter(val)} cups`;
+      }
       const tbsp = cups * 16;
-      if (tbsp >= 1) return `${tbsp.toFixed(1)} tbsp`;
+      if (tbsp >= 1) {
+        const val = roundToStep(tbsp, 0.25, 0.25);
+        return `${toFractionQuarter(val)} tbsp`;
+      }
       const tsp = tbsp * 3;
-      return `${tsp.toFixed(1)} tsp`;
+      const val = roundToStep(tsp, 0.25, 0.25);
+      return `${trimZeros(val.toFixed(2))} tsp`;
     },
 
     gramToMl(name, grams) {
       const density = densityPerCup[name] || 240; // grams per cup
       const mlPerCup = 240;
       const ml = grams / density * mlPerCup;
-      if (ml >= 100) return `${ml.toFixed(0)} ml`;
-      if (ml >= 10) return `${ml.toFixed(1)} ml`;
-      return `${ml.toFixed(2)} ml`;
+      if (ml >= 100) return `${trimZeros(roundToStep(ml, 5, 5).toFixed(0))} ml`;
+      if (ml >= 10) return `${trimZeros(roundToStep(ml, 1, 5).toFixed(1))} ml`;
+      return `${trimZeros(roundToStep(ml, 0.5, 0.5).toFixed(2))} ml`;
     },
 
     gramToOunces(grams) {
@@ -874,16 +930,35 @@ function cookbookApp() {
       // Check if this ingredient has a display preference (e.g., salt prefers tsp)
       const displayPref = getDisplayPref(ingName);
       if (displayPref && hasQty) {
-        const units = Math.round((qty / displayPref.gramsPerUnit) * 4) / 4; // Round to 1/4
-        const unitStr = units === 1 ? displayPref.unit : 
-                        displayPref.unit === 'tsp' ? 'tsp' : 
-                        displayPref.unit === 'tbsp' ? 'tbsp' : displayPref.unit;
-        return `${units} ${unitStr}`;
+        const units = roundToStep(qty / displayPref.gramsPerUnit, 0.25, 0.25);
+        if (displayPref.unit === 'tsp') {
+          if (units >= 12) {
+            const cups = roundToStep(units / 48, 0.25, 0.25); // 48 tsp = 1 cup
+            return `${toFractionQuarter(cups)} cups`;
+          }
+          if (units >= 4) {
+            const tbsp = roundToStep(units / 3, 0.25, 0.25); // 3 tsp = 1 tbsp
+            return `${toFractionQuarter(tbsp)} tbsp`;
+          }
+        }
+        if (displayPref.unit === 'tbsp' && units >= 4) {
+          const cups = roundToStep(units / 16, 0.25, 0.25); // 16 tbsp = 1 cup
+          return `${toFractionQuarter(cups)} cups`;
+        }
+        const unitStr = units === 1 ? displayPref.unit : displayPref.unit;
+        return `${trimZeros(units.toFixed(2))} ${unitStr}`;
       }
 
       if (this.precisionMode && hasQty) {
-        if (this.prefs.weightUnit === 'oz') return `${this.gramToOunces(qty).toFixed(2)} oz`;
-        return `${qty.toFixed(1)} g`;
+        if (this.prefs.weightUnit === 'oz') {
+          const oz = this.gramToOunces(qty);
+          const roundedOz = oz >= 8 ? roundToStep(oz, 0.1) : oz >= 1 ? roundToStep(oz, 0.05) : roundToStep(oz, 0.01, 0.01);
+          const places = roundedOz >= 1 ? 1 : 2;
+          return `${trimZeros(roundedOz.toFixed(places))} oz`;
+        }
+        const roundedG = qty >= 100 ? roundToStep(qty, 1) : qty >= 10 ? roundToStep(qty, 0.5) : roundToStep(qty, 0.1, 0.1);
+        const places = roundedG >= 100 ? 0 : roundedG >= 10 ? 1 : 1;
+        return `${trimZeros(roundedG.toFixed(places))} g`;
       }
 
       // If no numeric qty, show vol_est if present

@@ -29,7 +29,7 @@
         <button type="button" @click="downloadBackup()" x-show="hasUnsavedChanges" class="btn-warning">⬇️ Backup All</button>
         <label class="flex items-center gap-2" for="servings-slider">
           <span>Servings</span>
-          <input type="range" id="servings-slider" min="0.25" max="200" step="0.25" class="w-40" x-model.number="servings" />
+          <input type="range" id="servings-slider" min="1" max="200" step="1" class="w-40" x-model.number="servings" @input="adjustServings()" @change="adjustServings()" />
           <span class="w-12 text-right font-bold" x-text="servings"></span>
         </label>
         <label class="flex items-center gap-2">
@@ -96,7 +96,16 @@
                 <div>
                   <span class="quantity" x-text="formatQuantity(ing)"></span>
                   <span x-text="ing.displayName"></span>
-                  <span class="function" x-show="scienceMode && ing.function" x-text="'(' + ing.function + ')'"></span>
+                  <span class="function" x-show="scienceMode && ing.function" x-text="'(' + ing.function + ')' "></span>
+                  <span class="suggestion-wrap" :style="ing.suggestion ? '' : 'display: none'">
+                    <button
+                      type="button"
+                      class="suggestion-icon"
+                      :aria-label="ing.suggestion ? 'Suggestion: ' + ing.suggestion.text : ''"
+                      x-text="ing.suggestion?.icon || ''"
+                    ></button>
+                    <span class="suggestion-tooltip" x-text="ing.suggestion?.text || ''"></span>
+                  </span>
                 </div>
                   <span class="science-note" x-show="ing.swapped" x-text="ing.science_note"></span>
                 </li>

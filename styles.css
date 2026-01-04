@@ -681,6 +681,55 @@ li.ingredient .function {
   color: var(--color-text-muted);
 }
 
+li.ingredient .suggestion-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+li.ingredient .suggestion-icon {
+  opacity: 1;
+  margin-left: 0.25rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: var(--color-accent-emerald);
+  font-size: 1.1em;
+  padding: 0.1rem 0.25rem;
+  vertical-align: middle;
+}
+
+li.ingredient .suggestion-icon:hover,
+li.ingredient .suggestion-icon:focus {
+  color: var(--color-accent-emerald-light);
+}
+
+li.ingredient .suggestion-tooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  background: #111827;
+  color: var(--color-text-white);
+  border: 1px solid var(--color-accent-emerald);
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  z-index: 2;
+}
+
+li.ingredient .suggestion-icon:focus + .suggestion-tooltip,
+li.ingredient .suggestion-icon:hover + .suggestion-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
 li.ingredient .science-note {
   font-size: 0.875rem;
   color: var(--color-accent-emerald-light);

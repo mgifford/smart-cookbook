@@ -30,9 +30,8 @@ ingredients:
     qty_g: 240
     vol_est: "2 cups"
     function: structure
-    ww_points: 0
-    no_scale: false
     ww_points: 20
+    no_scale: false
     substitutions:
       - name: whole wheat flour
         ratio: 1.0

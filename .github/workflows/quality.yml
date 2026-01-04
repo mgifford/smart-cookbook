@@ -1,0 +1,60 @@
+name: Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Validate YAML
+        run: npm run validate:yaml
+
+      - name: Lint HTML
+        run: npm run lint:html
+
+      - name: Start local server
+        run: |
+          python -m http.server 4173 --directory . > /tmp/server.log 2>&1 &
+          echo $! > /tmp/server.pid
+
+      - name: Accessibility scan (axe-core)
+        env:
+          BASE_URL: http://localhost:4173
+        run: npm run test:a11y
+
+      - name: Security scan
+        run: npm run scan:security
+
+      - name: Upload server log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-log
+          path: /tmp/server.log
+
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f /tmp/server.pid ]; then kill $(cat /tmp/server.pid); fi

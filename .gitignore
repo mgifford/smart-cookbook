@@ -1,0 +1,29 @@
+# macOS cruft
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node/JS artifacts
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+build/
+.cache/
+coverage/
+.nyc_output/
+
+# Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local env
+.env
+.env.*
+*.local
+
+# Logs
+*.log

@@ -1,0 +1,10 @@
+{
+  "extends": ["html-validate:standard"],
+  "rules": {
+    "attr-name-style": "off",
+    "attr-req-value": "off",
+    "no-inline-style": "warn",
+    "prefer-native-element": "off",
+    "no-unknown-attribute": "off"
+  }
+}

@@ -1,0 +1,139 @@
+# Meat substitution patterns for default suggestions
+# Each block can be referenced when enriching recipe ingredients.
+# ratio multiplies original qty_g to get substitute grams.
+# tags: [veg] or [vegetarian] and optionally [ww].
+substitutions:
+  - base: "ground beef"
+    aliases: ["ground meat", "minced beef", "beef mince", "hamburger"]
+    context: "tacos, chili, bolognese"
+    options:
+      - name: "cooked brown lentils"
+        ratio: 1.0
+        science_note: "Adds fiber; needs umami boosters (miso/soy/tomato) and 10-15g oil per 150g to mimic fat."
+        tags: [veg]
+      - name: "crumbled extra-firm tofu"
+        ratio: 1.0
+        science_note: "Press, crumble, and sear; add tamari + smoked paprika for savory depth."
+        tags: [veg]
+      - name: "mushroom + walnut mince"
+        ratio: 1.0
+        science_note: "Mushrooms supply glutamates; walnuts add fat/texture; mince and sear to drive off water."
+        tags: [veg]
+
+  - base: "ground pork"
+    aliases: ["minced pork", "pork mince"]
+    context: "meatballs, dumplings, mapo"
+    options:
+      - name: "firm tofu + 10g oil per 100g"
+        ratio: 1.0
+        science_note: "Fat restores juiciness; add doubanjiang/miso for umami in spicy braises."
+        tags: [veg]
+      - name: "tempeh crumble"
+        ratio: 1.0
+        science_note: "Protein-dense; steam then crumble and season to reduce bitterness."
+        tags: [veg]
+
+  - base: "pulled pork / shredded beef"
+    aliases: ["pulled pork", "shredded pork", "shredded beef", "barbacoa"]
+    context: "sandwiches, tacos"
+    options:
+      - name: "young jackfruit (canned)"
+        ratio: 1.0
+        science_note: "Shreds like meat; low protein, so pair with beans; add smoke + acid; include 10-15g oil per 150g."
+        tags: [veg]
+      - name: "oyster mushrooms"
+        ratio: 1.0
+        science_note: "Tear into strips; sear hard for meaty chew and umami."
+        tags: [veg]
+
+  - base: "chicken breast"
+    aliases: ["chicken", "chicken breasts"]
+    context: "cutlets, stir-fry"
+    options:
+      - name: "firm tofu cutlets"
+        ratio: 1.0
+        science_note: "Brine (3% salt) 20 min for better seasoning; press and sear; add starch for crust."
+        tags: [veg]
+      - name: "seitan strips"
+        ratio: 1.0
+        science_note: "High protein/chew; marinate for flavor; keep moist with stock or sauce."
+        tags: [veg]
+
+  - base: "chicken thigh"
+    aliases: ["chicken thighs"]
+    context: "braises, curries"
+    options:
+      - name: "tempeh cubes"
+        ratio: 1.0
+        science_note: "Holds shape in braise; absorbs sauce; steam first to mellow bitterness."
+        tags: [veg]
+      - name: "firm tofu"
+        ratio: 1.0
+        science_note: "Soaks curry sauce; add 5-10g oil per 100g to replace thigh fat."
+        tags: [veg]
+
+  - base: "steak / beef strips"
+    aliases: ["steak", "beef strips", "sirloin", "flank"]
+    context: "stir-fry, fajitas"
+    options:
+      - name: "seitan strips"
+        ratio: 1.0
+        science_note: "Chewy protein; quick sear to avoid drying; glaze with soy/mirin/acid."
+        tags: [veg]
+      - name: "portobello slices"
+        ratio: 1.0
+        science_note: "High water; sear to reduce moisture; add fat + salt for steak-like savoriness."
+        tags: [veg]
+
+  - base: "sausages"
+    aliases: ["sausage", "italian sausage", "breakfast sausage"]
+    context: "pasta, sandwiches"
+    options:
+      - name: "seasoned seitan sausage"
+        ratio: 1.0
+        science_note: "Use fennel, garlic, smoked paprika; add oil for snap."
+        tags: [veg]
+      - name: "tempeh crumble"
+        ratio: 1.0
+        science_note: "Toast spices in oil; tempeh carries fat and browns well."
+        tags: [veg]
+
+  - base: "bacon"
+    aliases: ["lardons", "pancetta"]
+    context: "toppings, lardons"
+    options:
+      - name: "smoked tempeh strips"
+        ratio: 1.0
+        science_note: "Pan-crisp; smoke + salt replace bacon cues; add maple/chili for depth."
+        tags: [veg]
+      - name: "coconut chips (smoked)"
+        ratio: 0.4
+        science_note: "Low protein; supplies crunch and smoke; add later to keep crisp."
+        tags: [veg]
+
+  - base: "fish fillet"
+    aliases: ["fish", "fillet", "white fish", "cod", "haddock"]
+    context: "bake, pan-sear"
+    options:
+      - name: "firm tofu fillet"
+        ratio: 1.0
+        science_note: "Press dry; coat and sear; add nori/lemon/capers for sea notes."
+        tags: [veg]
+      - name: "cauliflower steak"
+        ratio: 1.0
+        science_note: "Roast/sear; needs sauce for fat/umami; good for breaded/baked formats."
+        tags: [veg]
+
+  - base: "meat stock"
+    aliases: ["chicken stock", "beef stock", "pork stock", "broth"]
+    context: "soups, sauces"
+    options:
+      - name: "umami vegetable stock"
+        ratio: 1.0
+        science_note: "Use mushroom, tomato, kombu, soy; balances glutamates and nucleotides."
+        tags: [veg]
+
+# Notes:
+# - ratio multiplies original grams to get substitute grams (e.g., 200g ground beef → 200g lentils).
+# - Add fat when swapping out higher-fat meats: 5–15g oil per 100–150g plant bulk where noted.
+# - Umami boosters: soy sauce, miso, tomato paste, mushroom powder, nutritional yeast.

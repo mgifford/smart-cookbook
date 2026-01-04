@@ -96,6 +96,11 @@ function cookbookApp() {
   const autoEstimateQty = (volEst, ingredientName) => {
     const volClean = sanitizeText(volEst);
     const nameClean = sanitizeText(ingredientName).toLowerCase();
+    // Pinch heuristic: per culinarylore guide ~1/16 tsp; table salt ≈0.36g
+    if (/\bpinch\b/.test(volClean)) {
+      if (nameClean.includes('salt')) return 0.36;
+      return 0.2; // generic pinch fallback
+    }
     let grams = estimateFromCan(volClean);
     if (!grams) grams = wholeUnitEstimate(volClean, nameClean);
     if (!grams) grams = smartEstimateGrams(volClean, nameClean);
@@ -234,6 +239,97 @@ function cookbookApp() {
       history: []
     }
   ];
+
+  // ORF export: map internal recipe → Open Recipe Format (with extensions for our science fields)
+  const toOrf = (recipe) => {
+    const r = recipe || {};
+    const ingredients = (r.ingredients || []).map(ing => ({
+      item: ing.name,
+      quantity: Number.isFinite(ing.qty_g) ? Number(ing.qty_g) : null,
+      unit: Number.isFinite(ing.qty_g) ? 'g' : null,
+      volume: ing.vol_est || null,
+      notes: ing.function || '',
+      substitutions: (ing.substitutions || []).map(sub => ({
+        item: sub.name,
+        ratio: sub.ratio,
+        notes: sub.science_note,
+        ww_points: sub.ww_points,
+        tags: sub.tags
+      })),
+      extensions: {
+        x_qty_g: Number.isFinite(ing.qty_g) ? Number(ing.qty_g) : null,
+        x_vol_est: ing.vol_est || null,
+        x_function: ing.function || null,
+        x_ww_points: ing.ww_points || null,
+        x_substitutions: ing.substitutions || []
+      }
+    }));
+
+    return {
+      open_recipe_format_version: '0.5',
+      recipe: {
+        name: r.meta?.name || 'Untitled Recipe',
+        source: r.meta?.source || '',
+        yield: { amount: r.meta?.base_servings || 1, unit: 'servings' },
+        prep_time: r.meta?.prep_time || '',
+        ingredients,
+        instructions: r.steps || [],
+        extras: {
+          science_notes: r.science_notes || [],
+          history: r.history || [],
+          ww_points: r.meta?.ww_points || null
+        }
+      }
+    };
+  };
+
+  // ORF import: map ORF object → internal recipe shape (best-effort, keeps extensions when present)
+  const fromOrf = (data) => {
+    const r = data?.recipe || data;
+    if (!r) throw new Error('ORF data missing recipe field');
+
+    const ingredients = (r.ingredients || []).map(ing => {
+      const ext = ing.extensions || ing.extras || {};
+      const unit = (ing.unit || '').toString().toLowerCase();
+      const qtyRaw = ing.quantity;
+      let qtyG = Number(ext.x_qty_g);
+      if (!Number.isFinite(qtyG)) {
+        const numeric = Number(qtyRaw);
+        if (Number.isFinite(numeric)) {
+          if (unit === 'g' || unit === 'gram' || unit === 'grams') qtyG = numeric;
+          else if (unit === 'kg' || unit === 'kilogram' || unit === 'kilograms') qtyG = numeric * 1000;
+        }
+      }
+      const volEst = ext.x_vol_est || ing.volume || ((ing.unit || ing.quantity) ? `${ing.quantity ?? ''} ${ing.unit ?? ''}`.trim() : '');
+      return {
+        name: sanitizeText(ing.item || ing.name || 'ingredient'),
+        qty_g: Number.isFinite(qtyG) ? qtyG : 0,
+        vol_est: sanitizeText(volEst || ''),
+        function: ext.x_function || ing.function || ing.notes || '',
+        ww_points: Number(ext.x_ww_points || ing.ww_points) || 0,
+        substitutions: (ext.x_substitutions || ing.substitutions || []).map(sub => ({
+          name: sub.item || sub.name || '',
+          ratio: sub.ratio || 1,
+          science_note: sub.science_note || sub.notes || '',
+          ww_points: sub.ww_points || 0,
+          tags: sub.tags || []
+        }))
+      };
+    });
+
+    return {
+      meta: {
+        name: r.name || 'Imported Recipe',
+        source: r.source || '',
+        base_servings: Number(r.yield?.amount || r.yield || 1) || 1,
+        prep_time: r.prep_time || ''
+      },
+      ingredients,
+      steps: r.instructions || r.directions || [],
+      science_notes: (r.extras && r.extras.science_notes) || r.science_notes || [],
+      history: (r.extras && r.extras.history) || r.history || []
+    };
+  };
 
   const densityPerCup = {
     'all-purpose flour': 120,
@@ -405,6 +501,7 @@ function cookbookApp() {
   };
 
   const nutritionMap = {};
+  const meatSubsMap = {}; // normalizeKey(base) -> array of options
 
   const loadNutritionData = async () => {
     try {
@@ -451,6 +548,28 @@ function cookbookApp() {
       }
       return true;
     } catch (_) {
+      return false;
+    }
+  };
+
+  const loadMeatSubs = async () => {
+    try {
+      const res = await fetch('meat-substitutions.yaml');
+      if (!res.ok) throw new Error('meat substitutions fetch failed');
+      const text = await res.text();
+      const parsed = jsyaml.load(text);
+      const subs = parsed?.substitutions || [];
+      subs.forEach(entry => {
+        const bases = [entry.base, ...(entry.aliases || [])];
+        bases.forEach(b => {
+          const key = normalizeKey(b || '');
+          if (!key) return;
+          meatSubsMap[key] = entry.options || [];
+        });
+      });
+      return true;
+    } catch (err) {
+      console.warn('[WARN] meat-substitutions load failed:', err?.message || err);
       return false;
     }
   };
@@ -554,6 +673,8 @@ function cookbookApp() {
       console.log('[DEBUG] current:', this.current);
       loadGlossary().then((glossSuccess) => {
         if (glossSuccess) console.log('[DEBUG] Glossary loaded');
+        return loadMeatSubs();
+      }).then(() => {
         return loadNutritionData();
       }).then((success) => {
         if (success) {
@@ -712,6 +833,40 @@ function cookbookApp() {
       }
     },
 
+    parseImportText() {
+      const txt = (this.yamlText || '').trim();
+      if (!txt) {
+        alert('Paste ORF or YAML data first.');
+        return null;
+      }
+      try {
+        return JSON.parse(txt);
+      } catch (_) {
+        /* fall through */
+      }
+      try {
+        return jsyaml.load(txt);
+      } catch (e) {
+        alert('Import parse error: ' + e.message);
+        return null;
+      }
+    },
+
+    loadORF() {
+      const parsed = this.parseImportText();
+      if (!parsed) return;
+      try {
+        const mapped = fromOrf(parsed);
+        const id = this.slugify(mapped.meta.name || `recipe-${Date.now()}`);
+        const recipe = { id, ...mapped };
+        this.upsertRecipe(recipe);
+        this.selectedId = id;
+        this.loadRecipe();
+      } catch (e) {
+        alert('ORF import error: ' + e.message);
+      }
+    },
+
     saveYaml() {
       try {
         const copy = clone(this.current);
@@ -719,6 +874,15 @@ function cookbookApp() {
         this.yamlText = jsyaml.dump(copy, { lineWidth: 120 });
       } catch (e) {
         alert('YAML save error: ' + e.message);
+      }
+    },
+
+    saveORF() {
+      try {
+        const orf = toOrf(this.current);
+        this.yamlText = jsyaml.dump(orf, { lineWidth: 120 });
+      } catch (e) {
+        alert('ORF export error: ' + e.message);
       }
     },
 
@@ -796,7 +960,23 @@ function cookbookApp() {
 
     findVegSub(ing) {
       if (!this.vegMode) return null;
-      return ing.substitutions.find(sub => (sub.tags || []).includes('veg') || (sub.tags || []).includes('vegetarian')) || null;
+      const direct = ing.substitutions.find(sub => (sub.tags || []).includes('veg') || (sub.tags || []).includes('vegetarian'));
+      if (direct) return direct;
+
+      // Fallback to meat substitution library
+      const key = normalizeKey(ing.name || '');
+      const options = meatSubsMap[key];
+      if (options && options.length) {
+        const first = options[0];
+        return {
+          name: first.name,
+          ratio: first.ratio || 1,
+          science_note: first.science_note || '',
+          ww_points: first.ww_points || 0,
+          tags: ['veg']
+        };
+      }
+      return null;
     },
 
     displayIngredients() {

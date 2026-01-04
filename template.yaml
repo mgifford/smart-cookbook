@@ -1,0 +1,86 @@
+meta:
+  name: Example Recipe
+  source: https://example.com/recipe
+  base_servings: 4
+  prep_time: 20 min
+  notes: >-
+    Use whole units for ingredients commonly bought/measured that way (eggs, 
+    bananas, etc.). See conversions.yaml for qty_g reference. Always include 
+    qty_g for scaling math; vol_est is for kitchen intuition.
+ingredients:
+  - name: eggs
+    qty_g: 228
+    vol_est: "4 large eggs"
+    function: structure, moisture, binder
+    ww_points: 0
+    no_scale: false
+    substitutions:
+      - name: applesauce
+        ratio: 0.25
+        science_note: Replaces binder & moisture; may reduce browning (less fat for Maillard)
+        ww_points: 0
+        tags: [veg, vegetarian]
+  - name: bananas
+    qty_g: 354
+    vol_est: "3 medium bananas"
+    function: moisture, sweetness, binder
+    ww_points: 0
+    no_scale: false
+  - name: all-purpose flour
+    qty_g: 240
+    vol_est: "2 cups"
+    function: structure
+    ww_points: 0
+    no_scale: false
+    ww_points: 20
+    substitutions:
+      - name: whole wheat flour
+        ratio: 1.0
+        science_note: Higher bran cuts gluten; add 10g water
+        ww_points: 19
+        tags: [ww]
+  - name: butter
+    qty_g: 113
+    vol_est: "1 stick (1/4 lb)"
+    function: fat, browning
+    ww_points: 25
+    substitutions:
+      - name: greek yogurt
+        ratio: 0.75
+        science_note: Higher moisture; add 10g flour
+        ww_points: 10
+        tags: [ww]
+      - name: vegan butter
+        ratio: 1.0
+        science_note: Plant oils replace milk fat; may need chilling
+        ww_points: 25
+        tags: [veg, vegetarian]
+  - name: chicken breast
+    qty_g: 400
+    vol_est: "2 large breasts"
+    function: protein
+    ww_points: 0
+    substitutions:
+      - name: firm tofu
+        ratio: 1.0
+        science_note: Press tofu to remove water; marinate for flavor absorption
+        ww_points: 4
+        tags: [veg, vegetarian]
+      - name: tempeh
+        ratio: 0.8
+        science_note: Fermented soybeans; nuttier flavor and firmer texture
+        ww_points: 3
+        tags: [veg, vegetarian]
+steps:
+  - Preheat oven to 180C.
+  - Mix dry ingredients.
+  - Fold in wet ingredients and bake 25 min.
+science_notes:
+  - Flour provides gluten structure that traps gas bubbles from leavening
+  - Butter adds fat which tenderizes by coating gluten strands
+  - Baking at 180C triggers Maillard reaction for browning and flavor
+history:
+  - date: 2024-01-01
+    rating: 4
+    outcome: Good crumb, slightly dry.
+    variables_changed: Reduced sugar by 10%.

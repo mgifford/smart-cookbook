@@ -1,0 +1,206 @@
+# Ingredient display preferences
+# When displaying scaled ingredients, prefer certain units for readability
+ingredient_display_prefs:
+  description: "Default display units for common ingredients. Prefer volume or whole units over grams."
+  by_name:
+    salt: "tsp"  # 1 tsp salt ≈ 6g, but humans prefer volume
+    baking_soda: "tsp"  # 1 tsp ≈ 5g
+    baking_powder: "tsp"  # 1 tsp ≈ 5g
+    vanilla_extract: "tsp"
+    almond_extract: "tsp"
+    lemon_juice: "tbsp"
+    lime_juice: "tbsp"
+    orange_juice: "tbsp"
+    soy_sauce: "tbsp"
+    vinegar: "tbsp"
+    hot_sauce: "tsp"
+    worcestershire_sauce: "tsp"
+    honey: "tbsp"
+    maple_syrup: "tbsp"
+    molasses: "tbsp"
+    peanut_butter: "tbsp"
+    tahini: "tbsp"
+  by_category:
+    spices: "tsp"  # cinnamon, nutmeg, ginger, etc.
+    herbs_dried: "tsp"
+    herbs_fresh: "tbsp"
+    zest: "tbsp"  # lemon zest, orange zest, etc.
+
+# Volume-to-gram conversions for common spices/leavening
+# Use these to populate qty_g when recipe has volume measurements
+volume_conversions_g:
+  salt_tsp: 6
+  salt_tbsp: 18
+  baking_soda_tsp: 5
+  baking_soda_tbsp: 15
+  baking_powder_tsp: 5
+  baking_powder_tbsp: 15
+  vanilla_extract_tsp: 5
+  almond_extract_tsp: 5
+  cinnamon_tsp: 2.6
+  nutmeg_tsp: 2.2
+  ginger_tsp: 2
+  cayenne_tsp: 2
+  paprika_tsp: 2
+  black_pepper_tsp: 2
+  lemon_juice_tbsp: 15
+  lime_juice_tbsp: 15
+  honey_tbsp: 21
+  maple_syrup_tbsp: 20
+  peanut_butter_tbsp: 16
+  tahini_tbsp: 15
+  soy_sauce_tbsp: 18
+  vinegar_tbsp: 15
+
+units:
+  temperature_presets:
+    - { c: 160, f: 320 }
+    - { c: 165, f: 329 }
+    - { c: 170, f: 338 }
+    - { c: 175, f: 347 }
+    - { c: 180, f: 356 }
+    - { c: 190, f: 374 }
+    - { c: 200, f: 392 }
+  temperature_formula:
+    c_to_f: "(C * 9/5) + 32"
+    f_to_c: "(F - 32) * 5/9"
+
+  volume_ml:
+    cup: 240
+    tablespoon: 15
+    teaspoon: 5
+    fluid_ounce_us: 29.57
+    milliliter: 1
+
+  weight_g:
+    ounce: 28.3495
+    pound: 453.592
+    gram: 1
+
+  notes:
+    - Cups are US cups (240 ml). If using 236.6 ml US legal cup, adjust slightly.
+    - Tablespoons/teaspoons are US (15 ml / 5 ml).
+
+# Approximate densities (grams per cup). Use a scale when possible.
+densities_g_per_cup:
+  all-purpose flour: 120
+  whole wheat flour: 120
+  bread flour: 130
+  cake flour: 110
+  granulated sugar: 200
+  brown sugar (packed): 200
+  powdered sugar: 120
+  cocoa powder: 90
+  rolled oats: 90
+  almond flour: 96
+  butter: 227
+  oil (neutral): 218
+  coconut milk (canned): 226
+  diced tomatoes (canned): 240
+  red lentils (dry): 192
+  whole milk: 245
+  water: 240
+  honey: 340
+  maple syrup: 320
+  greek yogurt: 245
+  sour cream: 230
+  peanut butter: 270
+
+# Handy quick refs
+quick_refs:
+  grams_to_ounces: "g / 28.3495"
+  ounces_to_grams: "oz * 28.3495"
+  cups_to_ml: "cups * 240"
+  ml_to_cups: "ml / 240"
+  tbsp_to_ml: "tbsp * 15"
+  tsp_to_ml: "tsp * 5"
+  ml_to_tbsp: "ml / 15"
+  ml_to_tsp: "ml / 5"
+
+# Whole-unit ingredient conversions (grams)
+# Use these when recipes call for "1 egg", "1 banana", etc.
+# These are USDA averages; sizes vary by region/supplier
+whole_units_to_grams:
+  eggs:
+    small: 43
+    medium: 50
+    large: 57
+    extra_large: 64
+  bananas:
+    small: 101
+    medium: 118
+    large: 136
+  apples:
+    small: 149
+    medium: 182
+    large: 223
+  oranges:
+    medium: 184
+  lemons:
+    medium: 84
+    juice_medium: 30
+  limes:
+    medium: 52
+    juice: 15
+  garlic_cloves:
+    small: 3
+    medium: 5
+    large: 7
+  onions:
+    small: 70
+    medium: 150
+    large: 200
+  tomatoes:
+    small: 100
+    medium: 150
+    large: 250
+  lentils_dry:
+    cup: 192
+  potatoes:
+    small: 150
+    medium: 300
+    large: 400
+  carrots:
+    small: 60
+    medium: 120
+    large: 180
+  bell_peppers:
+    small: 119
+    medium: 149
+    large: 186
+  mushrooms_whole:
+    small: 9
+    medium: 18
+    large: 28
+    cup: 70
+  avocados:
+    small: 150
+    medium: 200
+    large: 250
+
+# Common dairy/packaged units (grams)
+packaged_units:
+  butter_stick: 113
+  cream_cheese_block: 226
+  cheddar_slice: 19
+  bread_slice: 28
+  bread_roll_bun: 43
+  can_14_5_oz: 411
+  can_15_oz: 425
+  can_13_5_oz: 383
+
+# Nuts (per piece and per volume)
+nuts_whole:
+  almonds_each: 1.4
+  walnut_half: 1.0
+  almond_tbsp: 9
+  walnut_tbsp: 8
+
+# Notes for recipe authors:
+# 1. When converting recipes, prefer whole units when natural:
+#    "1 large egg" is better than "57g egg"
+#    "2 medium bananas" is better than "236g banana"
+# 2. Keep vol_est strings descriptive: "1 large egg" vs "1 egg"
+# 3. Use densities_g_per_cup for volume conversions (flour, sugar, etc.)
+# 4. Use whole_units_to_grams for counted items (eggs, vegetables, etc.)
+# 5. Sources: USDA FoodData Central, standard kitchen measurements

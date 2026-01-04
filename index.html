@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Science-Based Smart Cookbook</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script defer src="script.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body x-data="cookbookApp()" @init="init()">
+  <main>
+    <header>
+      <div class="flex justify-between items-center">
+        <h1>🧪 Science-Based Smart Cookbook</h1>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <label class="flex items-center gap-2" for="recipe-select">
+          <span>Recipe</span>
+          <select id="recipe-select" x-model="selectedId" @change="loadRecipe()">
+            <template x-for="r in recipes" :key="r.id">
+              <option :value="r.id" x-text="r.meta.name"></option>
+            </template>
+          </select>
+        </label>
+        <button type="button" @click="deleteCurrentRecipe()" class="btn-danger">🗑️ Delete</button>
+        <button type="button" @click="downloadBackup()" x-show="hasUnsavedChanges" class="btn-warning">⬇️ Backup All</button>
+        <label class="flex items-center gap-2" for="servings-slider">
+          <span>Servings</span>
+          <input type="range" id="servings-slider" min="0.25" max="200" step="0.25" class="w-40" x-model.number="servings" />
+          <span class="w-12 text-right font-bold" x-text="servings"></span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" id="ww-mode" x-model="wwMode" />
+          <span for="ww-mode">WW Mode</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" id="veg-mode" x-model="vegMode" />
+          <span for="veg-mode">Vegetarian</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" id="precision-mode" x-model="precisionMode" checked />
+          <span for="precision-mode">Precision</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <input type="checkbox" id="science-mode" x-model="scienceMode" />
+          <span for="science-mode">Show Science</span>
+        </label>
+      </div>
+    </header>
+
+    <article>
+      <div>
+        <div>
+          <p class="text-sm text-slate-300" x-text="current.meta.source"></p>
+          <h2 class="text-xl" x-text="current.meta.name"></h2>
+        </div>
+        <div class="flex gap-2">
+          <button type="button" @click="copyRecipe()">📋 Copy Recipe</button>
+          <button type="button" @click="copyAIPrompt()">Ask AI</button>
+        </div>
+      </div>
+
+      <!-- DEBUG PANEL (show only with ?debug=true) -->
+      <div x-show="debugMode" style="background: #1a1a2e; border: 2px solid #ff6b6b; padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; font-size: 0.75rem; font-family: monospace; color: #ffa94d;">
+        <div><strong>DEBUG MODE ENABLED</strong> (use ?debug=false to hide)</div>
+        <hr style="border: none; border-top: 1px solid #ff6b6b; margin: 0.5rem 0;">
+        <div><strong>STATE:</strong></div>
+        <div>selectedId = <span x-text="selectedId"></span></div>
+        <div>recipes.length = <span x-text="recipes.length"></span></div>
+        <div>current.meta.name = <span x-text="current.meta?.name"></span></div>
+        <div>current.ingredients.length = <span x-text="current.ingredients?.length"></span></div>
+        <div>current.steps.length = <span x-text="current.steps?.length"></span></div>
+        <div>servings = <span x-text="servings"></span></div>
+        <hr style="border: none; border-top: 1px solid #ff6b6b; margin: 0.5rem 0;">
+        <div><strong>COMPUTED:</strong></div>
+        <div>displayIngredients().length = <span x-text="displayIngredients().length"></span></div>
+        <div>stepsList().length = <span x-text="stepsList().length"></span></div>
+        <div>nutritionLoaded = <span x-text="nutritionLoaded"></span></div>
+        <div>nutritionError = <span x-text="nutritionError"></span></div>
+        <hr style="border: none; border-top: 1px solid #ff6b6b; margin: 0.5rem 0;">
+        <div><strong>PREFS:</strong></div>
+        <div>weightUnit = <span x-text="prefs.weightUnit"></span></div>
+        <div>volumeUnit = <span x-text="prefs.volumeUnit"></span></div>
+        <div>tempUnit = <span x-text="prefs.tempUnit"></span></div>
+      </div>
+
+      <div class="grid-2col">
+        <section>
+          <h3 class="font-bold mb-2">Ingredients</h3>
+          <ul class="space-y-2">
+            <template x-for="ing in displayIngredients()" :key="ing.name">
+                <li class="ingredient" :class="ing.swapped && 'swapped'" :title="ing.nutritionTooltip">
+                <div>
+                  <span class="quantity" x-text="formatQuantity(ing)"></span>
+                  <span x-text="ing.displayName"></span>
+                  <span class="function" x-show="scienceMode && ing.function" x-text="'(' + ing.function + ')'"></span>
+                </div>
+                  <span class="science-note" x-show="ing.swapped" x-text="ing.science_note"></span>
+                </li>
+            </template>
+          </ul>
+        </section>
+        <section>
+          <h3 class="font-bold mb-2">Steps</h3>
+          <ol class="list-decimal">
+            <template x-for="(step, idx) in stepsList()" :key="idx">
+              <li class="leading-relaxed" x-text="step"></li>
+            </template>
+          </ol>
+        </section>
+
+        <!-- Science Notes Section -->
+        <section x-show="scienceMode && current.science_notes && current.science_notes.length" class="mt-4 bg-blue-900-20 border border-blue-700">
+          <h3 class="font-bold mb-2 text-blue-400">🔬 Cooking Science</h3>
+          <ul class="space-y-2 text-sm">
+            <template x-for="(note, idx) in (current.science_notes || [])" :key="idx">
+              <li class="leading-relaxed">• <span x-text="note"></span></li>
+            </template>
+          </ul>
+        </section>
+      </div>
+    </article>
+
+    <section>
+      <div>
+        <h2 class="text-lg">Nutrition</h2>
+        <span class="text-xs text-red-300" x-show="nutritionError">Data unavailable (nutrition.yaml not found)</span>
+        <span class="text-xs text-slate-400" x-show="!nutritionLoaded && !nutritionError">Loading nutrition…</span>
+      </div>
+      <div x-show="nutritionLoaded && !nutritionError" class="grid-2col text-sm">
+        <div class="nutrition-col">
+          <h3>Total (recipe)</h3>
+          <p x-text="`${nutritionSummary().total.calories} kcal`"></p>
+          <p x-text="`Protein: ${nutritionSummary().total.protein.toFixed(1)} g`"></p>
+          <p x-text="`Fat: ${nutritionSummary().total.fat.toFixed(1)} g`"></p>
+          <p x-text="`Carbs: ${nutritionSummary().total.carbs.toFixed(1)} g`"></p>
+          <p x-text="`Fiber: ${nutritionSummary().total.fiber.toFixed(1)} g`"></p>
+        </div>
+        <div class="nutrition-col">
+          <h3>Per serving</h3>
+          <p x-text="`${nutritionSummary().per.calories} kcal`"></p>
+          <p x-text="`Protein: ${nutritionSummary().per.protein.toFixed(1)} g`"></p>
+          <p x-text="`Fat: ${nutritionSummary().per.fat.toFixed(1)} g`"></p>
+          <p x-text="`Carbs: ${nutritionSummary().per.carbs.toFixed(1)} g`"></p>
+          <p x-text="`Fiber: ${nutritionSummary().per.fiber.toFixed(1)} g`"></p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div>
+        <h2 class="text-lg">Bookmarklet</h2>
+        <button type="button" @click="copyBookmarklet()">Copy Bookmarklet</button>
+      </div>
+      <p class="text-sm">Drag this link to your bookmarks bar or copy the code. Click it on recipe pages to copy YAML.</p>
+      <a class="underline break-all text-emerald-300" :href="bookmarkletCode">Save to Cookbook</a>
+      <label for="bookmarklet-code" class="sr-only">Bookmarklet code</label>
+      <textarea id="bookmarklet-code" class="h-24 text-xs" x-model="bookmarkletCode" readonly></textarea>
+    </section>
+
+    <section>
+      <h2 class="text-lg">YAML Import / Export</h2>
+      <p class="text-sm">Paste a recipe YAML to load it, or click Save to dump the current recipe back to YAML.</p>
+      <label for="yaml-input" class="sr-only">YAML recipe data</label>
+      <textarea id="yaml-input" class="h-40 text-sm" x-model="yamlText" placeholder="Paste recipe YAML here..."></textarea>
+      <div class="flex gap-3">
+        <button type="button" @click="loadYaml()">Load YAML</button>
+        <button type="button" class="secondary" @click="saveYaml()">Save Current to YAML</button>
+        <button type="button" class="secondary" @click="downloadAllAsZip()">📦 Download All (.zip)</button>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-lg">Display Preferences</h2>
+      <p class="text-sm">Choose how quantities and temperatures are shown.</p>
+      <div class="grid-3col">
+        <label class="flex flex-col gap-1" for="weight-unit">
+          <span class="font-medium">Weight</span>
+          <select id="weight-unit" x-model="prefs.weightUnit" @change="persistPrefs()">
+            <option value="g">Grams</option>
+            <option value="oz">Ounces</option>
+          </select>
+        </label>
+        <label class="flex flex-col gap-1" for="volume-unit">
+          <span class="font-medium">Volume</span>
+          <select id="volume-unit" x-model="prefs.volumeUnit" @change="persistPrefs()">
+            <option value="cups">Cups/Tbsp/Tsp</option>
+            <option value="ml">Milliliters</option>
+          </select>
+        </label>
+        <label class="flex flex-col gap-1" for="temp-unit">
+          <span class="font-medium">Temperature</span>
+          <select id="temp-unit" x-model="prefs.tempUnit" @change="persistPrefs()">
+            <option value="C">Celsius</option>
+            <option value="F">Fahrenheit</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- Copyright & Open Culture Education Section -->
+    <section>
+      <div>
+        <h2 class="text-lg">📜 Open Recipes & Copyright</h2>
+        <button type="button" @click="showCopyright = !showCopyright">
+          <span x-text="showCopyright ? 'Hide' : 'Learn'"></span>
+        </button>
+      </div>
+
+      <div x-show="showCopyright" class="space-y-4 text-sm text-gray-200">
+        <div class="copyright-box copyright-box-truth">
+          <h3 class="text-emerald-400">🔑 The Core Truth</h3>
+          <p>Recipes are <strong>NOT copyrighted</strong> by law, and that's intentional. Ingredient lists and basic instructions are part of the public domain—free for everyone to use, adapt, and share.</p>
+        </div>
+
+        <div class="copyright-box copyright-box-protected">
+          <h3 class="text-blue-400">✅ What IS Protected</h3>
+          <ul class="list-disc list-inside space-y-1 text-xs">
+            <li><strong>Photos & videos</strong> you create</li>
+            <li><strong>Stories & descriptions</strong> (substantial literary expression)</li>
+            <li><strong>Cookbook selection & arrangement</strong> (as a whole)</li>
+            <li><strong>Your unique voice</strong> and creative presentation</li>
+          </ul>
+        </div>
+
+        <div class="copyright-box copyright-box-remix">
+          <h3 class="text-purple-400">🤝 Remix Culture</h3>
+          <p>Like open-source software, recipes thrive when shared, adapted, and improved. We encourage you to:</p>
+          <ul class="list-disc list-inside space-y-1 text-xs mt-2">
+            <li>Use any recipe as a starting point</li>
+            <li>Adapt to your needs and preferences</li>
+            <li>Share improvements with the community</li>
+            <li>Credit sources (respectful, not required)</li>
+          </ul>
+        </div>
+
+        <div class="copyright-box copyright-box-learn">
+          <h3 class="text-orange-400">📖 Learn More</h3>
+          <p>Read our full guide: <a href="./COPYRIGHT.md" class="text-emerald-300">COPYRIGHT.md</a></p>
+          <p class="text-xs mt-2 text-gray-400">Topics: copyright law, attribution, Creative Commons, open culture, how to share ethically</p>
+        </div>
+
+        <div class="text-xs text-gray-400 italic">
+          <p>✨ This cookbook uses <strong>CC BY-SA 4.0 License</strong>: Share freely, credit sources, share improvements under same license.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

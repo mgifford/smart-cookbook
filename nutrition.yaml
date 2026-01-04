@@ -1,0 +1,463 @@
+# Basic nutritional reference per 100g (approximate)
+# Source basis: USDA average values; rounded for simplicity
+
+- name: egg_whole
+  calories_kcal: 143
+  protein_g: 13
+  fat_g: 10
+  carbs_g: 1
+  notes: "One large egg ~57g (~80 kcal)"
+
+- name: banana
+  calories_kcal: 89
+  protein_g: 1.1
+  fat_g: 0.3
+  carbs_g: 23
+  fiber_g: 2.6
+  notes: "One medium banana ~118g (~105 kcal)"
+
+- name: apple
+  calories_kcal: 52
+  protein_g: 0.3
+  fat_g: 0.2
+  carbs_g: 14
+  fiber_g: 2.4
+  notes: "One medium apple ~182g (~95 kcal)"
+
+- name: all_purpose_flour
+  calories_kcal: 364
+  protein_g: 10
+  fat_g: 1
+  carbs_g: 76
+  fiber_g: 2.7
+  notes: "1 cup ≈ 120g"
+
+- name: brown_sugar
+  calories_kcal: 380
+  protein_g: 0
+  fat_g: 0
+  carbs_g: 98
+  notes: "1 cup packed ≈ 200g"
+
+- name: butter
+  calories_kcal: 717
+  protein_g: 0.9
+  fat_g: 81
+  carbs_g: 0.1
+  notes: "1 stick (113g) ≈ 810 kcal"
+
+- name: olive_oil
+  calories_kcal: 884
+  protein_g: 0
+  fat_g: 100
+  carbs_g: 0
+
+- name: whole_milk
+  calories_kcal: 61
+  protein_g: 3.2
+  fat_g: 3.3
+  carbs_g: 5
+  notes: "1 cup ≈ 245g (~149 kcal)"
+
+- name: greek_yogurt_plain
+  calories_kcal: 97
+  protein_g: 10
+  fat_g: 5
+  carbs_g: 3.6
+
+- name: chicken_breast_raw
+  calories_kcal: 165
+  protein_g: 31
+  fat_g: 3.6
+  carbs_g: 0
+  notes: "Skinless, boneless"
+
+- name: tofu_firm
+  calories_kcal: 144
+  protein_g: 15.7
+  fat_g: 8.7
+  carbs_g: 3.9
+
+- name: black_beans_cooked
+  calories_kcal: 132
+  protein_g: 8.9
+  fat_g: 0.5
+  carbs_g: 24
+  fiber_g: 8.7
+
+- name: rice_white_cooked
+  calories_kcal: 130
+  protein_g: 2.7
+  fat_g: 0.3
+  carbs_g: 28
+
+- name: oats_rolled_dry
+  calories_kcal: 389
+  protein_g: 16.9
+  fat_g: 6.9
+  carbs_g: 66
+  fiber_g: 10.6
+
+- name: spinach_raw
+  calories_kcal: 23
+  protein_g: 2.9
+  fat_g: 0.4
+  carbs_g: 3.6
+  fiber_g: 2.2
+
+- name: broccoli_raw
+  calories_kcal: 34
+  protein_g: 2.8
+  fat_g: 0.4
+  carbs_g: 7
+  fiber_g: 2.6
+
+- name: tomato_raw
+  calories_kcal: 18
+  protein_g: 0.9
+  fat_g: 0.2
+  carbs_g: 3.9
+  fiber_g: 1.2
+
+- name: potato_raw
+  calories_kcal: 77
+  protein_g: 2
+  fat_g: 0.1
+  carbs_g: 17
+  fiber_g: 2.2
+
+- name: salt
+  calories_kcal: 0
+  protein_g: 0
+  fat_g: 0
+  carbs_g: 0
+  notes: "All sodium; use grams/tsp from conversions"
+
+- name: honey
+  calories_kcal: 304
+  protein_g: 0.3
+  fat_g: 0
+  carbs_g: 82
+  notes: "1 tbsp ≈ 21g (~64 kcal)"
+
+- name: maple_syrup
+  calories_kcal: 260
+  protein_g: 0
+  fat_g: 0
+  carbs_g: 67
+  notes: "1 tbsp ≈ 20g (~52 kcal)"
+
+# Sugars, starches, and baking staples
+- name: sugar_granulated
+  calories_kcal: 387
+  protein_g: 0
+  fat_g: 0
+  carbs_g: 100
+
+- name: sugar_powdered
+  calories_kcal: 389
+  protein_g: 0
+  fat_g: 0
+  carbs_g: 98
+
+- name: cornstarch
+  calories_kcal: 381
+  protein_g: 0.3
+  fat_g: 0.1
+  carbs_g: 91
+
+- name: baking_powder
+  calories_kcal: 53
+  protein_g: 0
+  fat_g: 0
+  carbs_g: 28
+
+- name: baking_soda
+  calories_kcal: 0
+  protein_g: 0
+  fat_g: 0
+  carbs_g: 0
+
+# Flours and grains
+- name: whole_wheat_flour
+  calories_kcal: 340
+  protein_g: 13
+  fat_g: 2.5
+  carbs_g: 72
+  fiber_g: 10.7
+
+- name: bread_flour
+  calories_kcal: 361
+  protein_g: 12
+  fat_g: 1.5
+  carbs_g: 73
+
+- name: pasta_cooked
+  calories_kcal: 158
+  protein_g: 5.8
+  fat_g: 0.9
+  carbs_g: 31
+
+- name: bread_white
+  calories_kcal: 266
+  protein_g: 9
+  fat_g: 3.3
+  carbs_g: 49
+  fiber_g: 2.7
+
+- name: sweet_potato_raw
+  calories_kcal: 86
+  protein_g: 1.6
+  fat_g: 0.1
+  carbs_g: 20
+  fiber_g: 3
+
+# Dairy
+- name: milk_skim
+  calories_kcal: 34
+  protein_g: 3.4
+  fat_g: 0.1
+  carbs_g: 5
+
+- name: half_and_half
+  calories_kcal: 131
+  protein_g: 3.1
+  fat_g: 10.5
+  carbs_g: 4.7
+
+- name: heavy_cream
+  calories_kcal: 340
+  protein_g: 2
+  fat_g: 36
+  carbs_g: 3
+
+- name: cheddar_cheese
+  calories_kcal: 403
+  protein_g: 25
+  fat_g: 33
+  carbs_g: 1.3
+
+- name: mozzarella_part_skim
+  calories_kcal: 280
+  protein_g: 28
+  fat_g: 17
+  carbs_g: 3
+
+- name: parmesan_hard
+  calories_kcal: 431
+  protein_g: 38
+  fat_g: 29
+  carbs_g: 4
+
+- name: sour_cream
+  calories_kcal: 193
+  protein_g: 2.4
+  fat_g: 19
+  carbs_g: 3.4
+
+- name: cream_cheese
+  calories_kcal: 342
+  protein_g: 6.1
+  fat_g: 34
+  carbs_g: 5.5
+
+# Fats and oils
+- name: canola_oil
+  calories_kcal: 884
+  protein_g: 0
+  fat_g: 100
+  carbs_g: 0
+
+- name: coconut_oil
+  calories_kcal: 862
+  protein_g: 0
+  fat_g: 100
+  carbs_g: 0
+
+# Meats and seafood
+- name: ground_beef_85_lean_raw
+  calories_kcal: 250
+  protein_g: 17
+  fat_g: 20
+  carbs_g: 0
+
+- name: ground_beef_93_lean_raw
+  calories_kcal: 176
+  protein_g: 20
+  fat_g: 10
+  carbs_g: 0
+
+- name: pork_loin_raw
+  calories_kcal: 143
+  protein_g: 21
+  fat_g: 6
+  carbs_g: 0
+
+- name: bacon_cooked
+  calories_kcal: 541
+  protein_g: 37
+  fat_g: 42
+  carbs_g: 1.4
+
+- name: salmon_farmed_raw
+  calories_kcal: 208
+  protein_g: 20
+  fat_g: 13
+  carbs_g: 0
+
+- name: cod_raw
+  calories_kcal: 82
+  protein_g: 18
+  fat_g: 0.7
+  carbs_g: 0
+
+- name: shrimp_cooked
+  calories_kcal: 99
+  protein_g: 24
+  fat_g: 0.3
+  carbs_g: 0.2
+
+# Legumes and plant proteins
+- name: chickpeas_cooked
+  calories_kcal: 164
+  protein_g: 8.9
+  fat_g: 2.6
+  carbs_g: 27.4
+  fiber_g: 7.6
+
+- name: lentils_cooked
+  calories_kcal: 116
+  protein_g: 9
+  fat_g: 0.4
+  carbs_g: 20
+  fiber_g: 7.9
+
+- name: peas_green_frozen
+  calories_kcal: 79
+  protein_g: 5
+  fat_g: 0.4
+  carbs_g: 14
+  fiber_g: 5.5
+
+# Nuts and seeds
+- name: almonds
+  calories_kcal: 579
+  protein_g: 21
+  fat_g: 50
+  carbs_g: 22
+  fiber_g: 12.5
+
+- name: walnuts
+  calories_kcal: 654
+  protein_g: 15
+  fat_g: 65
+  carbs_g: 14
+  fiber_g: 6.7
+
+- name: peanuts_dry_roasted
+  calories_kcal: 585
+  protein_g: 24
+  fat_g: 49
+  carbs_g: 21
+  fiber_g: 8.5
+
+- name: chia_seeds
+  calories_kcal: 486
+  protein_g: 17
+  fat_g: 31
+  carbs_g: 42
+  fiber_g: 34
+
+- name: flaxseed_ground
+  calories_kcal: 534
+  protein_g: 18
+  fat_g: 42
+  carbs_g: 29
+  fiber_g: 27
+
+# Vegetables
+- name: carrot_raw
+  calories_kcal: 41
+  protein_g: 0.9
+  fat_g: 0.2
+  carbs_g: 10
+  fiber_g: 2.8
+
+- name: onion_raw
+  calories_kcal: 40
+  protein_g: 1.1
+  fat_g: 0.1
+  carbs_g: 9
+  fiber_g: 1.7
+
+- name: garlic_raw
+  calories_kcal: 149
+  protein_g: 6.4
+  fat_g: 0.5
+  carbs_g: 33
+  fiber_g: 2.1
+
+- name: bell_pepper_red_raw
+  calories_kcal: 31
+  protein_g: 1
+  fat_g: 0.3
+  carbs_g: 6
+  fiber_g: 2.1
+
+- name: cucumber_with_peel
+  calories_kcal: 16
+  protein_g: 0.7
+  fat_g: 0.1
+  carbs_g: 3.6
+  fiber_g: 0.5
+
+- name: zucchini_raw
+  calories_kcal: 17
+  protein_g: 1.2
+  fat_g: 0.3
+  carbs_g: 3.1
+  fiber_g: 1
+
+- name: mushroom_white_raw
+  calories_kcal: 22
+  protein_g: 3.1
+  fat_g: 0.3
+  carbs_g: 3.3
+  fiber_g: 1
+
+# Fruits
+- name: orange
+  calories_kcal: 47
+  protein_g: 0.9
+  fat_g: 0.1
+  carbs_g: 12
+  fiber_g: 2.4
+
+- name: strawberry
+  calories_kcal: 32
+  protein_g: 0.7
+  fat_g: 0.3
+  carbs_g: 8
+  fiber_g: 2
+
+- name: blueberry
+  calories_kcal: 57
+  protein_g: 0.7
+  fat_g: 0.3
+  carbs_g: 14
+  fiber_g: 2.4
+
+- name: lemon
+  calories_kcal: 29
+  protein_g: 1.1
+  fat_g: 0.3
+  carbs_g: 9
+  fiber_g: 2.8
+
+- name: raisin
+  calories_kcal: 299
+  protein_g: 3.1
+  fat_g: 0.5
+  carbs_g: 79
+  fiber_g: 3.7
+

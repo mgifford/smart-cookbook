@@ -1,0 +1,182 @@
+# Ingredient Name Glossary
+# Maps common ingredient name variations to canonical nutrition.yaml keys
+# Used by the app to find nutrition data even when recipe uses different names
+
+glossary:
+  # Flours & Starches
+  - names: ["all-purpose flour", "plain flour", "ap flour", "wheat flour", "flour"]
+    canonical: "all-purpose flour"
+  - names: ["whole wheat flour", "wholemeal flour", "whole grain flour"]
+    canonical: "whole wheat flour"
+  - names: ["oat flour", "ground oats", "oat meal flour"]
+    canonical: "oat flour"
+  - names: ["rice flour", "white rice flour"]
+    canonical: "rice flour"
+  - names: ["cornstarch", "corn flour", "maize flour"]
+    canonical: "cornstarch"
+  
+  # Sugars & Sweeteners
+  - names: ["white sugar", "granulated sugar", "table sugar", "caster sugar", "sugar"]
+    canonical: "white sugar"
+  - names: ["brown sugar", "dark brown sugar", "light brown sugar"]
+    canonical: "brown sugar"
+  - names: ["honey", "raw honey"]
+    canonical: "honey"
+  - names: ["maple syrup", "pure maple syrup"]
+    canonical: "maple syrup"
+  - names: ["agave nectar", "agave syrup"]
+    canonical: "agave nectar"
+  
+  # Oils & Fats
+  - names: ["butter", "unsalted butter", "salted butter", "european butter"]
+    canonical: "butter"
+  - names: ["olive oil", "extra virgin olive oil", "ev olive oil"]
+    canonical: "olive oil"
+  - names: ["coconut oil", "virgin coconut oil"]
+    canonical: "coconut oil"
+  - names: ["vegetable oil", "canola oil", "sunflower oil", "grapeseed oil"]
+    canonical: "vegetable oil"
+  - names: ["margarine", "vegan butter", "dairy-free butter"]
+    canonical: "margarine"
+  
+  # Eggs & Dairy
+  - names: ["egg", "large egg", "medium egg", "chicken egg"]
+    canonical: "egg"
+  - names: ["milk", "whole milk", "cow milk"]
+    canonical: "milk"
+  - names: ["greek yogurt", "strained yogurt"]
+    canonical: "greek yogurt"
+  - names: ["plain yogurt", "yogurt", "natural yogurt"]
+    canonical: "yogurt"
+  - names: ["cream", "heavy cream", "double cream", "whipping cream"]
+    canonical: "cream"
+  - names: ["cheddar cheese", "sharp cheddar", "mild cheddar"]
+    canonical: "cheddar cheese"
+  - names: ["parmesan", "parmigiano-reggiano", "parmesan cheese"]
+    canonical: "parmesan"
+  - names: ["mozzarella", "fresh mozzarella"]
+    canonical: "mozzarella"
+  
+  # Vegetables
+  - names: ["banana", "ripe banana", "overripe banana", "yellow banana"]
+    canonical: "banana"
+  - names: ["carrot", "orange carrot", "raw carrot"]
+    canonical: "carrot"
+  - names: ["tomato", "cherry tomato", "ripe tomato"]
+    canonical: "tomato"
+  - names: ["potato", "russet potato", "red potato", "white potato"]
+    canonical: "potato"
+  - names: ["onion", "yellow onion", "white onion"]
+    canonical: "onion"
+  - names: ["garlic", "garlic clove"]
+    canonical: "garlic"
+  - names: ["broccoli", "fresh broccoli"]
+    canonical: "broccoli"
+  - names: ["spinach", "fresh spinach", "baby spinach"]
+    canonical: "spinach"
+  - names: ["lettuce", "iceberg lettuce", "romaine lettuce"]
+    canonical: "lettuce"
+  - names: ["bell pepper", "red pepper", "green pepper", "yellow pepper", "orange pepper"]
+    canonical: "bell pepper"
+  - names: ["cucumber", "english cucumber"]
+    canonical: "cucumber"
+  - names: ["zucchini", "courgette", "summer squash"]
+    canonical: "zucchini"
+  
+  # Beans & Legumes
+  - names: ["chickpea", "garbanzo bean", "canned chickpea", "cooked chickpea"]
+    canonical: "chickpea"
+  - names: ["black bean", "cooked black bean"]
+    canonical: "black bean"
+  - names: ["kidney bean", "red kidney bean"]
+    canonical: "kidney bean"
+  - names: ["lentil", "green lentil", "red lentil", "brown lentil"]
+    canonical: "lentil"
+  
+  # Proteins
+  - names: ["chicken breast", "chicken", "skinless chicken breast"]
+    canonical: "chicken breast"
+  - names: ["ground beef", "lean ground beef", "ground chuck"]
+    canonical: "ground beef"
+  - names: ["salmon", "atlantic salmon", "wild salmon"]
+    canonical: "salmon"
+  - names: ["tofu", "firm tofu", "silken tofu", "extra firm tofu"]
+    canonical: "tofu"
+  - names: ["tempeh", "fermented tempeh"]
+    canonical: "tempeh"
+  
+  # Nuts & Seeds
+  - names: ["almond", "raw almond", "blanched almond"]
+    canonical: "almond"
+  - names: ["peanut", "raw peanut", "roasted peanut"]
+    canonical: "peanut"
+  - names: ["walnut", "english walnut"]
+    canonical: "walnut"
+  - names: ["cashew", "raw cashew", "roasted cashew"]
+    canonical: "cashew"
+  - names: ["sunflower seed", "pumpkin seed", "pepita"]
+    canonical: "sunflower seed"
+  - names: ["sesame seed", "white sesame seed"]
+    canonical: "sesame seed"
+  
+  # Grains & Pasta
+  - names: ["rice", "white rice", "long-grain rice"]
+    canonical: "rice"
+  - names: ["brown rice", "whole grain rice"]
+    canonical: "brown rice"
+  - names: ["quinoa", "cooked quinoa"]
+    canonical: "quinoa"
+  - names: ["oat", "rolled oat", "old-fashioned oat", "oatmeal"]
+    canonical: "oat"
+  - names: ["pasta", "spaghetti", "penne", "linguine", "dried pasta"]
+    canonical: "pasta"
+  
+  # Condiments & Seasonings
+  - names: ["salt", "sea salt", "table salt", "kosher salt"]
+    canonical: "salt"
+  - names: ["black pepper", "ground black pepper"]
+    canonical: "black pepper"
+  - names: ["garlic powder", "powdered garlic"]
+    canonical: "garlic powder"
+  - names: ["paprika", "smoked paprika", "sweet paprika"]
+    canonical: "paprika"
+  - names: ["cumin", "ground cumin"]
+    canonical: "cumin"
+  - names: ["cinnamon", "ground cinnamon"]
+    canonical: "cinnamon"
+  - names: ["vanilla extract", "pure vanilla extract"]
+    canonical: "vanilla extract"
+  - names: ["baking soda", "sodium bicarbonate"]
+    canonical: "baking soda"
+  - names: ["baking powder", "double-acting baking powder"]
+    canonical: "baking powder"
+  - names: ["peanut butter", "natural peanut butter"]
+    canonical: "peanut butter"
+  
+  # Liquids
+  - names: ["water"]
+    canonical: "water"
+  - names: ["coconut milk", "canned coconut milk"]
+    canonical: "coconut milk"
+  - names: ["almond milk", "unsweetened almond milk"]
+    canonical: "almond milk"
+  - names: ["soy milk", "unsweetened soy milk"]
+    canonical: "soy milk"
+  - names: ["broth", "vegetable broth", "chicken broth", "beef broth", "stock"]
+    canonical: "broth"
+  
+  # Fruits
+  - names: ["apple", "granny smith apple", "red apple"]
+    canonical: "apple"
+  - names: ["orange", "blood orange"]
+    canonical: "orange"
+  - names: ["lemon", "fresh lemon"]
+    canonical: "lemon"
+  - names: ["lime", "fresh lime"]
+    canonical: "lime"
+  - names: ["blueberry", "fresh blueberry"]
+    canonical: "blueberry"
+  - names: ["strawberry", "fresh strawberry"]
+    canonical: "strawberry"
+  - names: ["avocado", "ripe avocado"]
+    canonical: "avocado"

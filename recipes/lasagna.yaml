@@ -1,0 +1,215 @@
+meta:
+  name: The Best Homemade Lasagna
+  source: https://www.simplyrecipes.com/recipes/lasagna/
+  base_servings: 8
+  prep_time: PT105M
+
+ingredients:
+  - name: extra virgin olive oil
+    qty_g: 9
+    vol_est: "2 tsp"
+    function: Fat
+    ww_points: 0
+    substitutions:
+      - name: cooking spray
+        ratio: 0.3
+        science_note: "Reduces fat significantly; may reduce browning"
+        tags: [ww]
+
+  - name: lean ground beef (chuck)
+    qty_g: 454
+    vol_est: "1 lb"
+    function: Protein/Structure
+    ww_points: 18
+    substitutions:
+      - name: ground turkey (93% lean)
+        ratio: 1.0
+        science_note: "Lower fat content; slightly drier texture. Consider adding 1 tbsp olive oil to compensate."
+        tags: [ww]
+      - name: plant-based ground meat
+        ratio: 1.0
+        science_note: "Maintains texture; may need extra seasoning for depth of flavor"
+        tags: [veg, vegetarian, ww]
+      - name: lentils (cooked)
+        ratio: 1.1
+        science_note: "Higher moisture; adds earthy flavor. Brown with spices for depth."
+        tags: [veg, vegetarian, ww]
+
+  - name: onion, diced
+    qty_g: 110
+    vol_est: "1/2 medium onion (3/4 cup)"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions: []
+
+  - name: bell pepper, diced
+    qty_g: 90
+    vol_est: "1/2 large pepper (3/4 cup)"
+    function: Flavor/Moisture
+    ww_points: 0
+    substitutions: []
+
+  - name: garlic, minced
+    qty_g: 6
+    vol_est: "2 cloves"
+    function: Flavor
+    ww_points: 0
+    substitutions: []
+
+  - name: tomato sauce
+    qty_g: 794
+    vol_est: "1 (28 oz) can"
+    function: Moisture/Flavor
+    ww_points: 0
+    substitutions: []
+
+  - name: tomato paste
+    qty_g: 85
+    vol_est: "3 oz (half 6-oz can)"
+    function: Flavor/Thickness
+    ww_points: 0
+    substitutions: []
+
+  - name: crushed tomatoes
+    qty_g: 397
+    vol_est: "1 (14 oz) can"
+    function: Texture/Moisture
+    ww_points: 0
+    substitutions: []
+
+  - name: fresh oregano, chopped
+    qty_g: 6
+    vol_est: "2 tbsp (or 2 tsp dried)"
+    function: Flavor
+    ww_points: 0
+    substitutions: []
+
+  - name: fresh parsley, chopped
+    qty_g: 15
+    vol_est: "1/4 cup packed"
+    function: Flavor/Color
+    ww_points: 0
+    substitutions: []
+
+  - name: Italian seasoning
+    qty_g: 4
+    vol_est: "1 tbsp"
+    function: Flavor
+    ww_points: 0
+    substitutions: []
+
+  - name: garlic powder
+    qty_g: 1
+    vol_est: "pinch"
+    function: Flavor
+    ww_points: 0
+    substitutions: []
+
+  - name: red wine vinegar
+    qty_g: 15
+    vol_est: "1 tbsp"
+    function: Acidity/Balance
+    ww_points: 0
+    substitutions: []
+
+  - name: sugar
+    qty_g: 12
+    vol_est: "1 tbsp (to taste)"
+    function: Flavor/Balance
+    ww_points: 1
+    substitutions:
+      - name: erythritol
+        ratio: 1.0
+        science_note: "Zero calorie; doesn't caramelize. May taste slightly cooling."
+        tags: [ww]
+
+  - name: salt
+    qty_g: 6
+    vol_est: "to taste"
+    function: Flavor
+    ww_points: 0
+    substitutions: []
+
+  - name: lasagna noodles (dry)
+    qty_g: 227
+    vol_est: "1/2 lb (9 noodles)"
+    function: Structure
+    ww_points: 10
+    substitutions:
+      - name: whole wheat lasagna noodles
+        ratio: 1.0
+        science_note: "Higher fiber; slightly denser texture"
+        tags: [ww]
+      - name: zucchini slices (1/4-inch)
+        ratio: 1.5
+        science_note: "Releases water during cooking; salt and pat dry first. Creates low-carb lasagna."
+        tags: [veg, vegetarian, ww]
+
+  - name: ricotta cheese
+    qty_g: 425
+    vol_est: "15 oz"
+    function: Moisture/Protein
+    ww_points: 12
+    substitutions:
+      - name: part-skim ricotta
+        ratio: 1.0
+        science_note: "Lower fat; slightly grainier texture"
+        tags: [ww]
+      - name: cottage cheese (blended smooth)
+        ratio: 1.0
+        science_note: "Higher protein, lower fat; blend until smooth for similar texture"
+        tags: [ww]
+      - name: tofu ricotta (firm tofu + lemon + nutritional yeast)
+        ratio: 1.0
+        science_note: "Blend firm tofu with 2 tbsp lemon juice, 3 tbsp nutritional yeast, 1 tsp salt until smooth"
+        tags: [veg, vegetarian, ww]
+
+  - name: mozzarella cheese, grated
+    qty_g: 680
+    vol_est: "1.5 lb (24 oz)"
+    function: Fat/Stretch/Browning
+    ww_points: 24
+    substitutions:
+      - name: part-skim mozzarella
+        ratio: 1.0
+        science_note: "Lower fat; doesn't melt as smoothly. Browning less golden."
+        tags: [ww]
+      - name: plant-based mozzarella
+        ratio: 1.0
+        science_note: "Melts differently; may not stretch. Choose brands with coconut oil for better browning."
+        tags: [veg, vegetarian]
+
+  - name: Parmesan cheese, grated
+    qty_g: 113
+    vol_est: "1/4 lb (4 oz)"
+    function: Flavor/Salt
+    ww_points: 5
+    substitutions:
+      - name: nutritional yeast
+        ratio: 0.5
+        science_note: "Nutty, cheesy flavor; no melting. Adds umami without dairy."
+        tags: [veg, vegetarian, ww]
+
+steps:
+  - Put a large pot of salted water (1 tablespoon of salt for every 2 quarts of water) on the stovetop on high heat. It can take a while for a large pot of water to come to a boil (this will be your pasta water), so prepare the sauce in the next steps while the water is heating.
+  - In a large skillet, heat 2 teaspoons of olive oil on medium-high heat. Add the ground beef and cook until it is lightly browned on all sides. Remove the beef with a slotted spoon to a bowl. Drain off all but a tablespoon of fat.
+  - Add the diced bell pepper and onions to the skillet. Cook for 4 to 5 minutes, until the onions are translucent and the peppers softened. Add the minced garlic and cook half a minute more. Return the browned ground beef to the pan. Stir to combine, reduce the heat to low, and cook for another 5 minutes.
+  - Transfer the beef mixture to a medium-sized (3- to 4-quart) pot. Add the crushed tomatoes, tomato sauce, and tomato paste to the pot. Add the parsley, oregano, and Italian seasonings, adjusting the amounts to taste. Sprinkle with garlic powder and/or garlic salt, to taste. Sprinkle with red or white wine vinegar. Stir in sugar, a tablespoon at a time, tasting after each addition. (The amount of sugar needed will vary, depending on how acidic your tomatoes are.) Add salt to taste. Remember that you will later be adding parmesan, which is salty. Bring the sauce to a simmer and then lower the heat to maintain a low simmer. Cook for 15 to 45 minutes, stirring often. Scrape the bottom of the pot occasionally, making sure nothing sticks to the bottom and scorches. Remove from heat.
+  - By now, the salted water you started heating in step one should be boiling. Add the dry lasagna noodles and cook them to al dente, per package directions. Stir the water often to prevent sticking. Make sure that the water remains at a full rolling boil during the entire cooking process, in order to prevent noodles from sticking. When the noodles are done, drain them in a colander and rinse with cool water, gently separating any noodles that may be sticking together. Spread a little olive oil on a large, rimmed baking sheet, and lay out the cooked noodles on this sheet, turning them once so that all sides get coated with some of the olive oil. This will prevent them from sticking together.
+  - Preheat oven to 375°F (190°C).
+  - In a 9x13-inch casserole or lasagna dish, ladle a cup of sauce over the bottom of the dish and spread it evenly. Arrange one layer of lasagna noodles lengthwise over the sauce (about 3 long noodles; the edges may overlap, depending on your pan). Ladle a third of the remaining sauce over the noodles. Sprinkle a third of the grated mozzarella on top of the lasagna sauce. Add half of the ricotta cheese by placing cheese dollops every two inches. Sprinkle half of the grated parmesan cheese evenly over the top of the ricotta cheese. Apply the second layer of noodles. Top it with half of the remaining sauce. Add half of the remaining mozzarella, the rest of the ricotta cheese, and the rest of the parmesan cheese. Finish with a final layer of noodles. Spread the remaining sauce over the top layer of noodles and sprinkle with the remaining mozzarella cheese.
+  - Cover the lasagna pan with aluminum foil, tenting the foil slightly so it doesn't touch the noodles or sauce. Bake at 375°F for 45 minutes. If you'd like more of a crusty top or edges, uncover the lasagna in the last 10 minutes.
+  - Allow the lasagna to cool for at least 15 minutes before serving. Leftovers will keep for about 5 days refrigerated. You can reheat lasagna in a conventional oven or microwave.
+
+science_notes:
+  - "Browning beef (Maillard reaction) creates hundreds of flavor compounds at 300°F+. Don't crowd the pan—moisture prevents browning."
+  - "Onions' sulfur compounds break down into sugars when cooked (caramelization), adding sweetness to balance tomato acidity."
+  - "Garlic burns quickly (turns bitter) because its sugars are exposed. Add it last during sautéing."
+  - "Tomato paste is concentrated; cooking it for 1-2 minutes deepens flavor through caramelization before adding liquids."
+  - "Vinegar's acidity brightens tomato flavor by balancing pH. Sugar counters acidity—taste as you go."
+  - "Boiling water denatures pasta's surface proteins, creating a slippery coating that prevents sticking. Salt seasons and raises boiling point slightly."
+  - "Ricotta's proteins coagulate during baking, firming the cheese layer. Dollops allow even distribution without overmixing."
+  - "Mozzarella's casein proteins melt and stretch when heated. Fat content affects browning—whole milk browns better than part-skim."
+  - "Resting lasagna after baking allows starches to reabsorb liquid, making slices hold together instead of sliding apart."
+
+history: []

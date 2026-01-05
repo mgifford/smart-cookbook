@@ -29,6 +29,24 @@
   box-sizing: border-box;
 }
 
+/* Debug Panel */
+.debug-panel {
+  background: #1a1a2e;
+  border: 2px solid #ff6b6b;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-family: monospace;
+  color: #ffa94d;
+}
+
+.debug-divider {
+  border: none;
+  border-top: 1px solid #ff6b6b;
+  margin: 0.5rem 0;
+}
+
 html, body {
   margin: 0;
   padding: 0;

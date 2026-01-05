@@ -27,12 +27,12 @@
         </label>
         <button type="button" @click="deleteCurrentRecipe()" class="btn-danger">🗑️ Delete</button>
         <button type="button" @click="downloadBackup()" x-show="hasUnsavedChanges" class="btn-warning">⬇️ Backup All</button>
-        <label class="flex items-center gap-2" for="servings-slider">
-          <span>Servings</span>
+        <div class="flex items-center gap-2">
+          <label for="servings-slider">Servings</label>
           <input type="range" id="servings-slider" min="1" max="200" step="1" class="w-40" x-model.number="servings" @input="adjustServings()" @change="adjustServings()" />
           <span class="w-12 text-right font-bold" x-text="servings"></span>
           <button type="button" class="btn-secondary text-xs" @click="resetServings()" :title="`Reset to base (${current.meta.base_servings})`">●</button>
-        </label>
+        </div>
         <label class="flex items-center gap-2">
           <input type="checkbox" id="ww-mode" x-model="wwMode" />
           <span for="ww-mode">Weight-conscious</span>
@@ -73,9 +73,9 @@
       </div>
 
       <!-- DEBUG PANEL (show only with ?debug=true) -->
-      <div x-show="debugMode" style="background: #1a1a2e; border: 2px solid #ff6b6b; padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; font-size: 0.75rem; font-family: monospace; color: #ffa94d;">
+      <div x-show="debugMode" class="debug-panel">
         <div><strong>DEBUG MODE ENABLED</strong> (use ?debug=false to hide)</div>
-        <hr style="border: none; border-top: 1px solid #ff6b6b; margin: 0.5rem 0;">
+        <hr class="debug-divider">
         <div><strong>STATE:</strong></div>
         <div>selectedId = <span x-text="selectedId"></span></div>
         <div>recipes.length = <span x-text="recipes.length"></span></div>
@@ -83,13 +83,13 @@
         <div>current.ingredients.length = <span x-text="current.ingredients?.length"></span></div>
         <div>current.steps.length = <span x-text="current.steps?.length"></span></div>
         <div>servings = <span x-text="servings"></span></div>
-        <hr style="border: none; border-top: 1px solid #ff6b6b; margin: 0.5rem 0;">
+        <hr class="debug-divider">
         <div><strong>COMPUTED:</strong></div>
         <div>displayIngredients().length = <span x-text="displayIngredients().length"></span></div>
         <div>stepsList().length = <span x-text="stepsList().length"></span></div>
         <div>nutritionLoaded = <span x-text="nutritionLoaded"></span></div>
         <div>nutritionError = <span x-text="nutritionError"></span></div>
-        <hr style="border: none; border-top: 1px solid #ff6b6b; margin: 0.5rem 0;">
+        <hr class="debug-divider">
         <div><strong>PREFS:</strong></div>
         <div>weightUnit = <span x-text="prefs.weightUnit"></span></div>
         <div>volumeUnit = <span x-text="prefs.volumeUnit"></span></div>

@@ -281,5 +281,5 @@ This removes all cached recipes and preferences.
 
 ---
 
-**Built with science. 🧪 Seasoned with love. ❤️**
+**Built with AI. 🧪 Seasoned with love. ❤️**
 

@@ -178,7 +178,7 @@ For common ingredients, suggest scientifically-informed swaps with `ratio`, `sci
     - name: greek yogurt
       ratio: 0.75
       science_note: Higher moisture; add 10g flour to compensate
-      tags: [ww]  # Weight Watchers friendly
+      tags: [ww]  # Weight-conscious friendly
     - name: vegan butter
       ratio: 1.0
       science_note: Plant oils replace milk fat; may reduce browning
@@ -188,7 +188,7 @@ For common ingredients, suggest scientifically-informed swaps with `ratio`, `sci
 **Key fields:**
 - `ratio` — Multiplier for `qty_g`. E.g., `0.75` means use 75% of the original amount.
 - `science_note` — Explain how it affects chemistry/texture.
-- `tags` — `[ww]` (Weight Watchers), `[veg]`, `[vegetarian]`
+- `tags` — `[ww]` (weight-conscious), `[veg]`, `[vegetarian]`
 
 ---
 

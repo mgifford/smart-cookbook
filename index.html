@@ -31,10 +31,11 @@
           <span>Servings</span>
           <input type="range" id="servings-slider" min="1" max="200" step="1" class="w-40" x-model.number="servings" @input="adjustServings()" @change="adjustServings()" />
           <span class="w-12 text-right font-bold" x-text="servings"></span>
+          <button type="button" class="btn-secondary text-xs" @click="resetServings()" :title="`Reset to base (${current.meta.base_servings})`">●</button>
         </label>
         <label class="flex items-center gap-2">
           <input type="checkbox" id="ww-mode" x-model="wwMode" />
-          <span for="ww-mode">WW Mode</span>
+          <span for="ww-mode">Weight-conscious</span>
         </label>
         <label class="flex items-center gap-2">
           <input type="checkbox" id="veg-mode" x-model="vegMode" />
@@ -56,6 +57,14 @@
         <div>
           <p class="text-sm text-slate-300" x-text="current.meta.source"></p>
           <h2 class="text-xl" x-text="current.meta.name"></h2>
+          <div class="flex flex-wrap gap-2 mt-1 text-sm text-emerald-300">
+            <template x-if="stepSignals.temp">
+              <span class="badge">Preheat: <span x-text="stepSignals.temp.value"></span>°<span x-text="stepSignals.temp.unit"></span></span>
+            </template>
+            <template x-if="stepSignals.timeMinutes">
+              <span class="badge">Time hint: <span x-text="formatMinutesFriendly(stepSignals.timeMinutes)"></span></span>
+            </template>
+          </div>
         </div>
         <div class="flex gap-2">
           <button type="button" @click="copyRecipe()">📋 Copy Recipe</button>
@@ -188,6 +197,14 @@
       <h2 class="text-lg">Display Preferences</h2>
       <p class="text-sm">Choose how quantities and temperatures are shown.</p>
       <div class="grid-3col">
+        <label class="flex flex-col gap-1" for="unit-system">
+          <span class="font-medium">Unit system</span>
+          <select id="unit-system" x-model="prefs.system" @change="setSystem(prefs.system)">
+            <option value="auto">Best fit (region)</option>
+            <option value="metric">Metric</option>
+            <option value="imperial">Imperial</option>
+          </select>
+        </label>
         <label class="flex flex-col gap-1" for="weight-unit">
           <span class="font-medium">Weight</span>
           <select id="weight-unit" x-model="prefs.weightUnit" @change="persistPrefs()">

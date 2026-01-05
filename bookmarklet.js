@@ -42,14 +42,46 @@
         .trim();
     };
 
-    // Build ingredient list with deduplication
+    // Extract weight in grams from ingredient name (handles "4 pounds/1.8 kilograms", etc.)
+    const extractGramsFromName = (name) => {
+      if (!name) return 0;
+      const str = String(name).toLowerCase();
+      
+      // Explicit gram/kilogram values (e.g., "1.8 kilograms", "450 grams")
+      const kgMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:kilograms?|kg)/);
+      if (kgMatch) return Math.round(parseFloat(kgMatch[1]) * 1000);
+      
+      const gMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:grams?|g(?!\s*[a-z]))/);
+      if (gMatch) return Math.round(parseFloat(gMatch[1]));
+      
+      // Pound/ounce conversions
+      const lbMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:pounds?|lbs?)/);
+      if (lbMatch) return Math.round(parseFloat(lbMatch[1]) * 453.592);
+      
+      const ozMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:ounces?|oz)/);
+      if (ozMatch) return Math.round(parseFloat(ozMatch[1]) * 28.3495);
+      
+      // Volume conversions (tablespoons, teaspoons, cups)
+      const tbspMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:tablespoons?|tbsp)/);
+      if (tbspMatch) return Math.round(parseFloat(tbspMatch[1]) * 15); // ~15g per tbsp
+      
+      const tspMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:teaspoons?|tsp)/);
+      if (tspMatch) return Math.round(parseFloat(tspMatch[1]) * 5); // ~5g per tsp
+      
+      const cupMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:cups?|cup)/);
+      if (cupMatch) return Math.round(parseFloat(cupMatch[1]) * 240); // 240g per cup (default)
+      
+      return 0;
+    };
+
+    // Build ingredient list with deduplication and weight extraction
     const ingredientMap = new Map();
     toArray(recipe.recipeIngredient).forEach(raw => {
       const normalized = normalizeName(raw);
       if (!ingredientMap.has(normalized)) {
         ingredientMap.set(normalized, {
           name: normalized,
-          qty_g: 0,
+          qty_g: extractGramsFromName(normalized),  // Extract weight from name
           vol_est: normalized,
           function: '',
           ww_points: 0,

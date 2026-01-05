@@ -200,6 +200,18 @@ button.btn-warning:hover {
   background-color: #ea580c;
 }
 
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--color-accent-emerald);
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--color-accent-emerald-light);
+  font-weight: 600;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.8; }

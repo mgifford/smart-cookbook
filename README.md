@@ -12,7 +12,7 @@ A **personal, science-based smart cookbook** that runs entirely client-side on G
 - **LocalStorage Persistence**: Your recipes and preferences auto-save to your browser
 
 ### 🥗 Dietary Modes
-- **Weight Watchers Mode** (`wwMode`): Swap high-point ingredients for WW-friendly alternatives
+- **Weight-conscious Mode** (`wwMode`): Swap higher-point ingredients for lighter alternatives
 - **Vegetarian Mode** (`vegMode`): Automatically suggest plant-based substitutions (chicken→tofu, butter→coconut oil)
 - **Precision Mode**: Show exact gram measurements instead of approximate volumes
 

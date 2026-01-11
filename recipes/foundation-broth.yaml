@@ -1,0 +1,124 @@
+meta:
+  name: Foundation Broth
+  source: https://www.cancercouncil.com.au/cancer-information/living-well/nutrition-and-cancer/recipes-and-snacks/soup-recipes/
+  base_servings: 4
+  prep_time: PT2H
+
+ingredients:
+  - name: meat on the bone (any cut)
+    qty_g: 250
+    vol_est: "250g (about 1/2 lb)"
+    function: Protein/Flavor
+    ww_points: 5
+    substitutions:
+      - name: chicken wings
+        ratio: 1.0
+        science_note: "High collagen content; creates rich, gelatinous broth when simmered"
+        tags: []
+      - name: beef shank
+        ratio: 1.0
+        science_note: "High collagen and marrow; creates deeply flavored, rich broth"
+        tags: []
+      - name: vegetable scraps (carrot tops, onion skins, celery leaves)
+        ratio: 1.5
+        science_note: "Use 375g vegetable scraps for vegetarian version; less collagen, lighter flavor"
+        tags: [veg, vegetarian, ww]
+
+  - name: water
+    qty_g: 600
+    vol_est: "600 ml (2.5 cups)"
+    function: Moisture/Base
+    ww_points: 0
+    substitutions: []
+
+  - name: cereal (sago, rice or pearl barley), washed
+    qty_g: 30
+    vol_est: "30g (2 tbsp)"
+    function: Structure/Thickening
+    ww_points: 1
+    substitutions:
+      - name: white rice
+        ratio: 1.0
+        science_note: "Releases starch during cooking; thickens broth and adds body"
+        tags: []
+      - name: pearl barley
+        ratio: 1.0
+        science_note: "Higher fiber; adds nutty flavor and creates thicker, heartier broth"
+        tags: []
+      - name: sago pearls
+        ratio: 1.0
+        science_note: "Pure starch from palm; creates clear, glossy broth when cooked"
+        tags: []
+
+  - name: celery stalk, finely chopped
+    qty_g: 40
+    vol_est: "1 stalk"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: celery leaves
+        ratio: 0.5
+        science_note: "Use 20g; more concentrated flavor than stalks"
+        tags: []
+
+  - name: carrot, peeled and finely chopped
+    qty_g: 122
+    vol_est: "1 medium carrot"
+    function: Flavor/Color/Sweetness
+    ww_points: 0
+    substitutions:
+      - name: parsnip, peeled and finely chopped
+        ratio: 1.0
+        science_note: "Similar texture; sweeter, earthier flavor profile"
+        tags: []
+
+  - name: onion, peeled and finely chopped
+    qty_g: 150
+    vol_est: "1 medium onion"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: leek (white and light green parts)
+        ratio: 1.0
+        science_note: "Milder, sweeter flavor; similar allium aromatic compounds"
+        tags: []
+
+  - name: salt
+    qty_g: 3
+    vol_est: "1/2 tsp (to taste)"
+    function: Flavor/Enhancement
+    ww_points: 0
+    substitutions: []
+
+  - name: black pepper
+    qty_g: 1
+    vol_est: "1/4 tsp (to taste)"
+    function: Flavor/Heat
+    ww_points: 0
+    substitutions: []
+
+steps:
+  - Remove any visible fat from the meat and cut into small pieces, keeping the bones intact.
+  - Place the meat and bones in a large pot and cover with cold water. Let soak for 30 minutes (this draws out impurities and blood, resulting in a clearer broth).
+  - After soaking, bring the pot slowly to a boil over medium heat. Skim off any foam or scum that rises to the surface during the first 10 minutes of boiling.
+  - Once the soup is boiling, add the washed cereal (sago, rice, or pearl barley). Stir gently to prevent sticking.
+  - Reduce heat to low and simmer gently for 1 hour, stirring occasionally. The slow simmer extracts collagen and flavor from the bones.
+  - Add the finely chopped celery, carrot, and onion to the soup. Continue simmering for another 30 minutes until the vegetables are tender and the broth is flavorful.
+  - Remove the bones from the soup using a slotted spoon or strainer. Discard the bones.
+  - Taste and season the broth with salt and pepper to taste. Serve hot as a nourishing, easily digestible soup.
+
+science_notes:
+  - "Soaking meat and bones in cold water for 30 minutes draws out blood proteins and impurities, resulting in a clearer, cleaner-tasting broth."
+  - "Bringing broth to a boil slowly (not rapid boiling) prevents proteins from coagulating too quickly, which would cloud the broth."
+  - "Skimming foam (denatured proteins and impurities) from the surface during the first 10 minutes of boiling creates a crystal-clear broth."
+  - "Simmering at 180-200°F extracts collagen from bones and connective tissue. Collagen breaks down into gelatin, which gives broth body and richness."
+  - "Bones release minerals (calcium, phosphorus, magnesium) into the broth during long simmering, creating a nutrient-dense liquid."
+  - "Cereal starches (rice, barley, sago) gelatinize when heated in liquid, absorbing water and thickening the broth while adding texture."
+  - "Mirepoix vegetables (celery, carrot, onion) are the classic aromatic base. Their sugars caramelize slightly during simmering, adding depth."
+  - "Onions contain sulfur compounds that break down into sweet, savory molecules during cooking, balancing the broth's flavor."
+  - "Carrots add natural sweetness through sugars and beta-carotene (which also gives the broth a warm, golden color)."
+  - "Celery contains glutamic acid (a natural source of umami), which enhances the savory depth of the broth."
+  - "This foundation broth is easily digestible and ideal for people recovering from illness, surgery, or cancer treatment—providing protein, minerals, and gentle calories."
+  - "Removing bones before serving prevents choking hazards and makes the soup easier to consume for those with swallowing difficulties."
+
+history: []

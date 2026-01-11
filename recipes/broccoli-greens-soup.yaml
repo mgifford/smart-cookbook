@@ -1,0 +1,179 @@
+meta:
+  name: Broccoli & Greens Soup
+  source: https://korunutrition.com/broccoli-greens-soup/
+  base_servings: 4
+  prep_time: PT15M
+  cook_time: PT1H
+
+ingredients:
+  - name: garlic cloves, peeled and trimmed
+    qty_g: 36
+    vol_est: "12 whole cloves"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: garlic powder
+        ratio: 0.17
+        science_note: "Use 6g (1 tbsp); lacks fresh garlic's complexity and roasted caramelized notes"
+        tags: []
+
+  - name: yellow onion, roughly chopped
+    qty_g: 300
+    vol_est: "1 large onion"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: white onion
+        ratio: 1.0
+        science_note: "Similar sulfur compounds; slightly sharper flavor when raw but mellows when roasted"
+        tags: []
+
+  - name: cauliflower, sliced into florets
+    qty_g: 400
+    vol_est: "1/2 large head"
+    function: Structure/Creaminess
+    ww_points: 0
+    substitutions:
+      - name: parsnips, peeled and chopped
+        ratio: 1.0
+        science_note: "Higher natural sugar; adds sweetness and creaminess when roasted and blended"
+        tags: []
+
+  - name: broccoli, sliced into florets
+    qty_g: 350
+    vol_est: "1 head"
+    function: Structure/Flavor/Nutrition
+    ww_points: 0
+    substitutions:
+      - name: broccolini
+        ratio: 1.0
+        science_note: "Sweeter, more delicate flavor; similar sulforaphane content from cruciferous family"
+        tags: []
+
+  - name: extra virgin olive oil
+    qty_g: 41
+    vol_est: "3 tbsp (divided)"
+    function: Fat/Flavor
+    ww_points: 3
+    substitutions:
+      - name: avocado oil
+        ratio: 1.0
+        science_note: "Higher smoke point (520°F vs 375°F); neutral flavor, better for roasting at high heat"
+        tags: []
+
+  - name: dried parsley
+    qty_g: 1
+    vol_est: "1 tsp"
+    function: Flavor/Color
+    ww_points: 0
+    substitutions:
+      - name: fresh parsley, chopped
+        ratio: 3.0
+        science_note: "Use 3g (1 tbsp fresh); brighter flavor, more vibrant color"
+        tags: []
+
+  - name: dried basil
+    qty_g: 1
+    vol_est: "1 tsp"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: fresh basil, chopped
+        ratio: 3.0
+        science_note: "Use 3g (1 tbsp fresh); sweeter, more aromatic than dried"
+        tags: []
+
+  - name: dried oregano
+    qty_g: 1
+    vol_est: "1 tsp"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: Italian seasoning
+        ratio: 1.0
+        science_note: "Blend of oregano, basil, thyme, rosemary; similar Mediterranean flavor profile"
+        tags: []
+
+  - name: dried rosemary
+    qty_g: 0.5
+    vol_est: "1/4 tsp"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: fresh rosemary, finely chopped
+        ratio: 3.0
+        science_note: "Use 1.5g (1/2 tsp fresh); more pungent, piney flavor"
+        tags: []
+
+  - name: dried thyme
+    qty_g: 0.5
+    vol_est: "1/4 tsp"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: fresh thyme leaves
+        ratio: 3.0
+        science_note: "Use 1.5g (3/4 tsp fresh); more delicate, herbaceous flavor"
+        tags: []
+
+  - name: sea salt
+    qty_g: 6
+    vol_est: "1 tsp"
+    function: Flavor/Enhancement
+    ww_points: 0
+    substitutions: []
+
+  - name: kale leaves, packed
+    qty_g: 240
+    vol_est: "8 cups (about 1 bunch, stems removed)"
+    function: Nutrition/Flavor/Color
+    ww_points: 0
+    substitutions:
+      - name: spinach, packed
+        ratio: 1.0
+        science_note: "Milder flavor, wilts faster; similar iron and antioxidant content"
+        tags: []
+      - name: Swiss chard, packed
+        ratio: 1.0
+        science_note: "Earthy, slightly bitter flavor; similar nutrient profile to kale"
+        tags: []
+
+  - name: organic vegetable broth
+    qty_g: 946
+    vol_est: "4 cups (divided)"
+    function: Moisture/Flavor
+    ww_points: 0
+    substitutions:
+      - name: chicken broth
+        ratio: 1.0
+        science_note: "Adds savory depth from chicken proteins; not vegetarian"
+        tags: []
+
+steps:
+  - Preheat oven to 400°F (200°C). Line a large baking sheet with parchment paper and set aside.
+  - In a large bowl, combine the whole garlic cloves, roughly chopped onion, cauliflower florets, and broccoli florets.
+  - In a small bowl, add half the olive oil (about 1.5 tbsp / 20g) and mix in the dried parsley, basil, oregano, rosemary, thyme, and sea salt until combined into a spiced oil.
+  - Pour the spiced oil over the vegetables and toss until all pieces are well coated.
+  - Spread the coated vegetables evenly on the prepared baking sheet in a single layer. Roast for about 30 minutes, or until very tender and caramelized, flipping halfway through (around 15 minutes).
+  - When the vegetables are nearly done roasting (about 25 minutes in), warm the remaining olive oil (1.5 tbsp / 21g) in a large soup pot over medium heat.
+  - Add the kale leaves and half of the vegetable broth (2 cups / 473g) to the pot and cover with a lid. Let cook for 2 minutes, or until kale is wilted and tender.
+  - When the roasted vegetables are done, add them to the pot with the wilted kale. Pour in the remaining vegetable broth (2 cups / 473g).
+  - Bring the soup to a gentle boil over medium-high heat, then remove from heat immediately.
+  - Use an immersion blender to puree the soup directly in the pot until smooth and creamy. Alternatively, carefully transfer the soup in batches to a high-speed blender with the lid vent open (cover with a towel to prevent splattering) and blend until smooth.
+  - Taste and adjust seasoning with additional salt if needed. Divide into 4 serving bowls and enjoy!
+
+science_notes:
+  - "Roasting at 400°F triggers the Maillard reaction between amino acids and reducing sugars, creating hundreds of savory flavor compounds (pyrazines, furans)."
+  - "Caramelization of garlic occurs at 300-350°F, converting harsh sulfur compounds into sweet, nutty flavors through enzymatic breakdown."
+  - "Whole garlic cloves roasted intact develop mellow sweetness as allicin (pungent compound) breaks down into milder polysulfides."
+  - "Olive oil's polyphenols infuse vegetables during roasting, adding fruity, peppery notes. Coating vegetables prevents moisture loss and promotes even browning."
+  - "Cruciferous vegetables (broccoli, cauliflower) contain indole-3-carbinol and sulforaphane—compounds with cancer-preventative properties that survive roasting."
+  - "Roasting concentrates vegetable sugars through water evaporation, intensifying natural sweetness (especially in onions, cauliflower, broccoli)."
+  - "Kale contains lutein and zeaxanthin (carotenoids) that are better absorbed with fat. Wilting kale in oil enhances nutrient bioavailability."
+  - "Quick wilting (2 minutes) preserves kale's vitamin C and folate, which degrade with prolonged heat exposure above 180°F."
+  - "Dark leafy greens like kale are high in fiber (7g per serving in this recipe), which supports gut health and may reduce cancer risk."
+  - "Blending roasted vegetables with greens creates an emulsion—microscopic particles suspended in liquid—resulting in a creamy, velvety texture without dairy."
+  - "Garlic and onions contain allium compounds (allicin, diallyl sulfide) that boost immune cells and may help prevent cancer development."
+  - "This recipe combines cancer-preventative foods: cruciferous vegetables (sulforaphane), alliums (organosulfur compounds), and dark leafy greens (antioxidants)."
+
+history: []

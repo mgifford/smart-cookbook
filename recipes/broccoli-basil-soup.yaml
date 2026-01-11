@@ -1,0 +1,136 @@
+meta:
+  name: Broccoli and Basil Soup
+  source: https://www.wcrf.org/living-well/eating-well/recipes/broccoli-and-basil-soup/
+  base_servings: 4
+  prep_time: PT25M
+
+ingredients:
+  - name: olive oil
+    qty_g: 5
+    vol_est: "1 tsp"
+    function: Fat/Flavor
+    ww_points: 0
+    substitutions:
+      - name: cooking spray
+        ratio: 0.3
+        science_note: "Reduces fat significantly; may reduce flavor infusion"
+        tags: [ww]
+
+  - name: onion, chopped
+    qty_g: 300
+    vol_est: "1 large onion"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: leek (white and light green parts)
+        ratio: 1.0
+        science_note: "Milder, sweeter flavor; similar allium family aromatic compounds"
+        tags: []
+
+  - name: potato, peeled and chopped
+    qty_g: 300
+    vol_est: "1 large potato"
+    function: Structure/Starch/Thickening
+    ww_points: 0
+    substitutions:
+      - name: cauliflower florets
+        ratio: 1.0
+        science_note: "Lower carb alternative; creates creamy texture when pureed with less starch"
+        tags: [ww]
+
+  - name: celery stalks, chopped
+    qty_g: 120
+    vol_est: "3 sticks"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: fennel bulb
+        ratio: 1.0
+        science_note: "Adds mild anise flavor; similar aromatic profile to celery"
+        tags: []
+
+  - name: broccoli, roughly chopped
+    qty_g: 500
+    vol_est: "1 large head"
+    function: Structure/Flavor/Nutrition
+    ww_points: 0
+    substitutions:
+      - name: broccoli and cauliflower mix
+        ratio: 1.0
+        science_note: "Milder flavor; both are cruciferous vegetables with similar sulforaphane content"
+        tags: []
+
+  - name: garlic cloves, finely diced
+    qty_g: 6
+    vol_est: "2 cloves"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: garlic powder
+        ratio: 0.17
+        science_note: "Use 1g (1/2 tsp); lacks fresh garlic's pungent allicin compounds"
+        tags: []
+
+  - name: reduced-salt vegetable stock
+    qty_g: 500
+    vol_est: "500 ml (2 cups)"
+    function: Moisture/Flavor
+    ww_points: 0
+    substitutions:
+      - name: chicken stock
+        ratio: 1.0
+        science_note: "Adds savory depth from chicken proteins; not vegetarian"
+        tags: []
+
+  - name: boiling water
+    qty_g: 800
+    vol_est: "800 ml (3.5 cups)"
+    function: Moisture/Volume
+    ww_points: 0
+    substitutions: []
+
+  - name: fresh basil (including stalks)
+    qty_g: 25
+    vol_est: "25g pack (about 1 cup packed)"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: fresh parsley
+        ratio: 1.0
+        science_note: "Different flavor profile; brighter, less sweet. Similar aromatic compounds."
+        tags: []
+      - name: baby spinach
+        ratio: 2.0
+        science_note: "Use 50g; milder flavor, adds nutrients and green color when blended"
+        tags: []
+
+  - name: black pepper
+    qty_g: 1
+    vol_est: "1/4 tsp (to taste)"
+    function: Flavor/Heat
+    ww_points: 0
+    substitutions: []
+
+steps:
+  - Heat the olive oil over medium heat in a large pan. Add the chopped onion, potato, and celery. Cook for about 10 minutes, stirring occasionally, until the vegetables are soft and the onion is translucent.
+  - Add the roughly chopped broccoli (including stems), diced garlic, vegetable stock, and boiling water. Stir to combine.
+  - Bring to the boil, then reduce the heat and simmer for 10 minutes, or until the broccoli and all vegetables are cooked through and tender.
+  - Stir through most of the fresh basil (including stalks), saving a few leaves to garnish. The heat will wilt the basil and release its aromatic oils.
+  - Remove from heat and let cool slightly (about 5 minutes). Blend the soup using an immersion blender directly in the pot, or carefully transfer in batches to a regular blender and blend until smooth.
+  - Return the soup to the pan to reheat if necessary. Taste and season with freshly ground black pepper to taste.
+  - Divide between 4 bowls and garnish with the remaining fresh basil leaves before serving. Serve with toasted baguette rubbed with a garlic clove for a healthy spin on garlic bread.
+
+science_notes:
+  - "Sautéing vegetables at medium heat activates enzymes that break down cell walls, concentrating flavors through caramelization without browning."
+  - "Celery contains 3-n-butylphthalide, an aromatic compound that gives it distinctive flavor and may help lower blood pressure."
+  - "Broccoli contains sulforaphane, a potent antioxidant formed when the enzyme myrosinase (released by chopping) contacts glucoraphanin. Both cooking and blending preserve this compound."
+  - "Garlic's allicin is formed when crushing/chopping releases enzyme alliinase. Adding garlic late prevents it from burning (which creates bitterness)."
+  - "Potato starch (amylose and amylopectin) gelatinizes when heated in liquid, swelling to create natural creaminess when pureed without dairy."
+  - "Simmering at 180-200°F gently breaks down vegetable cell walls without aggressive boiling that can leach nutrients into cooking water."
+  - "Fresh basil contains volatile oils (linalool, eugenol) that provide sweet, peppery flavor. Blending basil releases these oils, infusing the soup."
+  - "Basil stalks contain concentrated flavor compounds and nutrients. Using the whole plant reduces waste and maximizes taste."
+  - "Blending hot soup creates an emulsion—tiny vegetable particles suspended in liquid—that feels rich and creamy even with minimal fat."
+  - "Black pepper contains piperine, which enhances nutrient absorption (especially from cruciferous vegetables) and adds mild heat without masking other flavors."
+  - "This soup freezes well because the emulsified structure remains stable when thawed. Cruciferous vegetables retain nutrients even after freezing."
+
+history: []

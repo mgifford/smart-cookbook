@@ -459,7 +459,7 @@ function cookbookApp() {
     const whole = Math.floor(rounded);
     const frac = +(rounded - whole).toFixed(2);
     const map = { 0: '', 0.25: '1/4', 0.5: '1/2', 0.75: '3/4' };
-    const fracStr = map[frac] || trimZeros(rounded.toFixed(2));
+    const fracStr = frac in map ? map[frac] : trimZeros(rounded.toFixed(2));
     if (whole > 0 && fracStr) return `${whole} ${fracStr}`;
     if (whole > 0) return `${whole}`;
     return fracStr || '0';

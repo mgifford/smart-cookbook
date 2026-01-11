@@ -28,18 +28,26 @@ A **personal, science-based smart cookbook** that runs entirely client-side on G
 
 ## 📂 Files
 
+- **recipes/** — Recipe YAML files (validated, indexed, searchable)
+- **recipes.json** — Auto-generated index of all recipes (metadata only)
+- **recipes-index.html** — Searchable recipe browser with filters
 - **template.yaml** — Recipe schema with science fields
 - **bookmarklet.js** — Scraper for JSON-LD recipe data with smart quantity parsing
-- **index.html** — SPA shell with Alpine.js, includes nutrition, copyright education, debug mode
+- **load-recipes.js** — Loads all recipe YAMLs into localStorage
+- **index.html** — Main app with Alpine.js, nutrition, copyright education, debug mode
 - **script.js** — Scaling, substitutions, unit conversions, nutrition calculations
 - **conversions.yaml** — Reference data for densities and unit conversions
 - **nutrition.yaml** — Per-100g macros for 50+ common ingredients
-- **ingredients-glossary.yaml** — Maps ingredient name variations to canonical names (for nutrition lookups)
+- **ingredients-glossary.yaml** — Maps ingredient name variations to canonical names
+- **scripts/validate-recipes.js** — Recipe quality validation
+- **scripts/generate-index.js** — Generates searchable recipes.json
+- **.github/workflows/validate.yml** — Auto-validates & indexes on push
 - **AGENTS.md** — AI assistant personas for development
 - **PHILOSOPHY.md** — Why open recipes matter + remix culture vision
 - **COPYRIGHT.md** — Complete legal guide to recipe copyright
 - **LICENSE.md** — CC BY-SA 4.0 license terms
 - **QUICKSTART.md** — 60-second guide to open recipe culture
+- **RECIPE-AUTHORING.md** — Standards for creating recipes
 - **README.md** — This file
 
 ## 🚀 Usage
@@ -57,16 +65,66 @@ python3 -m http.server 8010
 
 ### Adding Recipes
 
-**Method 1: Bookmarklet Scraper**
+**Method 1: Load All Recipes from YAML**
+1. Go to https://mgifford.github.io/smart-cookbook/
+2. Click the **"📥 Load All Recipes"** button at the top
+3. Browser loads all YAML files from `/recipes/` into localStorage
+4. Select any recipe from the dropdown
+
+**Method 2: Bookmarklet Scraper**
 1. Drag the "Save to Cookbook" link to your bookmarks bar
-2. Visit AllRecipes.com (or any site with JSON-LD recipe data)
+2. Visit any recipe website with JSON-LD data (AllRecipes, etc.)
 3. Click the bookmarklet → YAML copied to clipboard
 4. Paste into YAML Import section → Load YAML
 
-**Method 2: Manual YAML**
+**Method 3: Manual YAML**
 1. Copy [template.yaml](template.yaml)
-2. Fill in your recipe details
+2. Fill in your recipe details (see RECIPE-AUTHORING.md for standards)
 3. Paste into YAML Import → Load YAML
+
+**Method 4: Submit to Repository**
+1. Create a new file: `recipes/your-recipe-name.yaml`
+2. Follow [RECIPE-AUTHORING.md](RECIPE-AUTHORING.md) standards
+3. Push to GitHub
+4. GitHub Actions automatically validates & indexes your recipe
+5. Recipe appears in the searchable browser at [recipes-index.html](recipes-index.html)
+
+## ✅ Quality Assurance
+
+All recipes are **validated and indexed** automatically:
+
+### Validation Checklist
+- ✅ Required fields: `meta`, `ingredients`, `steps`, `science_notes`, `history`
+- ✅ Valid metadata: name, source, servings (positive number), prep_time
+- ✅ Ingredients: each has name, qty_g (numeric), vol_est, function, ww_points
+- ✅ Substitutions: each has name, ratio, science_note
+- ✅ No duplicate ingredient names
+- ✅ Minimum 2 ingredients, 1 step, 1 science note
+
+### Run Locally
+```bash
+npm run validate:recipes   # Check all recipes for quality
+npm run index:recipes      # Generate searchable recipes.json
+npm run quality            # Full quality check (all validations)
+```
+
+### Automatic CI/CD
+Every push to GitHub triggers:
+1. **Validation** — Checks all recipe YAMLs
+2. **Indexing** — Generates updated `recipes.json`
+3. **Auto-commit** — Pushes index changes back
+4. **Block merging** — Fails if validation errors found
+
+## 🔍 Recipe Browser
+
+Visit [recipes-index.html](recipes-index.html) to:
+- 🔎 **Search** recipes by name
+- 👥 **Filter** by minimum servings
+- ⏱️ **Filter** by max prep time
+- 🔬 **Filter** recipes with science notes
+- Click any recipe → opens in main app
+
+This index auto-updates whenever recipes are validated.
 
 ## 🧪 Science Features in Action
 

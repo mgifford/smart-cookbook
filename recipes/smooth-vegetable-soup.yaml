@@ -1,0 +1,133 @@
+meta:
+  name: Smooth Vegetable Soup
+  source: Based on Full Frontal Ostomy description
+  base_servings: 4
+  prep_time: PT40M
+
+ingredients:
+  - name: carrots, peeled and sliced
+    qty_g: 244
+    vol_est: "2 medium carrots"
+    function: Structure/Flavor/Color
+    ww_points: 0
+    substitutions:
+      - name: butternut squash, peeled and diced
+        ratio: 1.0
+        science_note: "Higher starch content creates creamier texture when pureed; adds natural sweetness"
+        tags: []
+
+  - name: Yukon gold potato, peeled and diced
+    qty_g: 213
+    vol_est: "1 medium potato"
+    function: Structure/Starch/Thickening
+    ww_points: 0
+    substitutions:
+      - name: cauliflower florets
+        ratio: 1.0
+        science_note: "Lower starch, lower carb; creates silky texture when pureed. Less thickening power."
+        tags: [ww]
+      - name: parsnips, peeled and diced
+        ratio: 1.0
+        science_note: "Similar starch content; adds subtle sweetness and earthiness"
+        tags: []
+
+  - name: zucchini, peeled and chopped
+    qty_g: 196
+    vol_est: "1 small zucchini (optional)"
+    function: Moisture/Bulk
+    ww_points: 0
+    substitutions:
+      - name: yellow squash, peeled and chopped
+        ratio: 1.0
+        science_note: "Nearly identical water content and texture; interchangeable"
+        tags: []
+
+  - name: celery stalk, peeled and finely chopped
+    qty_g: 40
+    vol_est: "1 stalk (optional)"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: fennel bulb, finely chopped
+        ratio: 1.0
+        science_note: "Adds mild anise flavor; softens similarly when cooked"
+        tags: []
+
+  - name: low-sodium vegetable or chicken broth
+    qty_g: 946
+    vol_est: "4 cups"
+    function: Moisture/Flavor
+    ww_points: 0
+    substitutions:
+      - name: bone broth
+        ratio: 1.0
+        science_note: "Higher protein and collagen; adds body and richness to the soup"
+        tags: []
+
+  - name: lean ground turkey or chicken
+    qty_g: 85
+    vol_est: "3 oz (optional for protein)"
+    function: Protein/Flavor
+    ww_points: 2
+    substitutions:
+      - name: white beans (cooked, mashed)
+        ratio: 1.2
+        science_note: "Plant-based protein; adds creaminess when pureed. Use 100g (1/2 cup) cooked beans."
+        tags: [veg, vegetarian, ww]
+      - name: silken tofu
+        ratio: 1.0
+        science_note: "Blends smoothly into soup; neutral flavor. Adds protein without changing texture."
+        tags: [veg, vegetarian, ww]
+
+  - name: olive oil or unsalted butter
+    qty_g: 14
+    vol_est: "1 tbsp"
+    function: Fat/Flavor
+    ww_points: 1
+    substitutions:
+      - name: cooking spray
+        ratio: 0.3
+        science_note: "Significantly reduces fat; may reduce flavor depth and mouthfeel"
+        tags: [ww]
+
+  - name: salt
+    qty_g: 3
+    vol_est: "1/2 tsp (to taste, use sparingly)"
+    function: Flavor/Enhancement
+    ww_points: 0
+    substitutions:
+      - name: low-sodium soy sauce
+        ratio: 2.0
+        science_note: "Adds umami depth; use 6g (1 tsp) for similar salt impact with enhanced savory notes"
+        tags: []
+
+  - name: dried thyme or parsley
+    qty_g: 0.5
+    vol_est: "pinch (optional mild seasoning)"
+    function: Flavor/Aromatics
+    ww_points: 0
+    substitutions:
+      - name: bay leaf
+        ratio: 1.0
+        science_note: "Use 1 whole bay leaf; remove before blending. Adds subtle herbal complexity."
+        tags: []
+
+steps:
+  - Heat olive oil or butter in a large pot over medium heat. If using ground turkey or chicken, add it now and cook until no longer pink, breaking it into small pieces with a wooden spoon (about 5-7 minutes). Remove cooked meat and set aside.
+  - Add carrots, potato, zucchini (if using), and celery (if using) to the pot. Sauté for 3-4 minutes to soften slightly and develop flavor.
+  - Pour in the broth and bring to a boil. Reduce heat to low, cover, and simmer for 20-25 minutes, or until all vegetables are very tender and easily pierced with a fork.
+  - If you used ground turkey or chicken, return it to the pot. Add the dried thyme or parsley (if using) and salt to taste.
+  - Remove from heat and let cool slightly (about 5 minutes). Use an immersion blender to puree the soup until completely smooth. Alternatively, carefully transfer in batches to a regular blender and blend until smooth, then return to the pot.
+  - Taste and adjust seasoning as needed. If the soup is too thick, add more broth or water to reach desired consistency. Reheat gently if needed before serving.
+
+science_notes:
+  - "Browning ground meat (Maillard reaction) creates savory flavor compounds. Breaking meat into small pieces increases surface area for browning and makes blending easier."
+  - "Sautéing vegetables before adding liquid activates enzymes and begins breaking down cell walls, which concentrates flavors and reduces cooking time."
+  - "Simmering (180-200°F) gently breaks down vegetable cell walls and gelatinizes potato starch, which thickens the soup naturally when pureed."
+  - "Potatoes contain amylose and amylopectin starches that swell when heated in liquid, creating a creamy texture when blended without needing cream."
+  - "Pureeing vegetables creates an emulsion—tiny particles suspended in liquid—that feels smooth and rich on the palate even with minimal fat."
+  - "Peeling vegetables removes insoluble fiber and bitter compounds in skins, creating a smoother, milder flavor profile suitable for sensitive digestion."
+  - "Salt enhances flavor by suppressing bitterness and enhancing sweet/savory notes. Add after cooking to maintain control over sodium levels, especially with low-sodium broth."
+  - "Cooling soup slightly before blending reduces steam pressure and prevents hot liquid from erupting. Always blend hot liquids carefully or in small batches."
+
+history: []

@@ -1,0 +1,116 @@
+{
+  "version": "1.0",
+  "generated": "2026-01-11T03:25:49.630Z",
+  "recipes": [
+    {
+      "id": "broccoli-greens-soup",
+      "name": "Broccoli & Greens Soup",
+      "source": "https://korunutrition.com/broccoli-greens-soup/",
+      "servings": 4,
+      "prep_time": "PT15M",
+      "cook_time": "PT1H",
+      "ingredients_count": 13,
+      "steps_count": 11,
+      "has_science_notes": true
+    },
+    {
+      "id": "broccoli-basil-soup",
+      "name": "Broccoli and Basil Soup",
+      "source": "https://www.wcrf.org/living-well/eating-well/recipes/broccoli-and-basil-soup/",
+      "servings": 4,
+      "prep_time": "PT25M",
+      "cook_time": "",
+      "ingredients_count": 10,
+      "steps_count": 7,
+      "has_science_notes": true
+    },
+    {
+      "id": "creamy-potato-leek-soup",
+      "name": "Creamy Potato and Leek Soup",
+      "source": "https://www.cancercouncil.com.au/cancer-information/living-well/nutrition-and-cancer/recipes-and-snacks/soup-recipes/",
+      "servings": 6,
+      "prep_time": "PT40M",
+      "cook_time": "",
+      "ingredients_count": 6,
+      "steps_count": 7,
+      "has_science_notes": true
+    },
+    {
+      "id": "creamy-potato-soup-high-fibre",
+      "name": "Creamy Potato Soup (High Fibre)",
+      "source": "https://www.bowelcanceraustralia.org/recipe/creamy-potato-soup/",
+      "servings": 6,
+      "prep_time": "PT10M",
+      "cook_time": "PT40M",
+      "ingredients_count": 15,
+      "steps_count": 8,
+      "has_science_notes": true
+    },
+    {
+      "id": "creamy-potato-soup-low-fibre",
+      "name": "Creamy Potato Soup (Low Fibre)",
+      "source": "https://www.bowelcanceraustralia.org/recipe/creamy-potato-soup/",
+      "servings": 6,
+      "prep_time": "PT10M",
+      "cook_time": "PT40M",
+      "ingredients_count": 14,
+      "steps_count": 8,
+      "has_science_notes": true
+    },
+    {
+      "id": "foundation-broth",
+      "name": "Foundation Broth",
+      "source": "https://www.cancercouncil.com.au/cancer-information/living-well/nutrition-and-cancer/recipes-and-snacks/soup-recipes/",
+      "servings": 4,
+      "prep_time": "PT2H",
+      "cook_time": "",
+      "ingredients_count": 8,
+      "steps_count": 8,
+      "has_science_notes": true
+    },
+    {
+      "id": "smooth-vegetable-soup",
+      "name": "Smooth Vegetable Soup",
+      "source": "Based on Full Frontal Ostomy description",
+      "servings": 4,
+      "prep_time": "PT40M",
+      "cook_time": "",
+      "ingredients_count": 9,
+      "steps_count": 6,
+      "has_science_notes": true
+    },
+    {
+      "id": "superb-squash-soup",
+      "name": "Superb Squash Soup",
+      "source": "https://www.jamieoliver.com/recipes/vegetables/superb-squash-soup-with-the-best-parmesan-croutons/",
+      "servings": 8,
+      "prep_time": "PT55M",
+      "cook_time": "",
+      "ingredients_count": 14,
+      "steps_count": 9,
+      "has_science_notes": true
+    },
+    {
+      "id": "lasagna",
+      "name": "The Best Homemade Lasagna",
+      "source": "https://www.simplyrecipes.com/recipes/lasagna/",
+      "servings": 8,
+      "prep_time": "PT105M",
+      "cook_time": "",
+      "ingredients_count": 19,
+      "steps_count": 9,
+      "has_science_notes": true
+    },
+    {
+      "id": "vegetable-soup-butter-beans",
+      "name": "Vegetable Soup with Butter Beans",
+      "source": "https://www.cancercouncil.com.au/cancer-information/living-well/nutrition-and-cancer/recipes-and-snacks/soup-recipes/",
+      "servings": 6,
+      "prep_time": "PT60M",
+      "cook_time": "",
+      "ingredients_count": 10,
+      "steps_count": 8,
+      "has_science_notes": true
+    }
+  ]
+}

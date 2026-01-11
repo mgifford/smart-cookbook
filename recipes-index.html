@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recipe Browser - Science-Based Smart Cookbook</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body x-data="recipeBrowser()" class="bg-slate-900 text-slate-100">
+  <main>
+    <header class="p-4 border-b border-slate-700">
+      <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-2">🧪 Recipe Browser</h1>
+        <p class="text-slate-400 mb-4">Search and explore all recipes in the Science Cookbook</p>
+        
+        <div class="flex flex-col gap-3">
+          <!-- Search -->
+          <input 
+            type="text" 
+            x-model="searchQuery" 
+            placeholder="Search recipes by name..." 
+            class="px-3 py-2 bg-slate-800 border border-slate-700 rounded text-slate-100 placeholder-slate-500"
+            @input="filterRecipes()"
+          />
+          
+          <!-- Filters -->
+          <div class="flex flex-wrap gap-2">
+            <label class="flex items-center gap-2 text-sm">
+              <span>Min servings:</span>
+              <input type="number" x-model.number="minServings" min="1" max="20" class="w-16 px-2 py-1 bg-slate-800 border border-slate-700 rounded" @input="filterRecipes()" />
+            </label>
+            <label class="flex items-center gap-2 text-sm">
+              <span>Max time:</span>
+              <select x-model="maxTime" class="px-2 py-1 bg-slate-800 border border-slate-700 rounded" @change="filterRecipes()">
+                <option value="">Any</option>
+                <option value="30">30 min</option>
+                <option value="60">1 hour</option>
+                <option value="120">2 hours</option>
+                <option value="999">3+ hours</option>
+              </select>
+            </label>
+            <label class="flex items-center gap-2 text-sm">
+              <input type="checkbox" x-model="hasScienceNotes" @change="filterRecipes()" />
+              <span>Has science notes</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <article class="p-4">
+      <div class="max-w-6xl mx-auto">
+        <div class="mb-4 text-sm text-slate-400">
+          <span x-text="`Found ${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''}`"></span>
+        </div>
+
+        <div x-show="loading" class="text-center py-8">
+          <p class="text-slate-400">Loading recipes...</p>
+        </div>
+
+        <div x-show="!loading && filteredRecipes.length === 0" class="text-center py-8">
+          <p class="text-slate-400">No recipes found matching your criteria.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <template x-for="recipe in filteredRecipes" :key="recipe.id">
+            <a :href="`index.html?recipe=${recipe.id}`" class="block p-4 bg-slate-800 border border-slate-700 rounded hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/20 transition-all">
+              <h3 class="font-bold text-lg mb-2" x-text="recipe.name"></h3>
+              
+              <div class="text-xs text-slate-400 space-y-1 mb-3">
+                <div x-show="recipe.servings" class="flex items-center gap-2">
+                  <span>👥</span>
+                  <span x-text="`${recipe.servings} servings`"></span>
+                </div>
+                
+                <div x-show="recipe.prep_time" class="flex items-center gap-2">
+                  <span>⏱️</span>
+                  <span x-text="recipe.prep_time"></span>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                  <span>🥘</span>
+                  <span x-text="`${recipe.ingredients_count} ingredients`"></span>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                  <span>📝</span>
+                  <span x-text="`${recipe.steps_count} steps`"></span>
+                </div>
+                
+                <div x-show="recipe.has_science_notes" class="flex items-center gap-2">
+                  <span>🔬</span>
+                  <span>Science notes included</span>
+                </div>
+              </div>
+
+              <div x-show="recipe.source" class="text-xs text-slate-500 truncate mb-3">
+                <a :href="recipe.source" target="_blank" class="hover:text-emerald-400">📖 Source</a>
+              </div>
+
+              <button class="w-full px-3 py-2 text-sm bg-emerald-600 hover:bg-emerald-500 rounded font-semibold transition">
+                View Recipe →
+              </button>
+            </a>
+          </template>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <script>
+    function recipeBrowser() {
+      return {
+        recipes: [],
+        filteredRecipes: [],
+        searchQuery: '',
+        minServings: 1,
+        maxTime: '',
+        hasScienceNotes: false,
+        loading: true,
+
+        async init() {
+          try {
+            const response = await fetch('recipes.json');
+            if (!response.ok) throw new Error('Failed to load recipe index');
+            const data = await response.json();
+            this.recipes = data.recipes;
+            this.filterRecipes();
+          } catch (err) {
+            console.error('Error loading recipes:', err);
+            this.recipes = [];
+          } finally {
+            this.loading = false;
+          }
+        },
+
+        filterRecipes() {
+          this.filteredRecipes = this.recipes.filter(recipe => {
+            // Search query
+            if (this.searchQuery && !recipe.name.toLowerCase().includes(this.searchQuery.toLowerCase())) {
+              return false;
+            }
+
+            // Min servings
+            if (recipe.servings < this.minServings) {
+              return false;
+            }
+
+            // Max time
+            if (this.maxTime) {
+              const timeMinutes = this.parseTime(recipe.prep_time);
+              if (timeMinutes > parseInt(this.maxTime)) {
+                return false;
+              }
+            }
+
+            // Science notes filter
+            if (this.hasScienceNotes && !recipe.has_science_notes) {
+              return false;
+            }
+
+            return true;
+          });
+        },
+
+        parseTime(timeStr) {
+          if (!timeStr) return 0;
+          const match = timeStr.match(/(\d+)([MH])/i);
+          if (!match) return 0;
+          const value = parseInt(match[1]);
+          const unit = match[2].toUpperCase();
+          return unit === 'H' ? value * 60 : value;
+        }
+      };
+    }
+  </script>
+</body>
+</html>

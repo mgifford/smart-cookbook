@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "validate:yaml": "node scripts/validate-yaml.js",
+    "validate:recipes": "node scripts/validate-recipes.js",
+    "index:recipes": "node scripts/generate-index.js",
     "lint:html": "html-validate \"**/*.html\"",
     "test:a11y": "node scripts/ci-a11y.js",
     "scan:security": "node scripts/ci-security.js",
-    "quality": "npm run validate:yaml && npm run lint:html && npm run test:a11y && npm run scan:security"
+    "quality": "npm run validate:yaml && npm run validate:recipes && npm run index:recipes && npm run lint:html && npm run test:a11y && npm run scan:security"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",

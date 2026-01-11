@@ -820,6 +820,56 @@ function cookbookApp() {
     return sampleRecipes;
   };
 
+  // Fetch the lightweight recipe index (recipes.json) generated at build time
+  const fetchRecipeIndex = async () => {
+    try {
+      const res = await fetch('recipes.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`recipes.json ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      console.error('[ERROR] Failed to load recipe index:', err);
+      return null;
+    }
+  };
+
+  // Fetch a single recipe YAML by id
+  const fetchRecipeYaml = async (id) => {
+    if (!id) return null;
+    try {
+      const res = await fetch(`recipes/${id}.yaml`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`recipes/${id}.yaml ${res.status}`);
+      const yamlText = await res.text();
+      const parsed = jsyaml.load(yamlText);
+      return {
+        id,
+        meta: parsed.meta || { name: id, source: '', base_servings: 1, prep_time: '' },
+        ingredients: parsed.ingredients || [],
+        steps: parsed.steps || [],
+        science_notes: parsed.science_notes || [],
+        history: parsed.history || []
+      };
+    } catch (err) {
+      console.error(`[ERROR] Failed to load recipe ${id}:`, err);
+      return null;
+    }
+  };
+
+  // Create a placeholder recipe entry from index metadata so it can appear in the selector
+  const placeholderFromIndex = (entry) => ({
+    id: entry.id,
+    meta: {
+      name: entry.name || entry.id,
+      source: entry.source || '',
+      base_servings: entry.servings || 1,
+      prep_time: entry.prep_time || ''
+    },
+    ingredients: [],
+    steps: [],
+    science_notes: [],
+    history: [],
+    _placeholder: true
+  });
+
   const defaultPrefs = resolvedDefaultPrefs();
   const initialRecipes = loadRecipesFromStorage();
   
@@ -831,15 +881,19 @@ function cookbookApp() {
 
   return {
     debugMode,
+    loadingIndex: false,
+    loadingRecipeId: null,
+    indexError: null,
     nutritionLoaded: false,
     nutritionError: null,
     nutritionVersion: 0,
       stepSignals: { temp: null, timeMinutes: null },
-    init() {
+    async init() {
       console.log('[DEBUG] init() called');
       console.log('[DEBUG] recipes array:', this.recipes);
       console.log('[DEBUG] selectedId:', this.selectedId);
       console.log('[DEBUG] current:', this.current);
+      this.bootstrapRecipes();
       loadGlossary().then((glossSuccess) => {
         if (glossSuccess) console.log('[DEBUG] Glossary loaded');
         return loadMeatSubs();
@@ -858,6 +912,43 @@ function cookbookApp() {
         this.stepSignals = extractStepSignals(this.current.steps || []);
       });
     },
+
+    async bootstrapRecipes() {
+      this.loadingIndex = true;
+      try {
+        const index = await fetchRecipeIndex();
+        if (!index || !Array.isArray(index.recipes)) {
+          this.indexError = 'Recipe index missing or invalid';
+          return;
+        }
+        this.indexError = null;
+
+        const existingIds = new Set(this.recipes.map(r => r.id));
+        index.recipes.forEach(entry => {
+          if (!existingIds.has(entry.id)) {
+            this.recipes.push(placeholderFromIndex(entry));
+          }
+        });
+
+        // Keep selector stable and alphabetized
+        this.recipes.sort((a, b) => (a.meta?.name || a.id).localeCompare(b.meta?.name || b.id));
+
+        const hasSelected = this.recipes.some(r => r.id === this.selectedId);
+        // Default selection to first recipe from index if none selected yet or selection is invalid
+        if ((!this.selectedId || !hasSelected) && this.recipes.length > 0) {
+          this.selectedId = this.recipes[0].id;
+        }
+
+        if (this.selectedId) {
+          await this.loadRecipe(this.selectedId);
+        }
+      } catch (err) {
+        console.error('[ERROR] bootstrapRecipes failed:', err);
+        this.indexError = err.message;
+      } finally {
+        this.loadingIndex = false;
+      }
+    },
     recipes: recipesToUse,
     selectedId: firstRecipe.id,
     current: clone(firstRecipe),
@@ -872,17 +963,45 @@ function cookbookApp() {
     bookmarkletCode: 'javascript:(async()=>{try{const ld=[...document.querySelectorAll("script[type=\\"application/ld+json\\"]")].map(e=>{try{return JSON.parse(e.textContent)}catch{return null}}).flat().filter(Boolean);const r=ld.find(n=>{const t=n["@type"];return Array.isArray(t)?t.includes("Recipe"):t==="Recipe"});if(!r)throw new Error("No JSON-LD recipe found");const toA=v=>Array.isArray(v)?v:(v?[v]:[]);const norm=name=>String(name).replace(/[\\n\\r\\t\\u00AD\\u200B\\u200C\\u200D\\u2060\\xA0]+/g," ").replace(/½/g,"1/2").replace(/¼/g,"1/4").replace(/¾/g,"3/4").replace(/⅓/g,"1/3").replace(/⅔/g,"2/3").replace(/⅕/g,"1/5").replace(/⅖/g,"2/5").replace(/⅗/g,"3/5").replace(/⅘/g,"4/5").replace(/⅙/g,"1/6").replace(/⅚/g,"5/6").replace(/⅛/g,"1/8").replace(/⅜/g,"3/8").replace(/⅝/g,"5/8").replace(/⅞/g,"7/8").replace(/\\s+/g," ").trim();const m=new Map();toA(r.recipeIngredient).forEach(raw=>{const normalized=norm(raw);if(!m.has(normalized))m.set(normalized,{name:normalized,qty_g:0,vol_est:normalized,function:"",ww_points:0,substitutions:[]})});const ing=Array.from(m.values());const steps=toA(r.recipeInstructions).map(s=>typeof s==="string"?s.trim():String(s&&s.text||s&&s["@type"]||"").trim()).filter(Boolean);let src=r.url||r.mainEntityOfPage;if(typeof src==="object")src=src["@id"]||src.url||"";src=src||location.href;const y=[];y.push("meta:");y.push(`  name: ${r.name||"Unknown Recipe"}`);y.push(`  source: ${src}`);y.push(`  base_servings: ${r.recipeYield||1}`);y.push(`  prep_time: ${r.totalTime||""}`);y.push("ingredients:");ing.forEach(i=>{y.push(`  - name: ${i.name}`);y.push(`    qty_g: ${i.qty_g}`);y.push(`    vol_est: "${i.vol_est}"`);y.push("    function: ");y.push("    ww_points: ");y.push("    substitutions: []")});y.push("steps:");steps.forEach(s=>y.push(`  - ${s.replace(/\\n/g," ")}`));y.push("history: []");const txt=y.join("\\n");await navigator.clipboard.writeText(txt);alert("Recipe YAML copied! Paste into import box, then fill in qty_g values.")}catch(e){alert("Bookmarklet error: "+e.message)}})();',
     prefs: loadPrefs() || defaultPrefs,
 
-    loadRecipe() {
-      const found = this.recipes.find(r => r.id === this.selectedId);
-      console.log('[DEBUG] loadRecipe() called, selectedId:', this.selectedId);
-      console.log('[DEBUG] found recipe:', found);
-      if (found) {
-        this.current = clone(found);
-        this.servings = found.meta.base_servings;
-        console.log('[DEBUG] current after clone:', this.current);
-        console.log('[DEBUG] current.ingredients length:', this.current.ingredients?.length);
-        console.log('[DEBUG] current.steps length:', this.current.steps?.length);
-        this.stepSignals = extractStepSignals(this.current.steps || []);
+    async loadRecipe(id = this.selectedId, opts = {}) {
+      const recipeId = id || this.selectedId;
+      if (!recipeId) return;
+
+      this.selectedId = recipeId;
+      this.loadingRecipeId = recipeId;
+
+      try {
+        let recipe = this.recipes.find(r => r.id === recipeId);
+        console.log('[DEBUG] loadRecipe() called, recipeId:', recipeId);
+        console.log('[DEBUG] found recipe:', recipe);
+
+        const needsFetch = !recipe || recipe._placeholder || !Array.isArray(recipe.ingredients) || recipe.ingredients.length === 0 || !Array.isArray(recipe.steps) || recipe.steps.length === 0;
+
+        if (needsFetch) {
+          const fetched = await fetchRecipeYaml(recipeId);
+          if (fetched) {
+            fetched._placeholder = false;
+            const idx = this.recipes.findIndex(r => r.id === recipeId);
+            if (idx >= 0) this.recipes.splice(idx, 1, fetched);
+            else this.recipes.push(fetched);
+            recipe = fetched;
+            if (!opts.skipPersist) this.persistRecipes();
+          } else if (!recipe) {
+            console.warn('[WARN] Recipe fetch failed and no local copy available.');
+            return;
+          }
+        }
+
+        if (recipe) {
+          this.current = clone(recipe);
+          this.servings = recipe.meta?.base_servings || 1;
+          console.log('[DEBUG] current after clone:', this.current);
+          console.log('[DEBUG] current.ingredients length:', this.current.ingredients?.length);
+          console.log('[DEBUG] current.steps length:', this.current.steps?.length);
+          this.stepSignals = extractStepSignals(this.current.steps || []);
+        }
+      } finally {
+        this.loadingRecipeId = null;
       }
     },
 

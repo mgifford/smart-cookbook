@@ -96,7 +96,7 @@
               </div>
 
               <div x-show="recipe.source" class="text-xs text-slate-500 truncate mb-3">
-                <a :href="recipe.source" target="_blank" class="hover:text-emerald-400">📖 Source</a>
+                <a href="#" x-bind:href="recipe.source" target="_blank" class="hover:text-emerald-400">📖 Source</a>
               </div>
 
               <a :href="`index.html?recipe=${recipe.id}`" class="w-full px-3 py-2 text-sm bg-emerald-600 hover:bg-emerald-500 rounded font-semibold transition text-center block">

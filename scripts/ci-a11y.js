@@ -23,7 +23,7 @@ const MIME = {
   '.ico': 'image/x-icon'
 };
 
-const startServer = (port = 4173) => new Promise((resolve, reject) => {
+const startServer = (preferredPort = 4173) => new Promise((resolve, reject) => {
   const server = http.createServer((req, res) => {
     const urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
     const relative = urlPath === '/' ? 'index.html' : urlPath.replace(/^\//, '');
@@ -46,8 +46,15 @@ const startServer = (port = 4173) => new Promise((resolve, reject) => {
     });
   });
 
-  server.on('error', reject);
-  server.listen(port, () => resolve(server));
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE' && preferredPort === 4173) {
+      // Fallback to an available ephemeral port
+      server.listen(0, () => resolve(server));
+    } else {
+      reject(err);
+    }
+  });
+  server.listen(preferredPort, () => resolve(server));
 });
 
 const logViolations = (violations) => {
@@ -66,9 +73,11 @@ const logViolations = (violations) => {
   });
 };
 
+
 (async () => {
   const shouldStartServer = BASE_URL.startsWith('http://localhost:4173');
   let server;
+  let effectiveBaseUrl = BASE_URL;
 
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
@@ -77,10 +86,13 @@ const logViolations = (violations) => {
   try {
     if (shouldStartServer) {
       server = await startServer(4173);
-      console.log('Started local static server on http://localhost:4173');
+      const address = server.address();
+      const port = address && address.port;
+      effectiveBaseUrl = `http://localhost:${port || 4173}`;
+      console.log(`Started local static server on ${effectiveBaseUrl}`);
     }
 
-    await page.goto(BASE_URL, { waitUntil: 'networkidle' });
+    await page.goto(effectiveBaseUrl, { waitUntil: 'networkidle' });
     await page.waitForTimeout(750);
 
     const results = await new AxeBuilder({ page })

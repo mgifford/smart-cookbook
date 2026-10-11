@@ -16,6 +16,6 @@
     "@playwright/test": "^1.43.0",
     "html-validate": "^8.7.0",
     "jsdom": "^24.0.0",
-    "js-yaml": "^4.2.0"
+    "js-yaml": "^4.3.2"
   }
 }

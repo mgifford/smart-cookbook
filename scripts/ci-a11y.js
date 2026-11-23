@@ -126,6 +126,9 @@ const logViolations = () => {
     assert(await page.locator('li.ingredient').count() >= 15, 'ingredients did not render');
     assert(await page.locator('ol li').count() >= 13, 'steps did not render');
     assert(await page.locator('details.recipe-notes').isVisible(), 'recipe notes are not discoverable');
+    const bookmarkletHref = await page.locator('a:has-text("Save to Cookbook")').getAttribute('href');
+    assert(bookmarkletHref && bookmarkletHref.startsWith('javascript:'), 'bookmarklet href is missing');
+    assert(bookmarkletHref.includes('parseRecipeJsonLd'), 'bookmarklet does not use the shared scraper');
 
     await analyze(page, 'index.html desktop');
 

@@ -215,6 +215,34 @@ Do not merge ingredients just because they share a name. The same ingredient may
 
 Both entries, their order, quantities, functions, notes, and substitutions must survive import/export. A shopping-list consolidation is a separate, explicit operation and must not mutate the recipe.
 
+## Rule 6c: Be explicit about vegetarian and vegan
+
+Keep these categories separate:
+
+- **Vegetarian** — no meat, poultry, fish, or shellfish. Dairy and eggs may remain. Cheese may use animal rennet.
+- **Vegan** — no animal-derived ingredients at all, including dairy, eggs, honey, gelatin, and animal rennet.
+- **`veg`** is a legacy tag meaning vegetarian; never treat it as vegan.
+
+Use `dietary_information` on the recipe when the status has been reviewed:
+
+```yaml
+dietary_information:
+  vegetarian: true
+  vegan: false
+  allergens: [milk, wheat]
+  notes: "Dairy is central; vegan adaptation needs plant milk and vegan butter."
+```
+
+Tag substitutions with what they actually are:
+
+```yaml
+tags: [vegan, vegetarian]   # plant milk, olive oil, tofu
+tags: [vegetarian]          # dairy/egg-containing substitute
+tags: [ww]                  # weight-conscious only
+```
+
+Do not tag a dairy or egg substitute as `vegan`. The UI's vegan mode must only offer `vegan` tags.
+
 ## Rule 7: Provide Smart Substitutions
 
 For common ingredients, suggest scientifically-informed swaps with `ratio`, `science_note`, and `tags`:

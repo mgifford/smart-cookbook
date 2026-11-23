@@ -16,7 +16,7 @@ const read = (relative) => fs.readFileSync(path.join(ROOT, relative), 'utf8');
 
 const pkg = JSON.parse(read('package.json'));
 const quality = pkg.scripts && pkg.scripts.quality ? pkg.scripts.quality : '';
-['check:ci-policy', 'test:unit', 'test:a11y', 'lint:html', 'scan:security'].forEach((command) => {
+['check:ci-policy', 'check:recipe-pages', 'test:unit', 'test:a11y', 'lint:html', 'scan:security'].forEach((command) => {
   if (!quality.includes(command)) errors.push(`quality script does not include ${command}`);
 });
 

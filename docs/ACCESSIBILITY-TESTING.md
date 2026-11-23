@@ -20,13 +20,14 @@ The check is `scripts/ci-a11y.js`. It starts a local static server when pointed 
 
 | Journey | Assertion |
 |---|---|
-| Direct recipe link | `index.html?recipe=crispy-mushroom-mac-and-cheese` selects the recipe |
+| Focused recipe page | `recipes/crispy-mushroom-mac-and-cheese.html` renders text-first ingredients, directions, dietary notes, and no app/bookmarklet chrome |
+| Interactive deep link | `index.html?recipe=crispy-mushroom-mac-and-cheese` selects the interactive recipe |
 | Recipe rendering | Title, at least 15 ingredient items, at least 13 steps, and the notes panel render |
 | Keyboard scaling | Focusing the servings slider and pressing ArrowRight changes the value |
 | Reflow | `index.html` does not overflow horizontally at 320 CSS px |
 | Recipe browser | At least 11 cards render |
 | Search | Typing `Crispy` filters the browser to one card |
-| Deep link from a card | The card points at `index.html?recipe=crispy-mushroom-mac-and-cheese` |
+| Deep link from a card | The card points at `recipes/crispy-mushroom-mac-and-cheese.html` |
 | Recipe-browser reflow | No horizontal overflow at 320 CSS px |
 | Home / recipe split | Home shows the library and technical tools; recipe view hides technical tools and shows the recipe plus anchors |
 | Share link | “Share recipe” copies a section-specific `?recipe=…#section` URL |
@@ -43,6 +44,7 @@ axe is run at:
 - `index.html` home, desktop (1280 × 900)
 - `index.html` home, 320 × 844
 - `index.html?recipe=crispy-mushroom-mac-and-cheese#ingredients`, desktop
+- `recipes/crispy-mushroom-mac-and-cheese.html`, desktop and 320 × 844
 - the recipe view at 320 × 844
 - the experiment form open
 - the experiment comparison table

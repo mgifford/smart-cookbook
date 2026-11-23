@@ -53,6 +53,10 @@ function recipeBrowser() {
       });
     },
 
+    recipePageHref(id) {
+      return `recipes/${encodeURIComponent(id)}.html`;
+    },
+
     parseTime(timeStr) {
       if (!timeStr) return 0;
       const match = timeStr.match(/(\d+)([MH])/i);

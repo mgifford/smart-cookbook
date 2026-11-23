@@ -54,9 +54,13 @@
           <input type="checkbox" id="ww-mode" x-model="wwMode" />
           <span>Weight-conscious</span>
         </label>
-        <label class="flex items-center gap-2">
-          <input type="checkbox" id="veg-mode" x-model="vegMode" />
-          <span>Vegetarian</span>
+        <label class="flex items-center gap-2" for="diet-mode">
+          <span>Diet suggestions</span>
+          <select id="diet-mode" x-model="dietMode" aria-describedby="diet-definition">
+            <option value="none">None</option>
+            <option value="vegetarian">Vegetarian — dairy/eggs allowed</option>
+            <option value="vegan">Vegan — no animal products</option>
+          </select>
         </label>
         <label class="flex items-center gap-2">
           <input type="checkbox" id="precision-mode" x-model="precisionMode" checked />
@@ -67,6 +71,7 @@
           <span>Show Science</span>
         </label>
       </div>
+      <p id="diet-definition" class="diet-definition" x-show="!showHome" x-cloak x-text="dietDefinition()"></p>
     </header>
 
     <section id="home" class="home-hero" x-show="showHome" x-cloak>

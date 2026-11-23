@@ -23,6 +23,6 @@ test('shared recipe URLs strip unrelated query parameters but keep the section',
     url: 'http://127.0.0.1:4189/index.html?recipe=crispy-mushroom-mac-and-cheese&debug=true#steps'
   });
   const shared = app.shareUrlFor('ingredients');
-  assert.match(shared, /\?recipe=crispy-mushroom-mac-and-cheese#ingredients$/);
+  assert.match(shared, /\/recipes\/crispy-mushroom-mac-and-cheese\.html#ingredients$/);
   assert.equal(shared.includes('debug=true'), false);
 });

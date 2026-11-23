@@ -79,6 +79,6 @@ test('recipe and share URLs include a stable recipe id and optional section anch
   const { app, window } = await initApp({
     url: 'http://127.0.0.1:4189/index.html?recipe=crispy-mushroom-mac-and-cheese'
   });
-  assert.match(app.recipeUrl('lasagna'), /\?recipe=lasagna$/);
-  assert.match(app.shareUrlFor('ingredients'), /\?recipe=crispy-mushroom-mac-and-cheese#ingredients$/);
+  assert.match(app.recipeUrl('lasagna'), /\/recipes\/lasagna\.html$/);
+  assert.match(app.shareUrlFor('ingredients'), /\/recipes\/crispy-mushroom-mac-and-cheese\.html#ingredients$/);
 });

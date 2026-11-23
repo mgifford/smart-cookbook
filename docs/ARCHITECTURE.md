@@ -37,7 +37,7 @@ There is no backend, account, database, or server-side rendering. User data stay
 3. `displayIngredients()` scales quantities, resolves substitutions as suggestions, computes nutrition, and returns display objects.
 4. `nutritionSummary()` caches by recipe/servings/ingredient key and reports coverage.
 5. Preferences drive unit and temperature display without mutating authored YAML.
-6. The root URL is a home/library view; `?recipe=<id>` opens one recipe. Stable section ids and visible permalinks support direct sharing; technical tools are in the home view.
+6. The root URL is a home/library view. Each recipe has a focused static page at `recipes/<id>.html`; `?recipe=<id>` remains the interactive app view. Stable section ids and visible permalinks support direct sharing; technical tools are in the home view only.
 7. Export uses YAML/JSON/zip; import normalizes while preserving unknown fields and stable ids.
 
 ---
@@ -65,6 +65,8 @@ There is no backend, account, database, or server-side rendering. User data stay
 - `npm run validate:recipes` — project-specific field/quality checks.
 - `npm run check:index` — deterministic index comparison; fails with regeneration instructions.
 - `npm run test:unit` — Node fixtures for scaling, units, import/export, nutrition coverage, deep links, tombstones, exports.
+- `npm run generate:recipe-pages` — generates one focused static page per YAML recipe under `recipes/<id>.html`; no app shell or bookmarklet.
+- `npm run check:recipe-pages` — fails when those pages are stale or missing.
 - `npm run check:ci-policy` — rejects `continue-on-error`, `|| true`, no-tests flags, missing required tests, or a11y checks that stop failing on runtime errors/violations. This runs in CI before the full gate.
 - `npm run lint:html` — HTML validation.
 - `npm run test:a11y` — Playwright journeys and axe at desktop/320 px on both pages, colour contrast enabled.

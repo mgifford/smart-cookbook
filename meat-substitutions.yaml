@@ -1,7 +1,7 @@
 # Meat substitution patterns for default suggestions
 # Each block can be referenced when enriching recipe ingredients.
 # ratio multiplies original qty_g to get substitute grams.
-# tags: [veg] or [vegetarian] and optionally [ww].
+# tags: [vegan], [vegetarian], [veg] (legacy vegetarian), and optionally [ww].
 substitutions:
   - base: "ground beef"
     aliases: ["ground meat", "minced beef", "beef mince", "hamburger"]
@@ -10,15 +10,15 @@ substitutions:
       - name: "cooked brown lentils"
         ratio: 1.0
         science_note: "Adds fiber; needs umami boosters (miso/soy/tomato) and 10-15g oil per 150g to mimic fat."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
       - name: "crumbled extra-firm tofu"
         ratio: 1.0
         science_note: "Press, crumble, and sear; add tamari + smoked paprika for savory depth."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
       - name: "mushroom + walnut mince"
         ratio: 1.0
         science_note: "Mushrooms supply glutamates; walnuts add fat/texture; mince and sear to drive off water."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
 
   - base: "ground pork"
     aliases: ["minced pork", "pork mince"]
@@ -27,11 +27,11 @@ substitutions:
       - name: "firm tofu + 10g oil per 100g"
         ratio: 1.0
         science_note: "Fat restores juiciness; add doubanjiang/miso for umami in spicy braises."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
       - name: "tempeh crumble"
         ratio: 1.0
         science_note: "Protein-dense; steam then crumble and season to reduce bitterness."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
 
   - base: "pulled pork / shredded beef"
     aliases: ["pulled pork", "shredded pork", "shredded beef", "barbacoa"]
@@ -40,11 +40,11 @@ substitutions:
       - name: "young jackfruit (canned)"
         ratio: 1.0
         science_note: "Shreds like meat; low protein, so pair with beans; add smoke + acid; include 10-15g oil per 150g."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
       - name: "oyster mushrooms"
         ratio: 1.0
         science_note: "Tear into strips; sear hard for meaty chew and umami."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
 
   - base: "chicken breast"
     aliases: ["chicken", "chicken breasts"]
@@ -53,11 +53,11 @@ substitutions:
       - name: "firm tofu cutlets"
         ratio: 1.0
         science_note: "Brine (3% salt) 20 min for better seasoning; press and sear; add starch for crust."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
       - name: "seitan strips"
         ratio: 1.0
         science_note: "High protein/chew; marinate for flavor; keep moist with stock or sauce."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
 
   - base: "chicken thigh"
     aliases: ["chicken thighs"]
@@ -66,11 +66,11 @@ substitutions:
       - name: "tempeh cubes"
         ratio: 1.0
         science_note: "Holds shape in braise; absorbs sauce; steam first to mellow bitterness."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
       - name: "firm tofu"
         ratio: 1.0
         science_note: "Soaks curry sauce; add 5-10g oil per 100g to replace thigh fat."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
 
   - base: "steak / beef strips"
     aliases: ["steak", "beef strips", "sirloin", "flank"]
@@ -79,11 +79,11 @@ substitutions:
       - name: "seitan strips"
         ratio: 1.0
         science_note: "Chewy protein; quick sear to avoid drying; glaze with soy/mirin/acid."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
       - name: "portobello slices"
         ratio: 1.0
         science_note: "High water; sear to reduce moisture; add fat + salt for steak-like savoriness."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
 
   - base: "sausages"
     aliases: ["sausage", "italian sausage", "breakfast sausage"]
@@ -92,11 +92,11 @@ substitutions:
       - name: "seasoned seitan sausage"
         ratio: 1.0
         science_note: "Use fennel, garlic, smoked paprika; add oil for snap."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
       - name: "tempeh crumble"
         ratio: 1.0
         science_note: "Toast spices in oil; tempeh carries fat and browns well."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
 
   - base: "bacon"
     aliases: ["lardons", "pancetta"]
@@ -105,11 +105,11 @@ substitutions:
       - name: "smoked tempeh strips"
         ratio: 1.0
         science_note: "Pan-crisp; smoke + salt replace bacon cues; add maple/chili for depth."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
       - name: "coconut chips (smoked)"
         ratio: 0.4
         science_note: "Low protein; supplies crunch and smoke; add later to keep crisp."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
 
   - base: "fish fillet"
     aliases: ["fish", "fillet", "white fish", "cod", "haddock"]
@@ -118,11 +118,11 @@ substitutions:
       - name: "firm tofu fillet"
         ratio: 1.0
         science_note: "Press dry; coat and sear; add nori/lemon/capers for sea notes."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
       - name: "cauliflower steak"
         ratio: 1.0
         science_note: "Roast/sear; needs sauce for fat/umami; good for breaded/baked formats."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
 
   - base: "meat stock"
     aliases: ["chicken stock", "beef stock", "pork stock", "broth"]
@@ -131,7 +131,7 @@ substitutions:
       - name: "umami vegetable stock"
         ratio: 1.0
         science_note: "Use mushroom, tomato, kombu, soy; balances glutamates and nucleotides."
-        tags: [veg]
+        tags: [vegan, veg, vegetarian]
 
 # Notes:
 # - ratio multiplies original grams to get substitute grams (e.g., 200g ground beef → 200g lentils).

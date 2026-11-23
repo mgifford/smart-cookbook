@@ -1086,6 +1086,13 @@ li.ingredient .science-note {
   color: var(--color-accent-emerald-light);
 }
 
+.diet-definition {
+  color: var(--color-text-light);
+  font-size: 0.8rem;
+  max-width: 70ch;
+  margin: 0;
+}
+
 .recipe-facts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));

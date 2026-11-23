@@ -23,6 +23,14 @@ Release 1.1 focused on data integrity:
 - Recipe selection and URL state persist without a routing framework.
 - The bookmarklet no longer emits false zero quantities or WW points.
 
+Follow-up added: focused static recipe pages and dietary clarity:
+
+- Every recipe has a text-focused static page at `recipes/<id>.html`; the app/bookmarklet tools are not on it.
+- Static pages include ingredients, directions, optional science notes, cook's notes, dietary guidance, and basic social metadata.
+- Vegetarian and Vegan are separate categories. Vegetarian allows dairy/eggs; vegan excludes all animal-derived ingredients.
+- The interactive suggestion selector uses `vegan`/`vegetarian`/`veg` tags; vegan mode never falls back to a dairy-only suggestion.
+- Generated pages are checked for staleness and included in axe/320 px tests.
+
 Follow-up added: shareable routes and anchors:
 
 - The root URL is a home/library page; `?recipe=<id>` opens one recipe.
@@ -99,7 +107,7 @@ Release 1.2 added:
 | `npm run check:index` | Synchronized |
 | `npm run check:conversions` | Synchronized |
 | `npm run check:ci-policy` | Pass |
-| `npm run test:unit` | 76/76 pass |
+| `npm run test:unit` | 84/84 pass |
 | `npm run lint:html` | Pass |
 | `npm run test:a11y` | 0 axe violations across both pages, desktop/320, experiment form, comparison table, and import-error state; journeys pass |
 | `npm run scan:security` | Pass, including template content and SRI |

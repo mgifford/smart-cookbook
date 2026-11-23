@@ -1032,7 +1032,7 @@ function cookbookApp() {
     servings: initialRecipe.meta?.base_servings || 1,
     hasUnsavedChanges: false,
     wwMode: true,
-    vegMode: true,
+    dietMode: 'none',
     scienceMode: true,
     precisionMode: false,
     showCopyright: false,
@@ -1585,13 +1585,30 @@ function cookbookApp() {
       return ing.substitutions.find(sub => (sub.tags || []).includes('ww')) || null;
     },
 
-    findVegSub(ing) {
-      if (!this.vegMode) return null;
+    dietDefinition() {
+      if (this.dietMode === 'vegan') {
+        return 'Vegan: no animal-derived ingredients, including dairy, eggs, honey, gelatin, and animal rennet. Vegetarian recipes are not automatically vegan.';
+      }
+      if (this.dietMode === 'vegetarian') {
+        return 'Vegetarian: no meat, poultry, fish, or shellfish. Dairy and eggs may remain. Cheeses may use animal rennet; check labels.';
+      }
+      return 'Choose Vegetarian or Vegan to see suggested ingredient substitutions. Definitions are guidance, not certification.';
+    },
+
+    findDietSub(ing) {
+      if (this.dietMode === 'none') return null;
       const substitutions = Array.isArray(ing.substitutions) ? ing.substitutions : [];
-      const direct = substitutions.find(sub => (sub.tags || []).includes('veg') || (sub.tags || []).includes('vegetarian'));
+      const hasTag = (sub, tag) => (sub.tags || []).includes(tag);
+      let direct = null;
+      if (this.dietMode === 'vegan') {
+        direct = substitutions.find((sub) => hasTag(sub, 'vegan'));
+      } else {
+        direct = substitutions.find((sub) => hasTag(sub, 'vegetarian') || hasTag(sub, 'veg'))
+          || substitutions.find((sub) => hasTag(sub, 'vegan'));
+      }
       if (direct) return direct;
 
-      // Fallback to meat substitution library
+      // Fallback to the reviewed meat-substitution library.
       const normalizedName = normalizeKey(ing.name || '');
       let options = meatSubsMap[normalizedName];
 
@@ -1607,14 +1624,18 @@ function cookbookApp() {
       }
 
       if (options && options.length) {
-        const first = options[0];
-        return {
-          name: first.name,
-          ratio: first.ratio || 1,
-          science_note: first.science_note || '',
-          ww_points: first.ww_points ?? null,
-          tags: ['veg']
-        };
+        const first = options.find((option) => this.dietMode === 'vegan'
+          ? (option.tags || []).includes('vegan')
+          : ((option.tags || []).includes('vegetarian') || (option.tags || []).includes('veg') || (option.tags || []).includes('vegan')));
+        if (first) {
+          return {
+            name: first.name,
+            ratio: first.ratio || 1,
+            science_note: first.science_note || '',
+            ww_points: first.ww_points ?? null,
+            tags: first.tags || ['vegan', 'vegetarian']
+          };
+        }
       }
       return null;
     },
@@ -1627,15 +1648,15 @@ function cookbookApp() {
         return [];
       }
       return this.current.ingredients.map(ing => {
-        const vegSub = this.findVegSub(ing);
+        const dietSub = this.findDietSub(ing);
         const wwSub = this.findWWSub(ing);
         const baseName = sanitizeText(ing.name);
         const baseVol = sanitizeText(ing.vol_est);
         
         // Debug: log what we found
-        if (vegSub || wwSub) {
+        if (dietSub || wwSub) {
           console.log(`[DEBUG] Suggestions for ${baseName}:`, {
-            vegSub: vegSub?.name,
+            dietSub: dietSub?.name,
             wwSub: wwSub?.name,
             substitutions: ing.substitutions
           });
@@ -1652,9 +1673,10 @@ function cookbookApp() {
           ? `${nutrition.calories} kcal • P ${nutrition.protein}g • F ${nutrition.fat}g • C ${nutrition.carbs}g${nutrition.fiber ? ' • Fiber ' + nutrition.fiber + 'g' : ''}`
           : '';
         
-        // Prioritize veg, then ww
-        const suggestion = vegSub
-          ? { icon: '🌿', text: `Vegetarian: ${vegSub.name}${vegSub.science_note ? ' - ' + vegSub.science_note : ''}` }
+        // Prioritize the selected dietary mode, then weight-conscious.
+        const dietLabel = this.dietMode === 'vegan' ? 'Vegan' : 'Vegetarian';
+        const suggestion = dietSub
+          ? { icon: '🌱', text: `${dietLabel}: ${dietSub.name}${dietSub.science_note ? ' - ' + dietSub.science_note : ''}` }
           : wwSub
             ? { icon: '⚖️', text: `Weight-conscious: ${wwSub.name}${wwSub.science_note ? ' - ' + wwSub.science_note : ''}` }
             : null;
@@ -1818,19 +1840,16 @@ function cookbookApp() {
 
     recipeUrl(id) {
       if (!id || typeof window === 'undefined') return '';
-      const url = new URL(window.location.href);
-      url.search = '';
-      url.searchParams.set('recipe', id);
-      url.hash = '';
-      return url.toString();
+      return new URL(`recipes/${encodeURIComponent(id)}.html`, window.location.href).toString();
     },
 
     shareUrlFor(anchor = '') {
       if (!this.current?.id) return '';
-      const url = new URL(window.location.href);
-      url.search = '';
-      url.searchParams.set('recipe', this.current.id);
-      url.hash = anchor || '';
+      const url = new URL(this.recipeUrl(this.current.id));
+      // The focused static recipe page has ingredients, steps, science, dietary,
+      // and notes anchors. Nutrition and experiments exist only in the app.
+      const supported = new Set(['ingredients', 'steps', 'science', 'dietary', 'notes']);
+      url.hash = supported.has(anchor) ? anchor : '';
       return url.toString();
     },
 

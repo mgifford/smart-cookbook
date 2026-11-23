@@ -133,7 +133,7 @@ const logViolations = () => {
     assert(await page.locator('#bookmarklet').isVisible(), 'bookmarklet should be on the home page');
     assert(await page.locator('#yaml-input').isVisible(), 'YAML import/export should be on the home page');
     const firstCard = page.locator('.recipe-card').first();
-    assert((await firstCard.getAttribute('href')).includes('?recipe='), 'home recipe card is not a direct recipe link');
+    assert((await firstCard.getAttribute('href')).includes('/recipes/'), 'home recipe card is not a direct recipe page link');
 
     // The skip link is the first stop and lands in main content.
     await page.keyboard.press('Tab');
@@ -174,7 +174,7 @@ const logViolations = () => {
     await page.click('button:has-text("Share recipe")');
     await page.waitForTimeout(200);
     const sharedUrl = await page.evaluate(() => navigator.clipboard.readText());
-    assert(sharedUrl.includes('?recipe=crispy-mushroom-mac-and-cheese#steps'), `shared URL was not section-specific: ${sharedUrl}`);
+    assert(sharedUrl.includes('/recipes/crispy-mushroom-mac-and-cheese.html#steps'), `shared URL was not section-specific: ${sharedUrl}`);
     assert((await page.locator('.share-status').innerText()).includes('copied'), 'share confirmation was not announced');
 
     // A deep link into the closed notes disclosure opens it and focuses its summary.
@@ -253,6 +253,23 @@ const logViolations = () => {
     assert(homeOverflow.scrollWidth <= homeOverflow.clientWidth, `home overflows at 320px (${homeOverflow.scrollWidth} > ${homeOverflow.clientWidth})`);
     await analyze(page, 'index.html home 320px');
 
+    // Focused static recipe page: text only, no app shell.
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(`${baseUrl}/recipes/crispy-mushroom-mac-and-cheese.html#ingredients`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    assert(await page.locator('h1').innerText() === 'Crispy Mushroom Mac and Cheese (Weeknight)', 'static recipe title did not render');
+    assert(await page.locator('#ingredients li').count() >= 15, 'static ingredients did not render');
+    assert(await page.locator('#steps li').count() >= 13, 'static directions did not render');
+    assert(await page.locator('#bookmarklet, [x-data], #yaml-input').count() === 0, 'static recipe page contains app/technical chrome');
+    await analyze(page, 'recipes/crispy-mushroom-mac-and-cheese.html desktop');
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.waitForTimeout(200);
+    const staticOverflow = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth
+    }));
+    assert(staticOverflow.scrollWidth <= staticOverflow.clientWidth, `static recipe page overflows at 320px (${staticOverflow.scrollWidth} > ${staticOverflow.clientWidth})`);
+    await analyze(page, 'recipes/crispy-mushroom-mac-and-cheese.html 320px');
+
     // Recipe browser: search, card, and direct link.
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(`${baseUrl}/recipes-index.html`, { waitUntil: 'domcontentloaded', timeout: 60000 });
@@ -266,7 +283,7 @@ const logViolations = () => {
     assert(await page.locator('article .grid > div').count() === 1, 'recipe search did not filter to one card');
     const card = page.locator('article .grid > div').filter({ hasText: 'Crispy Mushroom' }).first();
     assert(await card.isVisible(), 'new recipe card is not visible');
-    assert((await card.locator('a:has-text("View Recipe")').getAttribute('href')) === 'index.html?recipe=crispy-mushroom-mac-and-cheese', 'card deep link is wrong');
+    assert((await card.locator('a:has-text("View Recipe")').getAttribute('href')) === 'recipes/crispy-mushroom-mac-and-cheese.html', 'card link is wrong');
 
     await analyze(page, 'recipes-index.html desktop');
 

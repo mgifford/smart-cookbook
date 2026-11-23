@@ -7,6 +7,7 @@ This file contains the system prompts (personas) used to maintain and build this
 - Make minimal, reviewable changes; preserve existing recipes and user data.
 - Never silently discard unknown YAML or localStorage fields during import, normalization, or export.
 - Preserve the difference between an explicit zero, `null` (unknown/not calculated), and a missing field. Never deduplicate ingredient entries by name; repeated names can represent different components.
+- Never treat vegetarian and vegan as synonyms. Vegetarian allows dairy and eggs; vegan excludes all animal-derived ingredients. Only tag a substitute `vegan` when that is true, and never let vegan mode suggest a dairy or egg substitute.
 - Route browser imports through the shared validator and show a visible field-level error summary. Do not save invalid recipe data as a completed recipe.
 - Distinguish source-documented facts, deterministic calculations, estimates, proposals, human-tested results, and AI suggestions.
 - Never fabricate cooking results, nutrition values, Weight Watchers points, accessibility conformance, or performance measurements.
@@ -33,7 +34,7 @@ This file contains the system prompts (personas) used to maintain and build this
 > **Your Responsibilities:**
 > 1. Maintain `index.html` and `script.js`.
 > 2. Ensure the "WW Toggle" surfaces lower-point suggestions without silently changing quantities.
-> 3. Ensure the "Vegetarian Mode" surfaces plant-based suggestions without silently changing quantities; require explicit user approval before applying a substitution.
+> 3. Ensure the dietary suggestion selector separates Vegetarian (dairy/eggs allowed) from Vegan (no animal products) and never changes quantities silently; require explicit user approval before applying a substitution.
 > 4. Ensure the "Science Mode" displays ingredient functions and cooking chemistry explanations.
 > 5. Ensure the "Scaling Slider" accurately calculates grams with proper unit conversions.
 > 6. Maintain the "Copyright Education Panel" for teaching open recipe culture.
@@ -59,7 +60,7 @@ This file contains the system prompts (personas) used to maintain and build this
 > 4. **Substitutions:** For common ingredients (butter, sugar, eggs, meat, dairy), propose 1-2 scientific substitutions (never apply them silently) with:
 >    - `ratio` (multiplier for qty_g)
 >    - `science_note` (explain how it affects the chemistry)
->    - `tags` (include [ww], [veg], or [vegetarian] as appropriate)
+>    - `tags` (include [ww], [vegan], [vegetarian], or legacy [veg] as appropriate)
 > 5. **Science Notes:** For each step in the recipe, add a brief science explanation (Maillard reaction, gluten development, emulsification, etc.).
 > 6. **Region defaults:** Do not change `qty_g` when locale defaults apply; only adjust display/unit preferences (US → cups/oz/°F, others → ml/g/°C). Keep `vol_est` human-friendly per RECIPE-AUTHORING.md.
 >
@@ -204,7 +205,7 @@ This file contains the system prompts (personas) used to maintain and build this
 > 3. **Consistency** — Ensure recipes follow RECIPE-AUTHORING.md standards
 > 4. **Completeness** — All ingredients need functions, WW points, substitutions where applicable
 > 5. **Metadata quality** — Names are clear, sources are valid URLs, times are realistic
-> 6. **Substitutions** — Each has ratio (positive number), science_note (explains chemistry), tags ([ww], [veg], [vegetarian])
+> 6. **Substitutions** — Each has ratio (positive number), science_note (explains chemistry), tags ([ww], [vegan], [vegetarian], or legacy [veg])
 > 7. **Grammar & clarity** — Steps are clear, science notes are well-written
 > 8. **Food science** — Chemistry explanations (Maillard reaction, emulsification, etc.) are correct
 >

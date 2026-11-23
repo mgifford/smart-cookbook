@@ -16,6 +16,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
 </head>
 <body x-data="cookbookApp()" @init="init()">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <noscript>
     <div class="noscript">
       <strong>JavaScript is required for the interactive cookbook.</strong>
@@ -23,12 +24,17 @@
       <a href="https://github.com/mgifford/smart-cookbook/tree/main/recipes">repository recipes directory</a>.
     </div>
   </noscript>
-  <main>
+  <main id="main-content" tabindex="-1">
     <header>
-      <div class="flex justify-between items-center">
-        <h1>🧪 Science-Based Smart Cookbook</h1>
+      <div class="flex justify-between items-center gap-3 flex-wrap">
+        <h1><a class="brand-link" href="./" @click.prevent="goHome()">🧪 Science-Based Smart Cookbook</a></h1>
+        <nav aria-label="Cookbook">
+          <a class="text-sm" href="./" @click.prevent="goHome()" x-show="!showHome" x-cloak>← All recipes</a>
+          <a class="text-sm" href="#recipe-library" x-show="showHome" x-cloak>Browse recipes</a>
+        </nav>
       </div>
-      <div class="flex flex-wrap gap-3">
+      <p class="home-notice" x-show="showHome && homeNotice" x-cloak role="status" aria-live="polite" x-text="homeNotice"></p>
+      <div class="flex flex-wrap gap-3 recipe-controls" x-show="!showHome" x-cloak>
         <label class="flex items-center gap-2" for="recipe-select">
           <span>Recipe</span>
           <select id="recipe-select" x-model="selectedId" @change="loadRecipe(selectedId, { pushHistory: true })">
@@ -38,7 +44,6 @@
           </select>
         </label>
         <button type="button" @click="deleteCurrentRecipe()" class="btn-danger">🗑️ Delete</button>
-        <button type="button" @click="downloadBackup()" x-show="hasUnsavedChanges" class="btn-warning">⬇️ Backup All</button>
         <div class="flex items-center gap-2">
           <label for="servings-slider">Servings</label>
           <input type="range" id="servings-slider" min="1" max="64" step="1" class="w-40" x-model.number="servings" @input="adjustServings()" @change="adjustServings()" />
@@ -64,11 +69,39 @@
       </div>
     </header>
 
-    <article>
+    <section id="home" class="home-hero" x-show="showHome" x-cloak>
+      <p class="eyebrow">Open recipes · evidence-led cooking</p>
+      <h2 id="home-heading" tabindex="-1">Cook with evidence, not guesswork.</h2>
+      <p class="home-intro">A small, open cookbook with scalable ingredients, food-science notes, and honest labels for what has and has not been tested. Choose one recipe to share, or explore the whole collection.</p>
+      <div class="hero-actions">
+        <a class="button" href="#recipe-library">Browse recipes</a>
+        <a class="secondary" href="#bookmarklet">Save a recipe from the web</a>
+      </div>
+    </section>
+
+    <section id="recipe-library" class="recipe-library" x-show="showHome" x-cloak>
+      <div>
+        <h2 class="text-xl">Recipes</h2>
+        <p class="text-sm">Each card links to one shareable recipe page.</p>
+      </div>
+      <ul class="recipe-grid">
+        <template x-for="r in libraryRecipes()" :key="r.id">
+          <li>
+            <a class="recipe-card" :href="recipeUrl(r.id)">
+              <span class="recipe-card-title" x-text="r.meta.name"></span>
+              <span class="recipe-card-source" x-text="sourceLabel(r.meta.source)"></span>
+              <span class="recipe-card-status" x-show="r.meta?.status" x-text="r.meta.status"></span>
+            </a>
+          </li>
+        </template>
+      </ul>
+    </section>
+
+    <article id="recipe" x-show="!showHome" x-cloak>
       <div>
         <div>
           <p class="text-sm text-slate-300" x-text="current.meta.source"></p>
-          <h2 class="text-xl" x-text="current.meta.name"></h2>
+          <h2 id="recipe-title" class="text-xl" x-text="current.meta.name"></h2>
           <p class="status-badge" x-show="current.meta?.status" x-text="current.meta.status"></p>
           <dl class="recipe-facts" x-show="current.provenance || current.equipment || current.testing_status || current.desired_outcomes?.length">
             <div x-show="current.provenance">
@@ -97,13 +130,32 @@
             </template>
           </div>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
+          <button type="button" @click="shareRecipe()" class="secondary">🔗 Share recipe</button>
           <button type="button" @click="copyRecipe()">📋 Copy Recipe</button>
           <button type="button" @click="copyAIPrompt()">Ask AI</button>
         </div>
       </div>
 
-      <details class="recipe-notes" x-show="current.meta?.notes">
+      <p class="share-status" role="status" aria-live="polite" x-text="shareStatus"></p>
+      <div class="share-fallback" x-show="shareFallback" x-cloak>
+        <label for="share-fallback-url">Recipe link</label>
+        <input id="share-fallback-url" type="text" readonly :value="shareFallback" @focus="$event.target.select()" />
+      </div>
+
+      <nav class="recipe-toc" aria-labelledby="recipe-contents-heading">
+        <h2 id="recipe-contents-heading">On this page</h2>
+        <ul>
+          <li><a href="#ingredients">Ingredients</a></li>
+          <li><a href="#steps">Steps</a></li>
+          <li x-show="scienceMode && current.science_notes && current.science_notes.length"><a href="#science">Cooking Science</a></li>
+          <li><a href="#nutrition">Nutrition</a></li>
+          <li><a href="#experiments">Cooking experiments</a></li>
+          <li x-show="current.meta?.notes"><a href="#notes">Adaptation notes</a></li>
+        </ul>
+      </nav>
+
+      <details id="notes" class="recipe-notes" x-show="current.meta?.notes">
         <summary>Adaptation notes, equipment &amp; testing status</summary>
         <p class="text-sm" x-text="current.meta.notes"></p>
       </details>
@@ -133,8 +185,11 @@
       </div>
 
       <div class="grid-2col">
-        <section>
-          <h3 class="font-bold mb-2">Ingredients</h3>
+        <section id="ingredients">
+          <div class="heading-row">
+            <h3 id="ingredients-heading" class="font-bold mb-2">Ingredients</h3>
+            <a class="permalink" href="#ingredients"><span aria-hidden="true">#</span><span class="visually-hidden">Permalink to Ingredients</span></a>
+          </div>
           <ul class="space-y-2">
             <template x-for="(ing, idx) in displayIngredients()" :key="idx">
                 <li class="ingredient" :class="ing.swapped && 'swapped'" :title="ing.nutritionTooltip">
@@ -159,18 +214,24 @@
             </template>
           </ul>
         </section>
-        <section>
-          <h3 class="font-bold mb-2">Steps</h3>
+        <section id="steps">
+          <div class="heading-row">
+            <h3 id="steps-heading" class="font-bold mb-2">Steps</h3>
+            <a class="permalink" href="#steps"><span aria-hidden="true">#</span><span class="visually-hidden">Permalink to Steps</span></a>
+          </div>
           <ol class="list-decimal">
             <template x-for="(step, idx) in stepsList()" :key="idx">
-              <li class="leading-relaxed" x-text="step"></li>
+              <li class="leading-relaxed" :id="'step-' + (idx + 1)" x-text="step"></li>
             </template>
           </ol>
         </section>
 
         <!-- Science Notes Section -->
-        <section x-show="scienceMode && current.science_notes && current.science_notes.length" class="mt-4 bg-blue-900-20 border border-blue-700">
-          <h3 class="font-bold mb-2 text-blue-400">🔬 Cooking Science</h3>
+        <section id="science" x-show="scienceMode && current.science_notes && current.science_notes.length" class="mt-4 bg-blue-900-20 border border-blue-700">
+          <div class="heading-row">
+            <h3 id="science-heading" class="font-bold mb-2 text-blue-400">🔬 Cooking Science</h3>
+            <a class="permalink" href="#science"><span aria-hidden="true">#</span><span class="visually-hidden">Permalink to Cooking Science</span></a>
+          </div>
           <ul class="space-y-2 text-sm">
             <template x-for="(note, idx) in (current.science_notes || [])" :key="idx">
               <li class="leading-relaxed">• <span x-text="note"></span></li>
@@ -180,9 +241,13 @@
       </div>
     </article>
 
-    <section>
+    <div x-show="!showHome" x-cloak>
+    <section id="nutrition">
+      <div class="heading-row">
+        <h2 id="nutrition-heading" class="text-lg">Nutrition</h2>
+        <a class="permalink" href="#nutrition"><span aria-hidden="true">#</span><span class="visually-hidden">Permalink to Nutrition</span></a>
+      </div>
       <div>
-        <h2 class="text-lg">Nutrition</h2>
         <span class="text-xs text-red-300" x-show="nutritionError" role="status" aria-live="polite">Data unavailable (nutrition.yaml not found)</span>
         <span class="text-xs text-slate-400" x-show="!nutritionLoaded && !nutritionError" role="status" aria-live="polite">Loading nutrition…</span>
       </div>
@@ -207,9 +272,12 @@
       <p class="text-xs text-slate-400" x-show="nutritionLoaded && !nutritionError" aria-live="polite" x-text="nutritionCoverageText()"></p>
     </section>
 
-    <section>
+    <section id="experiments">
+      <div class="heading-row">
+        <h2 id="experiments-heading" class="text-lg">Cooking experiments</h2>
+        <a class="permalink" href="#experiments"><span aria-hidden="true">#</span><span class="visually-hidden">Permalink to Cooking experiments</span></a>
+      </div>
       <div>
-        <h2 class="text-lg">Cooking experiments</h2>
         <span class="text-xs text-slate-400" role="status" aria-live="polite" x-text="experimentStatus"></span>
       </div>
       <p class="text-sm">Record what actually happened in your kitchen. Experiments stay in this browser until you export them; they are not published or counted as recipe tests automatically.</p>
@@ -381,8 +449,15 @@
         </div>
       </div>
     </section>
+    </div>
 
-    <section>
+    <div id="home-tools" class="home-tools" x-show="showHome" x-cloak>
+      <div>
+        <h2 id="tools-heading" class="text-xl">Tools &amp; technical information</h2>
+        <p class="text-sm">Bookmarklet, import/export, and display settings live here on the home page. The recipe page stays focused on cooking.</p>
+      </div>
+
+    <section id="bookmarklet">
       <div>
         <h2 class="text-lg">Bookmarklet</h2>
         <button type="button" @click="copyBookmarklet()">Copy Bookmarklet</button>
@@ -393,7 +468,7 @@
       <textarea id="bookmarklet-code" class="h-24 text-xs" x-model="bookmarkletCode" readonly></textarea>
     </section>
 
-    <section>
+    <section id="import-export">
       <h2 class="text-lg">YAML Import / Export</h2>
       <p class="text-sm">Paste a recipe YAML to load it, or click Save to dump the current recipe back to YAML.</p>
       <label for="yaml-input" class="sr-only">YAML recipe data</label>
@@ -421,10 +496,11 @@
         <button type="button" class="secondary" @click="loadORF()">Load ORF</button>
         <button type="button" class="secondary" @click="saveORF()">Save Current to ORF</button>
         <button type="button" class="secondary" @click="downloadAllAsZip()">📦 Download All (.zip)</button>
+        <button type="button" class="secondary" @click="downloadBackup()">⬇️ Backup All</button>
       </div>
     </section>
 
-    <section>
+    <section id="display-preferences">
       <h2 class="text-lg">Display Preferences</h2>
       <p class="text-sm">Choose how quantities and temperatures are shown.</p>
       <div class="grid-3col">
@@ -461,7 +537,7 @@
     </section>
 
     <!-- Copyright & Open Culture Education Section -->
-    <section>
+    <section id="copyright">
       <div>
         <h2 class="text-lg">📜 Open Recipes & Copyright</h2>
         <button type="button" @click="showCopyright = !showCopyright">
@@ -507,6 +583,7 @@
         </div>
       </div>
     </section>
+    </div>
   </main>
 </body>
 </html>

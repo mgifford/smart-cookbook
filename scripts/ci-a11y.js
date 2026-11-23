@@ -109,7 +109,13 @@ const logViolations = () => {
     }
 
     browser = await chromium.launch({ headless: true });
-    const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const context = await browser.newContext({
+      viewport: { width: 1280, height: 900 },
+      permissions: ['clipboard-read', 'clipboard-write']
+    });
+    await context.addInitScript(() => {
+      try { Object.defineProperty(navigator, 'share', { value: undefined, configurable: true }); } catch (_) {}
+    });
     const page = await context.newPage();
 
     const runtimeErrors = [];
@@ -118,19 +124,64 @@ const logViolations = () => {
       if (message.type() === 'error') runtimeErrors.push(`console: ${message.text()}`);
     });
 
-    // Recipe view and deep link.
-    await page.goto(`${baseUrl}/index.html?recipe=crispy-mushroom-mac-and-cheese`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    // Home page: shareable concept, recipe library, and technical tools.
+    await page.goto(`${baseUrl}/index.html`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.waitForFunction(() => document.querySelectorAll('.recipe-card').length >= 11, null, { timeout: 15000 });
+    assert(await page.locator('#home').isVisible(), 'home hero did not render');
+    assert(await page.locator('article#recipe').isVisible() === false, 'recipe view should be hidden on the home page');
+    assert(await page.locator('#recipe-select').isVisible() === false, 'recipe controls should be hidden on the home page');
+    assert(await page.locator('#bookmarklet').isVisible(), 'bookmarklet should be on the home page');
+    assert(await page.locator('#yaml-input').isVisible(), 'YAML import/export should be on the home page');
+    const firstCard = page.locator('.recipe-card').first();
+    assert((await firstCard.getAttribute('href')).includes('?recipe='), 'home recipe card is not a direct recipe link');
+
+    // The skip link is the first stop and lands in main content.
+    await page.keyboard.press('Tab');
+    assert(await page.evaluate(() => document.activeElement && document.activeElement.className) === 'skip-link', 'skip link is not the first focusable control');
+    assert(await page.locator('.skip-link').isVisible(), 'skip link is not visible on focus');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(100);
+    assert(await page.evaluate(() => document.activeElement && document.activeElement.id) === 'main-content', 'skip link did not focus main content');
+
+    await analyze(page, 'index.html home');
+
+    // Deep link: one recipe, with a section anchor.
+    await page.goto(`${baseUrl}/index.html?recipe=crispy-mushroom-mac-and-cheese#ingredients`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.waitForFunction(() => document.querySelectorAll('#recipe-select option').length > 0, null, { timeout: 15000 });
     assert(await page.inputValue('#recipe-select') === 'crispy-mushroom-mac-and-cheese', 'deep link did not select the recipe');
-    assert((await page.locator('article h2').innerText()).includes('Crispy Mushroom'), 'recipe title did not render');
+    assert(await page.locator('article#recipe').isVisible(), 'deep link did not show the recipe');
+    assert(await page.locator('#home').isVisible() === false, 'home should be hidden on a recipe page');
+    assert(await page.locator('#bookmarklet').isVisible() === false, 'bookmarklet should not appear on a recipe page');
+    assert(await page.locator('#yaml-input').isVisible() === false, 'YAML import/export should not appear on a recipe page');
+    assert((await page.locator('#recipe-title').innerText()).includes('Crispy Mushroom'), 'recipe title did not render');
     assert(await page.locator('li.ingredient').count() >= 15, 'ingredients did not render');
     assert(await page.locator('ol li').count() >= 13, 'steps did not render');
     assert(await page.locator('details.recipe-notes').isVisible(), 'recipe notes are not discoverable');
-    const bookmarkletHref = await page.locator('a:has-text("Save to Cookbook")').getAttribute('href');
-    assert(bookmarkletHref && bookmarkletHref.startsWith('javascript:'), 'bookmarklet href is missing');
-    assert(bookmarkletHref.includes('parseRecipeJsonLd'), 'bookmarklet does not use the shared scraper');
+    assert(await page.locator('a.permalink').count() >= 5, 'recipe section permalinks are missing');
+    assert(await page.locator('.recipe-toc a').count() >= 5, 'recipe table of contents is missing');
+    await page.waitForFunction(() => document.activeElement && document.activeElement.id === 'ingredients', null, { timeout: 5000 });
+    assert(await page.evaluate(() => location.hash) === '#ingredients', 'initial section hash was not preserved');
 
-    await analyze(page, 'index.html desktop');
+    await analyze(page, 'index.html recipe');
+
+    // A visible section link updates the URL and moves focus.
+    await page.locator('.recipe-toc a[href="#steps"]').click();
+    await page.waitForTimeout(150);
+    assert(await page.evaluate(() => location.hash) === '#steps', 'TOC anchor did not update the URL');
+    assert(await page.evaluate(() => document.activeElement && document.activeElement.id) === 'steps', 'TOC anchor did not move focus');
+
+    // Share the current section, not just the site root.
+    await page.click('button:has-text("Share recipe")');
+    await page.waitForTimeout(200);
+    const sharedUrl = await page.evaluate(() => navigator.clipboard.readText());
+    assert(sharedUrl.includes('?recipe=crispy-mushroom-mac-and-cheese#steps'), `shared URL was not section-specific: ${sharedUrl}`);
+    assert((await page.locator('.share-status').innerText()).includes('copied'), 'share confirmation was not announced');
+
+    // A deep link into the closed notes disclosure opens it and focuses its summary.
+    await page.goto(`${baseUrl}/index.html?recipe=crispy-mushroom-mac-and-cheese#notes`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.waitForFunction(() => document.querySelectorAll('#recipe-select option').length > 0, null, { timeout: 15000 });
+    await page.waitForFunction(() => document.querySelector('details#notes')?.open === true, null, { timeout: 5000 });
+    assert(await page.evaluate(() => document.activeElement && document.activeElement.tagName) === 'SUMMARY', 'notes deep link did not focus the summary');
 
     // Experiment form and its interactive state.
     await page.locator('details.experiment-panel summary').click();
@@ -169,23 +220,38 @@ const logViolations = () => {
     const after = await page.locator('#servings-slider').inputValue();
     assert(before !== after, 'servings slider did not respond to keyboard');
 
-    // Reflow at 320 CSS pixels.
+    // Reflow at 320 CSS pixels on the recipe page.
     await page.setViewportSize({ width: 320, height: 844 });
     await page.waitForTimeout(200);
     const overflow = await page.evaluate(() => ({
       scrollWidth: document.documentElement.scrollWidth,
       clientWidth: document.documentElement.clientWidth
     }));
-    assert(overflow.scrollWidth <= overflow.clientWidth, `index.html overflows at 320px (${overflow.scrollWidth} > ${overflow.clientWidth})`);
-    await analyze(page, 'index.html 320px');
+    assert(overflow.scrollWidth <= overflow.clientWidth, `index.html recipe overflows at 320px (${overflow.scrollWidth} > ${overflow.clientWidth})`);
+    await analyze(page, 'index.html recipe 320px');
 
-    // Invalid import error summary.
+    // Technical import tools are on the home page.
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.locator('a.brand-link').click();
+    await page.waitForTimeout(250);
+    assert(await page.locator('#home').isVisible(), 'brand link did not return to the home page');
+    assert(await page.locator('#yaml-input').isVisible(), 'YAML import/export is not on the home page');
     await page.fill('#yaml-input', 'meta:\n  name: Invalid fixture\n');
     await page.click('button:has-text("Load YAML")');
     await page.waitForTimeout(100);
     assert(await page.locator('#import-errors').isVisible(), 'invalid import did not show an error summary');
     assert(await page.evaluate(() => document.activeElement && document.activeElement.id) === 'import-errors', 'import error summary did not receive focus');
-    await analyze(page, 'index.html import errors');
+    await analyze(page, 'index.html home import errors');
+
+    // Home reflow.
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.waitForTimeout(200);
+    const homeOverflow = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth
+    }));
+    assert(homeOverflow.scrollWidth <= homeOverflow.clientWidth, `home overflows at 320px (${homeOverflow.scrollWidth} > ${homeOverflow.clientWidth})`);
+    await analyze(page, 'index.html home 320px');
 
     // Recipe browser: search, card, and direct link.
     await page.setViewportSize({ width: 1280, height: 900 });

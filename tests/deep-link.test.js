@@ -23,6 +23,8 @@ test('an unknown ?recipe= id falls back without crashing', async () => {
     url: 'http://127.0.0.1:4189/index.html?recipe=does-not-exist'
   });
 
+  assert.equal(app.showHome, true);
+  assert.match(app.homeNotice, /no longer points/);
   assert.ok(app.selectedId);
   assert.notEqual(app.selectedId, 'does-not-exist');
   assert.ok(app.current);

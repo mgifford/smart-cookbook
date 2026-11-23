@@ -37,7 +37,8 @@ There is no backend, account, database, or server-side rendering. User data stay
 3. `displayIngredients()` scales quantities, resolves substitutions as suggestions, computes nutrition, and returns display objects.
 4. `nutritionSummary()` caches by recipe/servings/ingredient key and reports coverage.
 5. Preferences drive unit and temperature display without mutating authored YAML.
-6. Export uses YAML/JSON/zip; import normalizes while preserving unknown fields and stable ids.
+6. The root URL is a home/library view; `?recipe=<id>` opens one recipe. Stable section ids and visible permalinks support direct sharing; technical tools are in the home view.
+7. Export uses YAML/JSON/zip; import normalizes while preserving unknown fields and stable ids.
 
 ---
 

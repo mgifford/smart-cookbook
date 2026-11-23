@@ -28,6 +28,10 @@ The check is `scripts/ci-a11y.js`. It starts a local static server when pointed 
 | Search | Typing `Crispy` filters the browser to one card |
 | Deep link from a card | The card points at `index.html?recipe=crispy-mushroom-mac-and-cheese` |
 | Recipe-browser reflow | No horizontal overflow at 320 CSS px |
+| Home / recipe split | Home shows the library and technical tools; recipe view hides technical tools and shows the recipe plus anchors |
+| Share link | “Share recipe” copies a section-specific `?recipe=…#section` URL |
+| Anchor navigation | TOC/permalink links update the hash, move focus, and open the closed notes disclosure when deep-linked |
+| Skip link | The skip link is visible on focus and targets `#main-content` |
 | Experiment form | The form opens, saves a record, and the record persists after reload |
 | Invalid import | An invalid YAML import shows a visible error summary and focuses it |
 | Runtime errors | No page errors or console errors during the journeys |
@@ -36,10 +40,13 @@ The check is `scripts/ci-a11y.js`. It starts a local static server when pointed 
 
 axe is run at:
 
-- `index.html`, desktop (1280 × 900)
-- `index.html` with the experiment form open
-- `index.html`, 320 × 844
-- `index.html` with an invalid-import error summary
+- `index.html` home, desktop (1280 × 900)
+- `index.html` home, 320 × 844
+- `index.html?recipe=crispy-mushroom-mac-and-cheese#ingredients`, desktop
+- the recipe view at 320 × 844
+- the experiment form open
+- the experiment comparison table
+- the home page with an invalid-import error summary
 - `recipes-index.html`, desktop
 - `recipes-index.html`, 320 × 844
 

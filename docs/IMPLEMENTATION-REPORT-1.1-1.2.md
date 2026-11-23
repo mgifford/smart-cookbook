@@ -23,6 +23,15 @@ Release 1.1 focused on data integrity:
 - Recipe selection and URL state persist without a routing framework.
 - The bookmarklet no longer emits false zero quantities or WW points.
 
+Follow-up added: shareable routes and anchors:
+
+- The root URL is a home/library page; `?recipe=<id>` opens one recipe.
+- `#ingredients`, `#steps`, `#science`, `#nutrition`, `#experiments`, and `#notes` are stable section anchors, with a table of contents and visible permalinks.
+- “Share recipe” uses the Web Share API or clipboard and includes the current section hash.
+- Closed notes disclosures and hidden science sections are revealed before a deep link moves focus.
+- Bookmarklet, YAML import/export, display settings, and copyright context moved to the home page only.
+- A skip link and visible focus targets were added.
+
 Release 1.2 added:
 
 - Structured recipe facts (provenance, equipment, testing status, desired outcomes).
@@ -89,7 +98,7 @@ Release 1.2 added:
 | `npm run validate:recipes` | 11/11, 0 errors, 0 warnings |
 | `npm run check:index` | Synchronized |
 | `npm run check:conversions` | Synchronized |
-| `npm run test:unit` | 64/64 pass |
+| `npm run test:unit` | 76/76 pass |
 | `npm run lint:html` | Pass |
 | `npm run test:a11y` | 0 axe violations across both pages, desktop/320, experiment form, comparison table, and import-error state; journeys pass |
 | `npm run scan:security` | Pass, including template content and SRI |

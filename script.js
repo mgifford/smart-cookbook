@@ -305,6 +305,7 @@ function cookbookApp() {
   const sampleRecipes = [
     {
       id: 'banana-bread',
+      _demo: true,
       meta: { name: 'Banana Bread', source: 'https://example.com/banana', base_servings: 8, prep_time: '15 min' },
       ingredients: [
         { name: 'all-purpose flour', qty_g: 250, vol_est: '2 cups', function: 'structure', ww_points: 24,
@@ -883,6 +884,7 @@ function cookbookApp() {
     || (storedSelectedId && !deletedRecipeIds.has(storedSelectedId) ? storedSelectedId : '')
     || firstRecipe.id;
   const initialRecipe = recipesToUse.find(r => r.id === initialSelectedId) || firstRecipe;
+  const initialShowHome = !requestedRecipeId;
   let nutritionCache = { key: null, value: null };
 
   return {
@@ -895,6 +897,11 @@ function cookbookApp() {
     nutritionVersion: 0,
     importErrors: [],
     importWarnings: [],
+    showHome: initialShowHome,
+    homeNotice: '',
+    lastRecipeId: storedSelectedId && !deletedRecipeIds.has(storedSelectedId) ? storedSelectedId : '',
+    shareStatus: '',
+    shareFallback: '',
     experiments: loadExperimentsFromStorage(),
     experimentJson: '',
     experimentStatus: '',
@@ -935,9 +942,9 @@ function cookbookApp() {
       console.log('[DEBUG] init() called');
       if (typeof window !== 'undefined' && !this._historyBound) {
         this._historyBound = true;
-        window.addEventListener('popstate', () => {
-          const id = new URLSearchParams(window.location.search).get('recipe');
-          if (id) this.loadRecipe(id, { skipUrl: true });
+        window.addEventListener('popstate', () => this.handleLocationChange());
+        window.addEventListener('hashchange', () => {
+          if (!this.showHome) this.restoreHashTarget();
         });
       }
       console.log('[DEBUG] recipes array:', this.recipes);
@@ -983,22 +990,33 @@ function cookbookApp() {
         // Keep selector stable and alphabetized
         this.recipes.sort((a, b) => (a.meta?.name || a.id).localeCompare(b.meta?.name || b.id));
 
-        // Precedence: a valid ?recipe= link, then a valid stored selection,
-        // then the first recipe. Never revive a tombstoned library recipe.
-        const selectedIsValid = this.selectedId
-          && !deletedRecipeIds.has(this.selectedId)
-          && this.recipes.some(r => r.id === this.selectedId);
-        if (!selectedIsValid) {
-          const stored = loadSelectedRecipeId();
-          const storedIsValid = stored
-            && !deletedRecipeIds.has(stored)
-            && this.recipes.some(r => r.id === stored);
-          if (storedIsValid) this.selectedId = stored;
-          else if (this.recipes.length > 0) this.selectedId = this.recipes[0].id;
-        }
+        const stored = loadSelectedRecipeId();
+        const storedIsValid = stored
+          && !deletedRecipeIds.has(stored)
+          && this.recipes.some(r => r.id === stored);
 
-        if (this.selectedId) {
-          await this.loadRecipe(this.selectedId);
+        if (requestedRecipeId) {
+          const requestedIsValid = !deletedRecipeIds.has(requestedRecipeId)
+            && this.recipes.some(r => r.id === requestedRecipeId);
+          if (requestedIsValid) {
+            this.showHome = false;
+            this.selectedId = requestedRecipeId;
+            await this.loadRecipe(requestedRecipeId, { skipUrl: true });
+          } else {
+            // A stale shared link should land on the library with an explanation,
+            // not silently open an unrelated recipe.
+            this.showHome = true;
+            this.homeNotice = 'That recipe link no longer points to a recipe in this cookbook.';
+            this.selectedId = storedIsValid ? stored : (this.recipes[0]?.id || '');
+            this.cleanRecipeUrl();
+          }
+        } else {
+          // The root URL is the shareable home page. A stored selection is a
+          // convenience for the "last recipe" link, not an automatic redirect.
+          this.showHome = true;
+          this.selectedId = storedIsValid ? stored : (this.recipes[0]?.id || '');
+          this.lastRecipeId = storedIsValid ? stored : '';
+          document.title = 'Science-Based Smart Cookbook';
         }
       } catch (err) {
         console.error('[ERROR] bootstrapRecipes failed:', err);
@@ -1027,10 +1045,16 @@ function cookbookApp() {
       if (!recipeId) return;
 
       this.selectedId = recipeId;
+      this.showHome = false;
+      this.homeNotice = '';
+      this.lastRecipeId = recipeId;
+      this.shareStatus = '';
+      this.shareFallback = '';
       saveSelectedRecipeId(recipeId);
       if (!opts.skipUrl && typeof window !== 'undefined' && window.history) {
         const url = new URL(window.location.href);
         url.searchParams.set('recipe', recipeId);
+        if (opts.pushHistory) url.hash = '';
         const method = opts.pushHistory ? 'pushState' : 'replaceState';
         window.history[method]({ recipeId }, '', url);
       }
@@ -1066,6 +1090,8 @@ function cookbookApp() {
           console.log('[DEBUG] current.steps length:', this.current.steps?.length);
           this.stepSignals = extractStepSignals(this.current.steps || []);
           this.prepareExperimentForm();
+          document.title = `${this.current.meta?.name || 'Recipe'} — Science-Based Smart Cookbook`;
+          this.afterRender(() => this.restoreHashTarget());
         }
       } finally {
         this.loadingRecipeId = null;
@@ -1726,6 +1752,135 @@ function cookbookApp() {
       }
       parts.push('Values are per-100 g references, not lab measurements.');
       return parts.join(' ');
+    },
+
+    afterRender(callback) {
+      if (typeof this.$nextTick === 'function') this.$nextTick(callback);
+      else setTimeout(callback, 0);
+    },
+
+    handleLocationChange() {
+      const id = (new URLSearchParams(window.location.search).get('recipe') || '').trim();
+      if (!id) {
+        this.showHome = true;
+        this.homeNotice = '';
+        document.title = 'Science-Based Smart Cookbook';
+        return;
+      }
+      if (!this.recipes.some((recipe) => recipe.id === id) || deletedRecipeIds.has(id)) {
+        this.showHome = true;
+        this.homeNotice = 'That recipe link no longer points to a recipe in this cookbook.';
+        this.cleanRecipeUrl();
+        return;
+      }
+      this.loadRecipe(id, { skipUrl: true });
+    },
+
+    cleanRecipeUrl() {
+      if (typeof window === 'undefined' || !window.history) return;
+      const url = new URL(window.location.href);
+      url.searchParams.delete('recipe');
+      url.hash = '';
+      window.history.replaceState({}, '', url);
+    },
+
+    goHome() {
+      this.showHome = true;
+      this.homeNotice = '';
+      this.shareStatus = '';
+      this.shareFallback = '';
+      if (typeof window !== 'undefined' && window.history) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('recipe');
+        url.hash = '';
+        window.history.pushState({ home: true }, '', url);
+      }
+      document.title = 'Science-Based Smart Cookbook';
+      this.afterRender(() => {
+        const heading = document.getElementById('home-heading');
+        if (heading) heading.focus({ preventScroll: true });
+        if (typeof window.scrollTo === 'function') window.scrollTo({ top: 0, behavior: 'auto' });
+      });
+    },
+
+    sourceLabel(source) {
+      if (!source) return 'Recipe';
+      try {
+        return new URL(source).hostname.replace(/^www\./, '');
+      } catch (_) {
+        return String(source);
+      }
+    },
+
+    libraryRecipes() {
+      return this.recipes.filter((recipe) => recipe && !recipe._demo);
+    },
+
+    recipeUrl(id) {
+      if (!id || typeof window === 'undefined') return '';
+      const url = new URL(window.location.href);
+      url.search = '';
+      url.searchParams.set('recipe', id);
+      url.hash = '';
+      return url.toString();
+    },
+
+    shareUrlFor(anchor = '') {
+      if (!this.current?.id) return '';
+      const url = new URL(window.location.href);
+      url.search = '';
+      url.searchParams.set('recipe', this.current.id);
+      url.hash = anchor || '';
+      return url.toString();
+    },
+
+    async shareRecipe(anchor = '') {
+      if (!this.current?.id) return;
+      const currentHash = (window.location.hash || '').replace(/^#/, '');
+      const selectedAnchor = anchor || currentHash;
+      const url = this.shareUrlFor(selectedAnchor);
+      const data = {
+        title: `${this.current.meta?.name || 'Recipe'} — Science-Based Smart Cookbook`,
+        text: `A shareable recipe from the Science-Based Smart Cookbook: ${this.current.meta?.name || ''}`,
+        url
+      };
+      if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+        try {
+          await navigator.share(data);
+          this.shareStatus = 'Share sheet opened.';
+          return;
+        } catch (error) {
+          if (error && error.name === 'AbortError') return;
+        }
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        this.shareStatus = 'Recipe link copied to the clipboard.';
+        this.shareFallback = '';
+      } catch (error) {
+        this.shareFallback = url;
+        this.shareStatus = 'Copy this recipe link:';
+      }
+    },
+
+    restoreHashTarget() {
+      if (typeof document === 'undefined') return;
+      const id = decodeURIComponent((window.location.hash || '').replace(/^#/, ''));
+      if (!id) return;
+      if (id === 'science' && !this.scienceMode) {
+        this.scienceMode = true;
+        this.afterRender(() => this.restoreHashTarget());
+        return;
+      }
+      const target = document.getElementById(id);
+      if (!target) return;
+      if (target.tagName === 'DETAILS') target.open = true;
+      const focusTarget = target.tagName === 'DETAILS' ? target.querySelector('summary') : target;
+      if (focusTarget) {
+        if (!focusTarget.hasAttribute('tabindex')) focusTarget.setAttribute('tabindex', '-1');
+        focusTarget.focus({ preventScroll: true });
+      }
+      if (typeof target.scrollIntoView === 'function') target.scrollIntoView({ block: 'start' });
     },
 
     provenanceText(provenance) {

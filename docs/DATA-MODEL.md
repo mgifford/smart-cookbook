@@ -121,14 +121,14 @@ Gradual migration: add `schema_version` and `id` to new recipes; backfill legacy
 | `cookbook-recipes` | Personal/working recipe array |
 | `cookbook-prefs` | Unit/system preferences |
 | `cookbook-deleted-recipes` | Tombstones for library recipes the user removed |
-| `cookbook-selected-recipe` | Last explicitly selected recipe, subject to URL precedence |
+| `cookbook-selected-recipe` | Last explicitly selected recipe; not an automatic root redirect |
 | `cookbook-experiments` | Local cooking experiment records (private until exported) |
 
 Deletion writes a tombstone so bootstrap does not resurrect a repository recipe. An explicit import of the same id clears the tombstone after a replacement confirmation. Clearing site data restores the library.
 
 No storage schema version exists yet. Add one before changing stored shapes; migrations must be explicit and tested.
 
-Selection precedence is: valid `?recipe=` URL, then a valid stored `cookbook-selected-recipe`, then the first recipe. A tombstoned id never wins and is never revived by bootstrap.
+Routing precedence is: the root URL is the shareable home page; a valid `?recipe=<id>` opens that recipe; a fragment (`#ingredients`, `#steps`, `#science`, `#nutrition`, `#experiments`, `#notes`) targets a section. A stored `cookbook-selected-recipe` is a convenience for the last-viewed recipe, not an automatic redirect. A tombstoned id never wins and is never revived by bootstrap. Invalid `?recipe=` links show the home page with an explanation and clean the URL.
 
 Backups include a manifest:
 

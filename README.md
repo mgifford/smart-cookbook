@@ -7,6 +7,7 @@ A **personal, science-based smart cookbook** that runs client-side on GitHub Pag
 ### 🎯 Core Functionality
 - **Precision Scaling**: Scale from 1 to 64 servings, with gram-based precision and approximate household measures
 - **Unit Preferences**: Switch between g/oz, cups/ml, and C/F on the fly
+- **Shareable single recipes**: Root is a recipe library; `?recipe=<id>` opens one recipe and `#ingredients`/`#steps`/`#notes` point to a section
 - **YAML Import/Export**: Shared schema validation for repository and browser data, with preserved unknown fields and stable IDs
 - **Bookmarklet Scraper**: One-click import from recipe websites (AllRecipes, etc.)
 - **LocalStorage Persistence**: Recipes, preferences, selection, and cooking experiments stay in your browser
@@ -39,7 +40,15 @@ It demonstrates how to:
 - Keep the memorable characteristics: deep mushroom flavour, a rich cheese sauce, and a crisp top, with a browned bottom as a tested goal rather than a promise.
 - Record adaptations and real cooking observations instead of claiming results that have not happened.
 
-The recipe's `meta.notes` records its status, equipment, options, and limitations. The [kitchen test plan](docs/crispy-mushroom-mac-and-cheese-testing.md) provides blank observation tables, a flat-vs-ridged comparison, cost and time worksheets, and sources. Direct links such as `index.html?recipe=crispy-mushroom-mac-and-cheese` now open the requested recipe.
+Structured fields record its provenance, testing status, equipment, and desired outcomes; `meta.notes` covers time assumptions, crust technique, bread alternatives, and limitations. The [kitchen test plan](docs/crispy-mushroom-mac-and-cheese-testing.md) provides blank observation tables, a flat-vs-ridged comparison, cost and time worksheets, and sources. Direct links such as `index.html?recipe=crispy-mushroom-mac-and-cheese` open that recipe; add `#ingredients` or `#steps` to point to a section. The root URL is the cookbook home and recipe library.
+
+### 🔗 Share one recipe, or one part of it
+
+- The home page lists every recipe as its own direct link.
+- Recipe pages have a **Share recipe** button that copies or shares the canonical URL.
+- The URL keeps the current section (`#ingredients`, `#steps`, `#science`, `#nutrition`, `#experiments`, `#notes`).
+- “On this page” links and visible `#` permalinks make sections addressable without JavaScript routing.
+- Bookmarklet, YAML import/export, display settings, and copyright/context material live on the home page; recipe pages stay focused on cooking.
 
 ### 🧪 Local cooking experiments
 
@@ -56,6 +65,7 @@ The recipe view includes an optional experiment form for recording actual cookin
 - **Not every recipe is kitchen-tested.** Testing status is recorded per recipe; untested or proposed adaptations stay labelled.
 - **Offline use is incomplete.** The app is static and has no backend, but it depends on CDN-hosted libraries and has no service worker yet.
 - **Dietary toggles are suggestions, not automatic replacements.** Always review a substitution before applying it.
+- **No server-rendered per-recipe social preview.** Search engines and social cards see the generic home title; recipe links open the correct client-rendered recipe, but rich previews would need generated per-recipe pages.
 - **Bookmarklet output still needs review.** It preserves unknown quantities and source text, but science notes and some metadata may need completion before an import passes validation.
 - **Source-versus-adaptation comparison is limited.** The repository does not reproduce the cookbook’s original quantities, so comparisons use recorded local experiments and documented provenance rather than fabricated source data.
 - **Nutrition is approximate and coverage-aware.** Missing reference data is disclosed instead of silently treated as zero.

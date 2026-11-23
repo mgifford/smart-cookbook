@@ -146,6 +146,22 @@ A partial JSON/ZIP export is only created after explicit confirmation, and the Z
 
 Repeated ingredient names are preserved in authored order. Nutrition counts each legitimate entry. Any shopping-list consolidation must be a separate operation and must not mutate the recipe.
 
+Dietary labels are deliberately separate:
+
+- `vegetarian: true` means no meat, poultry, fish, or shellfish. Dairy and eggs may remain; cheeses may use animal rennet.
+- `vegan: true` means no animal-derived ingredients at all, including dairy, eggs, honey, gelatin, and animal rennet.
+- `vegan` implies vegetarian, but **vegetarian does not imply vegan**.
+
+Substitution tags are authored metadata, not inferred from the ingredient name:
+
+- `vegan` — the suggested substitute contains no animal-derived ingredients.
+- `vegetarian` — suitable for the vegetarian category; may contain dairy or eggs.
+- `veg` — legacy alias for vegetarian; never treat it as vegan.
+
+The interactive suggestion selector uses these tags. Vegan mode only offers `vegan` substitutions. Static pages show the recorded dietary status plus definitions; they do not guess.
+
+Every recipe also has a focused static page at `recipes/<id>.html`, generated from the YAML. It contains ingredients, directions, optional science notes, dietary guidance, and notes — not the app, bookmarklet, or import tools.
+
 ---
 
 ## 8. Recipe variations and experiments

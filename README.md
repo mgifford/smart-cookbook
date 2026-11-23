@@ -7,14 +7,15 @@ A **personal, science-based smart cookbook** that runs client-side on GitHub Pag
 ### 🎯 Core Functionality
 - **Precision Scaling**: Scale from 1 to 64 servings, with gram-based precision and approximate household measures
 - **Unit Preferences**: Switch between g/oz, cups/ml, and C/F on the fly
-- **Shareable single recipes**: Root is a recipe library; `?recipe=<id>` opens one recipe and `#ingredients`/`#steps`/`#notes` point to a section
+- **Focused recipe pages**: Every recipe has its own static page at `recipes/<id>.html` with ingredients, directions, notes, and dietary guidance — no bookmarklet or app shell
+- **Shareable sections**: `#ingredients`, `#steps`, `#science`, `#dietary`, and `#notes` work on the static recipe pages
 - **YAML Import/Export**: Shared schema validation for repository and browser data, with preserved unknown fields and stable IDs
 - **Bookmarklet Scraper**: One-click import from recipe websites (AllRecipes, etc.)
 - **LocalStorage Persistence**: Recipes, preferences, selection, and cooking experiments stay in your browser
 
 ### 🥗 Dietary Modes
 - **Weight-conscious Mode** (`wwMode`): Shows lower-point substitution suggestions; it does **not** change quantities automatically
-- **Vegetarian Mode** (`vegMode`): Shows plant-based substitution suggestions; it does **not** change quantities automatically
+- **Dietary suggestions** (`dietMode`): Choose Vegetarian (dairy/eggs allowed) or Vegan (no animal products). Shows per-ingredient substitutions; it does **not** change quantities automatically
 - **Precision Mode**: Show exact gram measurements instead of approximate volumes
 
 ### 🔬 Science Education
@@ -40,7 +41,7 @@ It demonstrates how to:
 - Keep the memorable characteristics: deep mushroom flavour, a rich cheese sauce, and a crisp top, with a browned bottom as a tested goal rather than a promise.
 - Record adaptations and real cooking observations instead of claiming results that have not happened.
 
-Structured fields record its provenance, testing status, equipment, and desired outcomes; `meta.notes` covers time assumptions, crust technique, bread alternatives, and limitations. The [kitchen test plan](docs/crispy-mushroom-mac-and-cheese-testing.md) provides blank observation tables, a flat-vs-ridged comparison, cost and time worksheets, and sources. Direct links such as `index.html?recipe=crispy-mushroom-mac-and-cheese` open that recipe; add `#ingredients` or `#steps` to point to a section. The root URL is the cookbook home and recipe library.
+Structured fields record its provenance, testing status, equipment, and desired outcomes; `meta.notes` covers time assumptions, crust technique, bread alternatives, and limitations. The [kitchen test plan](docs/crispy-mushroom-mac-and-cheese-testing.md) provides blank observation tables, a flat-vs-ridged comparison, cost and time worksheets, and sources. Direct focused pages such as `recipes/crispy-mushroom-mac-and-cheese.html` are the share target; add `#ingredients` or `#steps` to point to a section. The interactive version remains at `index.html?recipe=crispy-mushroom-mac-and-cheese`.
 
 ### 🔗 Share one recipe, or one part of it
 
@@ -65,7 +66,7 @@ The recipe view includes an optional experiment form for recording actual cookin
 - **Not every recipe is kitchen-tested.** Testing status is recorded per recipe; untested or proposed adaptations stay labelled.
 - **Offline use is incomplete.** The app is static and has no backend, but it depends on CDN-hosted libraries and has no service worker yet.
 - **Dietary toggles are suggestions, not automatic replacements.** Always review a substitution before applying it.
-- **No server-rendered per-recipe social preview.** Search engines and social cards see the generic home title; recipe links open the correct client-rendered recipe, but rich previews would need generated per-recipe pages.
+- **Recipe pages are static and focused.** They include basic title/description metadata, but no per-recipe images or social cards.
 - **Bookmarklet output still needs review.** It preserves unknown quantities and source text, but science notes and some metadata may need completion before an import passes validation.
 - **Source-versus-adaptation comparison is limited.** The repository does not reproduce the cookbook’s original quantities, so comparisons use recorded local experiments and documented provenance rather than fabricated source data.
 - **Nutrition is approximate and coverage-aware.** Missing reference data is disclosed instead of silently treated as zero.
@@ -79,6 +80,8 @@ The recipe view includes an optional experiment form for recording actual cookin
 - **schemas/** — Versioned JSON Schema for recipe data
 - **src/recipes/validation.js** — Dependency-free shared validator used by browser imports and Node tests
 - **src/bookmarklet/recipe-scraper.js** — Single source for JSON-LD scraping and safe YAML serialization
+- **scripts/generate-recipe-pages.js** — Generates the focused static page for each recipe
+- **recipe.css** — Text-focused static recipe page styles
 - **src/generated/** — Generated schema/conversion modules; never edit by hand
 - **experiments/** — Kitchen-experiment templates (unfilled observations only)
 - **tests/** — Node fixtures for scaling, units, import/export, nutrition, and deep links
@@ -92,6 +95,7 @@ The recipe view includes an optional experiment form for recording actual cookin
 - **conversions.yaml** — Reference data for densities and unit conversions
 - **nutrition.yaml** — Per-100g macros for 50+ common ingredients
 - **ingredients-glossary.yaml** — Maps ingredient name variations to canonical names
+- **scripts/check-ci-policy.js** — Fails if the quality gate stops running required tests or allows swallowed failures
 - **scripts/validate-schema.js** — JSON Schema, stable-ID, and duplicate-ID checks
 - **scripts/generate-schema-module.js** — Generates the browser schema module
 - **scripts/generate-conversions.js** — Generates browser conversion data from conversions.yaml
@@ -127,7 +131,7 @@ python3 -m http.server 8010
 **Method 1: Browse the recipe library**
 1. Go to https://mgifford.github.io/smart-cookbook/
 2. Open [recipes-index.html](recipes-index.html) or pick a recipe from the dropdown
-3. Use a direct link such as `index.html?recipe=crispy-mushroom-mac-and-cheese`
+3. Use the focused static page `recipes/crispy-mushroom-mac-and-cheese.html`
 4. The app loads the recipe YAML on demand
 
 **Method 2: Bookmarklet Scraper**
@@ -174,6 +178,9 @@ npm run check:schema-module # Browser schema copy is synchronized
 npm run validate:recipes   # Recipe quality checks
 npm run generate:conversions # Regenerate src/generated/conversions.js after YAML changes
 npm run check:conversions  # Fail if generated conversion data is stale
+npm run check:ci-policy    # Fail if CI/quality tests can be bypassed
+npm run generate:recipe-pages # Regenerate recipes/<id>.html from YAML
+npm run check:recipe-pages  # Fail if a static recipe page is stale
 npm run build:bookmarklet   # Regenerate bookmarklet.js from the single source
 npm run check:bookmarklet  # Fail if the generated bookmarklet is stale
 npm run check:index        # Fail if recipes.json is stale
@@ -198,17 +205,17 @@ Visit [recipes-index.html](recipes-index.html) to:
 - 👥 **Filter** by minimum servings
 - ⏱️ **Filter** by max prep time
 - 🔬 **Filter** recipes with science notes
-- Click any recipe → opens in main app
+- Click any recipe → opens its focused static recipe page
 
 This index auto-updates whenever recipes are validated.
 
 ## 🧪 Science Features in Action
 
-### Vegetarian Substitutions
-When `vegMode` is enabled:
-- **Butter** → Coconut oil (same richness, plant-based)
-- **Chicken breast** → Firm tofu (press to remove water, marinate for flavor)
-- **Milk** → Almond milk (add 5g flour to compensate for lower protein)
+### Dietary Substitutions
+When `dietMode` is set to **Vegetarian** or **Vegan**:
+- Vegetarian means no meat, poultry, fish, or shellfish; dairy and eggs may remain. Cheeses may use animal rennet—check labels.
+- Vegan means no animal-derived ingredients at all, including dairy, eggs, honey, gelatin, and animal rennet. A vegetarian option is not automatically vegan.
+- Vegan mode only offers substitutions explicitly tagged `vegan`; it never falls back to a dairy or egg substitution.
 
 Substitutions appear as an icon and tooltip with a science note. They are **suggestions only**; the recipe quantities are not changed silently.
 
@@ -258,7 +265,7 @@ Recipes are **humanity's shared inheritance**. The Science Cookbook embraces ope
 2. **Click bookmarklet** → YAML copied
 3. **Paste and Load** → Recipe imported
 4. **Toggle Science Mode** → See ingredient chemistry
-5. **Enable Vegetarian Mode** → Review substitution suggestions (apply changes manually)
+5. **Choose Vegetarian or Vegan** → Review per-ingredient substitution suggestions (apply changes manually)
 6. **Scale to 12 servings** → All ingredients update
 7. **Switch to Fahrenheit** → Temperatures convert in steps
 8. **Export YAML** → Save to Git for version control

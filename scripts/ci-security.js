@@ -57,7 +57,7 @@ const checkInsecureResources = (root, issues, file) => {
 };
 
 const checkExternalIntegrity = (root, issues, file) => {
-  root.querySelectorAll('script[src], link[href]').forEach((node) => {
+  root.querySelectorAll('script[src], link[rel="stylesheet"][href], link[rel="preload"][href], link[rel="modulepreload"][href]').forEach((node) => {
     const value = node.getAttribute('src') || node.getAttribute('href') || '';
     if (!/^https?:\/\//i.test(value)) return;
     if (!node.getAttribute('integrity')) {

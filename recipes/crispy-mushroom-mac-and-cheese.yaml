@@ -49,6 +49,18 @@ equipment:
 
 testing_status: untested
 
+dietary_information:
+  vegetarian: true
+  vegan: false
+  gluten_free: false
+  allergens: [milk, wheat, soy]
+  notes: >-
+    Dairy is central to the current recipe, so it is not vegan. Cheeses may use
+    animal rennet; check labels if that matters to you. A vegan adaptation would
+    need plant milk, vegan butter, and a vegan melting cheese or a
+    nutritional-yeast sauce; it has not been tested and will not behave
+    identically.
+
 meta:
   name: Crispy Mushroom Mac and Cheese (Weeknight)
   source: https://www.ko-media.ca/products/olive-gourmando-the-cookbook-digital
@@ -162,6 +174,10 @@ ingredients:
         ratio: 1.0
         science_note: "Drier and sharper; it melts less smoothly, so keep the sauce loose and add the cheese gradually."
         tags: []
+      - name: vegan melting cheddar
+        ratio: 1.0
+        science_note: "Plant-based cheeses vary widely. Melt gently off the heat and check the label; the sauce may need more pasta water and will taste less sharp."
+        tags: [vegan, vegetarian]
 
   - name: butter
     qty_g: 45
@@ -172,11 +188,11 @@ ingredients:
       - name: olive oil
         ratio: 0.8
         science_note: "Use about 36 g; an oil roux works, but the sauce is slightly less rich and browns differently."
-        tags: [veg, vegetarian]
+        tags: [vegan, vegetarian, veg]
       - name: vegan butter
         ratio: 1.0
         science_note: "Plant fat replaces milk fat; choose a block-style butter for a smoother emulsion and check its salt level."
-        tags: [veg, vegetarian]
+        tags: [vegan, vegetarian, veg]
 
   - name: all-purpose flour
     qty_g: 45
@@ -202,7 +218,7 @@ ingredients:
       - name: unsweetened oat milk
         ratio: 1.0
         science_note: "Lower protein can make the sauce less stable; use a barista-style oat milk and keep the heat gentle."
-        tags: [veg, vegetarian]
+        tags: [vegan, vegetarian, veg]
 
   - name: dijon mustard
     qty_g: 10
@@ -213,7 +229,7 @@ ingredients:
       - name: yellow mustard
         ratio: 1.0
         science_note: "Sharper and more acidic; use a little less at first, then taste the sauce."
-        tags: [veg, vegetarian]
+        tags: [vegan, vegetarian, veg]
 
   - name: purchased garlic bread
     qty_g: 120
@@ -246,7 +262,7 @@ ingredients:
       - name: vegetable oil
         ratio: 1.0
         science_note: "Neutral and higher smoke point; use the same amount and expect slightly less olive flavour."
-        tags: [veg, vegetarian]
+        tags: [vegan, vegetarian, veg]
 
   - name: soy sauce
     qty_g: 6
@@ -257,7 +273,7 @@ ingredients:
       - name: tamari
         ratio: 1.0
         science_note: "Gluten-free and slightly deeper in flavour; use the same amount and taste before adding more salt."
-        tags: [veg, vegetarian]
+        tags: [vegan, vegetarian, veg]
 
   - name: fine sea salt
     qty_g: 4

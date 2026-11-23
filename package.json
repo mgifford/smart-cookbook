@@ -12,13 +12,16 @@
     "lint:html": "html-validate \"**/*.html\"",
     "test:a11y": "node scripts/ci-a11y.js",
     "scan:security": "node scripts/ci-security.js",
-    "quality": "npm run validate:yaml && npm run validate:schema && npm run check:schema-module && npm run validate:recipes && npm run check:index && npm run check:conversions && npm run check:bookmarklet && npm run test:unit && npm run lint:html && npm run test:a11y && npm run scan:security",
+    "quality": "npm run check:ci-policy && npm run validate:yaml && npm run validate:schema && npm run check:schema-module && npm run validate:recipes && npm run check:index && npm run check:conversions && npm run check:bookmarklet && npm run check:recipe-pages && npm run test:unit && npm run lint:html && npm run test:a11y && npm run scan:security",
     "generate:schema-module": "node scripts/generate-schema-module.js",
     "check:schema-module": "node scripts/check-schema-module.js",
     "generate:conversions": "node scripts/generate-conversions.js",
     "check:conversions": "node scripts/check-conversions.js",
     "build:bookmarklet": "node scripts/build-bookmarklet.js",
-    "check:bookmarklet": "node scripts/check-bookmarklet.js"
+    "check:bookmarklet": "node scripts/check-bookmarklet.js",
+    "check:ci-policy": "node scripts/check-ci-policy.js",
+    "generate:recipe-pages": "node scripts/generate-recipe-pages.js",
+    "check:recipe-pages": "node scripts/check-recipe-pages.js"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",

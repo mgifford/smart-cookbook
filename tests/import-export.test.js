@@ -91,3 +91,16 @@ test('recipe YAML without an explicit id still gets a stable slug', () => {
   app.loadYaml();
   assert.equal(app.current.id, 'stable-import-fixture'); // slugified from the fixture name
 });
+
+test('an import collision does not overwrite without confirmation', () => {
+  const { app, window } = bootApp();
+  app.yamlText = fixture;
+  app.loadYaml();
+  const originalName = app.current.meta.name;
+
+  window.confirm = () => false;
+  app.yamlText = fixture.replace('name: Stable Import Fixture', 'name: Replacement Name');
+  app.loadYaml();
+
+  assert.equal(app.current.meta.name, originalName);
+});

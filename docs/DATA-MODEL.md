@@ -98,6 +98,7 @@ Import/export must not discard data the app does not understand.
 4. Dates: quote ISO dates in YAML (`date: "2026-11-23"`) so js-yaml does not produce a JavaScript `Date`.
 5. `ww_points: null` is accepted and means not calculated.
 6. Existing recipes are never automatically rewritten by validation or indexing.
+7. Importing an id that already exists asks for confirmation before replacing the stored recipe.
 
 Gradual migration: add `schema_version` and `id` to new recipes; backfill legacy recipes only with explicit review.
 
@@ -111,7 +112,7 @@ Gradual migration: add `schema_version` and `id` to new recipes; backfill legacy
 | `cookbook-prefs` | Unit/system preferences |
 | `cookbook-deleted-recipes` | Tombstones for library recipes the user removed |
 
-Deletion writes a tombstone so bootstrap does not resurrect a repository recipe. An explicit import of the same id clears the tombstone. Clearing site data restores the library.
+Deletion writes a tombstone so bootstrap does not resurrect a repository recipe. An explicit import of the same id clears the tombstone after a replacement confirmation. Clearing site data restores the library.
 
 No storage schema version exists yet. Add one before changing stored shapes; migrations must be explicit and tested.
 

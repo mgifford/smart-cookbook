@@ -1192,6 +1192,10 @@ function cookbookApp() {
         const requestedId = typeof parsed.id === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(parsed.id)
           ? parsed.id
           : this.slugify(parsed.meta.name || `recipe-${Date.now()}`);
+        if (this.recipes.some(r => r.id === requestedId)
+          && !confirm(`A recipe with id "${requestedId}" already exists. Replace it?`)) {
+          return;
+        }
         const recipe = {
           ...parsed,
           id: requestedId,
@@ -1235,6 +1239,10 @@ function cookbookApp() {
       try {
         const mapped = fromOrf(parsed);
         const id = this.slugify(mapped.meta.name || `recipe-${Date.now()}`);
+        if (this.recipes.some(r => r.id === id)
+          && !confirm(`A recipe with id "${id}" already exists. Replace it?`)) {
+          return;
+        }
         const recipe = { id, ...mapped };
         this.upsertRecipe(recipe);
         this.selectedId = id;

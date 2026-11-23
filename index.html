@@ -8,6 +8,9 @@
   <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js" integrity="sha384-+pxiN6T7yvpryuJmE1gM9PX7yQit15auDb+ZwwvJOd/4be2Cie5/IuVXgQb/S9du" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
   <!-- Cache-bust the main script so users pick up fixes immediately -->
+  <script defer src="src/generated/conversions.js"></script>
+  <script defer src="src/generated/recipe-schema.js"></script>
+  <script defer src="src/recipes/validation.js"></script>
   <script defer src="script.js?v=2026-01-10"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
 </head>
@@ -27,7 +30,7 @@
       <div class="flex flex-wrap gap-3">
         <label class="flex items-center gap-2" for="recipe-select">
           <span>Recipe</span>
-          <select id="recipe-select" x-model="selectedId" @change="loadRecipe()">
+          <select id="recipe-select" x-model="selectedId" @change="loadRecipe(selectedId, { pushHistory: true })">
             <template x-for="r in recipes" :key="r.id">
               <option :value="r.id" x-text="r.meta.name"></option>
             </template>
@@ -66,6 +69,24 @@
           <p class="text-sm text-slate-300" x-text="current.meta.source"></p>
           <h2 class="text-xl" x-text="current.meta.name"></h2>
           <p class="status-badge" x-show="current.meta?.status" x-text="current.meta.status"></p>
+          <dl class="recipe-facts" x-show="current.provenance || current.equipment || current.testing_status || current.desired_outcomes?.length">
+            <div x-show="current.provenance">
+              <dt>Provenance</dt>
+              <dd x-text="provenanceText(current.provenance)"></dd>
+            </div>
+            <div x-show="current.equipment?.preferred">
+              <dt>Preferred equipment</dt>
+              <dd x-text="equipmentText(current.equipment?.preferred)"></dd>
+            </div>
+            <div x-show="current.testing_status">
+              <dt>Testing status</dt>
+              <dd x-text="current.testing_status"></dd>
+            </div>
+            <div x-show="current.desired_outcomes?.length">
+              <dt>Desired outcomes</dt>
+              <dd x-text="outcomesText(current.desired_outcomes)"></dd>
+            </div>
+          </dl>
           <div class="flex flex-wrap gap-2 mt-1 text-sm text-emerald-300">
             <template x-if="stepSignals.temp">
               <span class="badge">Preheat: <span x-text="stepSignals.temp.value"></span>°<span x-text="stepSignals.temp.unit"></span></span>
@@ -114,10 +135,12 @@
         <section>
           <h3 class="font-bold mb-2">Ingredients</h3>
           <ul class="space-y-2">
-            <template x-for="ing in displayIngredients()" :key="ing.name">
+            <template x-for="(ing, idx) in displayIngredients()" :key="idx">
                 <li class="ingredient" :class="ing.swapped && 'swapped'" :title="ing.nutritionTooltip">
                 <div>
                   <span class="quantity" x-text="formatQuantity(ing)"></span>
+                  <span class="quantity-note" x-show="ing.estimated" title="Estimated from the source description; not a verified weight.">estimated</span>
+                  <span class="quantity-note quantity-note-warning" x-show="ing.quantityUnknown">quantity unknown</span>
                   <span x-text="ing.displayName"></span>
                   <span class="function" x-show="scienceMode && ing.function" x-text="'(' + ing.function + ')' "></span>
                   <span class="suggestion-wrap" :style="ing.suggestion ? '' : 'display: none'">
@@ -164,7 +187,7 @@
       </div>
       <div x-show="nutritionLoaded && !nutritionError" class="grid-2col text-sm">
         <div class="nutrition-col">
-          <h3>Total (recipe)</h3>
+          <h3 x-text="nutritionCoverageLabel() + ' (recipe)'"></h3>
           <p x-text="`${nutritionSummary().total.calories} kcal`"></p>
           <p x-text="`Protein: ${nutritionSummary().total.protein.toFixed(1)} g`"></p>
           <p x-text="`Fat: ${nutritionSummary().total.fat.toFixed(1)} g`"></p>
@@ -172,7 +195,7 @@
           <p x-text="`Fiber: ${nutritionSummary().total.fiber.toFixed(1)} g`"></p>
         </div>
         <div class="nutrition-col">
-          <h3>Per serving</h3>
+          <h3 x-text="nutritionCoverageLabel() + ' per serving'"></h3>
           <p x-text="`${nutritionSummary().per.calories} kcal`"></p>
           <p x-text="`Protein: ${nutritionSummary().per.protein.toFixed(1)} g`"></p>
           <p x-text="`Fat: ${nutritionSummary().per.fat.toFixed(1)} g`"></p>
@@ -181,6 +204,181 @@
         </div>
       </div>
       <p class="text-xs text-slate-400" x-show="nutritionLoaded && !nutritionError" aria-live="polite" x-text="nutritionCoverageText()"></p>
+    </section>
+
+    <section>
+      <div>
+        <h2 class="text-lg">Cooking experiments</h2>
+        <span class="text-xs text-slate-400" role="status" aria-live="polite" x-text="experimentStatus"></span>
+      </div>
+      <p class="text-sm">Record what actually happened in your kitchen. Experiments stay in this browser until you export them; they are not published or counted as recipe tests automatically.</p>
+
+      <details class="experiment-panel">
+        <summary>Record or edit an experiment</summary>
+        <form class="experiment-form" @submit.prevent="saveExperiment()" @input="markExperimentDirty()" @change="markExperimentDirty()">
+          <fieldset>
+            <legend>Recipe and date</legend>
+            <label for="exp-date">Date cooked</label>
+            <input id="exp-date" type="date" required x-model="experimentForm.date" />
+            <label for="exp-variation">Variation label</label>
+            <input id="exp-variation" type="text" x-model="experimentForm.variation_id" />
+            <label for="exp-revision">Recipe revision (recorded automatically)</label>
+            <input id="exp-revision" type="text" readonly x-model="experimentForm.recipe_revision" />
+          </fieldset>
+
+          <fieldset>
+            <legend>Equipment and conditions</legend>
+            <label for="exp-pan">Pan type</label>
+            <select id="exp-pan" x-model="experimentForm.equipment.pan_type">
+              <option value="">Not recorded</option>
+              <option value="flat_cast_iron">Flat cast iron</option>
+              <option value="ridged_cast_iron">Ridged cast iron</option>
+              <option value="metal_baking_pan">Metal baking pan</option>
+              <option value="other">Other</option>
+            </select>
+            <label for="exp-surface">Cooking surface</label>
+            <select id="exp-surface" x-model="experimentForm.equipment.surface">
+              <option value="">Not recorded</option>
+              <option value="flat">Flat</option>
+              <option value="ridged">Ridged</option>
+            </select>
+            <label for="exp-pan-size">Pan size (inches)</label>
+            <input id="exp-pan-size" type="number" min="0" step="0.1" x-model="experimentForm.equipment.pan_size_inches" />
+            <label class="experiment-check" for="exp-presear">
+              <input id="exp-presear" type="checkbox" x-model="experimentForm.equipment.stovetop_pre_sear" />
+              Stovetop pre-sear used
+            </label>
+            <label for="exp-oven">Oven temperature (°C)</label>
+            <input id="exp-oven" type="number" min="0" step="1" x-model="experimentForm.equipment.oven_temperature_c" />
+            <label for="exp-baking">Baking minutes</label>
+            <input id="exp-baking" type="number" min="0" step="1" x-model="experimentForm.equipment.baking_minutes" />
+            <label class="experiment-check" for="exp-broiler">
+              <input id="exp-broiler" type="checkbox" x-model="experimentForm.equipment.broiler_used" />
+              Broiler used
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Ingredient changes</legend>
+            <label for="exp-ingredient-changes">What changed from the base recipe?</label>
+            <textarea id="exp-ingredient-changes" rows="3" x-model="experimentForm.ingredient_changes"></textarea>
+          </fieldset>
+
+          <fieldset>
+            <legend>Observations (leave blank if not observed)</legend>
+            <label for="exp-top">Top crispness (1–5)</label>
+            <select id="exp-top" x-model="experimentForm.observations.top_crispness">
+              <option value="">Not answered</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+            <label for="exp-bottom">Bottom crispness (1–5)</label>
+            <select id="exp-bottom" x-model="experimentForm.observations.bottom_crispness">
+              <option value="">Not answered</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+            <label for="exp-mushroom">Mushroom flavour (1–5)</label>
+            <select id="exp-mushroom" x-model="experimentForm.observations.mushroom_intensity">
+              <option value="">Not answered</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+            <label for="exp-creaminess">Interior creaminess (1–5)</label>
+            <select id="exp-creaminess" x-model="experimentForm.observations.creaminess">
+              <option value="">Not answered</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+            <label for="exp-sticking">Sticking (1–5, 5 = severe)</label>
+            <select id="exp-sticking" x-model="experimentForm.observations.sticking">
+              <option value="">Not answered</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+            <label for="exp-cleaning">Cleaning difficulty (1–5)</label>
+            <select id="exp-cleaning" x-model="experimentForm.observations.cleaning_difficulty">
+              <option value="">Not answered</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+            <label for="exp-serving">Ease of serving (1–5)</label>
+            <select id="exp-serving" x-model="experimentForm.observations.ease_of_serving">
+              <option value="">Not answered</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+            <label for="exp-elapsed">Actual elapsed minutes</label>
+            <input id="exp-elapsed" type="number" min="0" step="1" x-model="experimentForm.actual_elapsed_minutes" />
+            <label for="exp-cost">Approximate cost (CAD)</label>
+            <input id="exp-cost" type="number" min="0" step="0.01" x-model="experimentForm.cost_cad" />
+          </fieldset>
+
+          <fieldset>
+            <legend>Notes</legend>
+            <label for="exp-notes">Free-text observations</label>
+            <textarea id="exp-notes" rows="4" x-model="experimentForm.notes"></textarea>
+          </fieldset>
+
+          <div class="flex gap-3">
+            <button type="submit">Save experiment</button>
+            <button type="button" class="secondary" @click="resetExperimentForm()">Reset form</button>
+          </div>
+        </form>
+      </details>
+
+      <div x-show="experimentsForCurrent().length" x-cloak>
+        <h3>Saved experiments for this recipe</h3>
+        <ul class="experiment-list">
+          <template x-for="experiment in experimentsForCurrent()" :key="experiment.id">
+            <li>
+              <div>
+                <strong x-text="experimentLabel(experiment)"></strong>
+                <span class="text-xs text-slate-400" x-text="`Revision ${experiment.recipe_revision || 'not recorded'}`"></span>
+              </div>
+              <div class="flex gap-2">
+                <button type="button" class="secondary text-xs" @click="editExperiment(experiment.id)">Edit</button>
+                <button type="button" class="btn-danger text-xs" @click="deleteExperiment(experiment.id)">Delete</button>
+              </div>
+            </li>
+          </template>
+        </ul>
+      </div>
+
+      <div x-show="experimentsForCurrent().length >= 2" x-cloak>
+        <h3>Compare saved experiments</h3>
+        <p class="text-sm">This compares two actual local records. Values marked “Not recorded” were not observed; they are not zero ratings.</p>
+        <div class="experiment-compare-controls">
+          <label for="compare-a">First experiment</label>
+          <select id="compare-a" x-model="comparisonAId" @change="refreshComparison()">
+            <template x-for="experiment in experimentsForCurrent()" :key="experiment.id">
+              <option :value="experiment.id" x-text="experimentLabel(experiment)"></option>
+            </template>
+          </select>
+          <label for="compare-b">Second experiment</label>
+          <select id="compare-b" x-model="comparisonBId" @change="refreshComparison()">
+            <template x-for="experiment in experimentsForCurrent()" :key="experiment.id">
+              <option :value="experiment.id" x-text="experimentLabel(experiment)"></option>
+            </template>
+          </select>
+        </div>
+        <div class="experiment-table-wrap" tabindex="0" role="region" aria-label="Experiment comparison table">
+          <table class="experiment-table">
+            <caption>Comparison of two locally recorded experiments</caption>
+            <thead>
+              <tr>
+                <th scope="col">Attribute</th>
+                <th scope="col" x-text="experimentLabel(experiments.find(e => e.id === comparisonAId) || {})"></th>
+                <th scope="col" x-text="experimentLabel(experiments.find(e => e.id === comparisonBId) || {})"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="row in comparisonRows()" :key="row.label">
+                <tr>
+                  <th scope="row" x-text="row.label"></th>
+                  <td x-text="row.a"></td>
+                  <td x-text="row.b"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <label for="experiment-json">Experiment JSON (local export/import)</label>
+        <textarea id="experiment-json" class="h-40 text-sm" x-model="experimentJson" placeholder="Export experiments to JSON, or paste JSON here to import."></textarea>
+        <div class="flex gap-3">
+          <button type="button" class="secondary" @click="exportExperiments()">Export experiment JSON</button>
+          <button type="button" class="secondary" @click="importExperiments()">Import experiment JSON</button>
+        </div>
+      </div>
     </section>
 
     <section>
@@ -198,7 +396,24 @@
       <h2 class="text-lg">YAML Import / Export</h2>
       <p class="text-sm">Paste a recipe YAML to load it, or click Save to dump the current recipe back to YAML.</p>
       <label for="yaml-input" class="sr-only">YAML recipe data</label>
-      <textarea id="yaml-input" class="h-40 text-sm" x-model="yamlText" placeholder="Paste recipe YAML here..."></textarea>
+      <textarea id="yaml-input" class="h-40 text-sm" x-model="yamlText" placeholder="Paste recipe YAML here..." aria-describedby="import-errors import-warnings"></textarea>
+      <div id="import-errors" class="import-errors" role="alert" aria-live="assertive" tabindex="-1" x-show="importErrors.length" x-cloak>
+        <h3>Import errors</h3>
+        <ul>
+          <template x-for="(error, idx) in importErrors" :key="idx">
+            <li><code x-text="error.path"></code>: <span x-text="error.message"></span></li>
+          </template>
+        </ul>
+        <p>Your pasted text is preserved. Correct the listed fields and choose Load YAML again.</p>
+      </div>
+      <div id="import-warnings" class="import-warnings" role="status" aria-live="polite" x-show="importWarnings.length" x-cloak>
+        <h3>Import warnings</h3>
+        <ul>
+          <template x-for="(warning, idx) in importWarnings" :key="idx">
+            <li><code x-text="warning.path"></code>: <span x-text="warning.message"></span></li>
+          </template>
+        </ul>
+      </div>
       <div class="flex gap-3">
         <button type="button" @click="loadYaml()">Load YAML</button>
         <button type="button" class="secondary" @click="saveYaml()">Save Current to YAML</button>

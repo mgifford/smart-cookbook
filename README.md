@@ -7,9 +7,9 @@ A **personal, science-based smart cookbook** that runs client-side on GitHub Pag
 ### 🎯 Core Functionality
 - **Precision Scaling**: Scale from 1 to 64 servings, with gram-based precision and approximate household measures
 - **Unit Preferences**: Switch between g/oz, cups/ml, and C/F on the fly
-- **YAML Import/Export**: Load and save recipes in clean, version-controlled YAML format
+- **YAML Import/Export**: Shared schema validation for repository and browser data, with preserved unknown fields and stable IDs
 - **Bookmarklet Scraper**: One-click import from recipe websites (AllRecipes, etc.)
-- **LocalStorage Persistence**: Your recipes and preferences auto-save to your browser
+- **LocalStorage Persistence**: Recipes, preferences, selection, and cooking experiments stay in your browser
 
 ### 🥗 Dietary Modes
 - **Weight-conscious Mode** (`wwMode`): Shows lower-point substitution suggestions; it does **not** change quantities automatically
@@ -41,11 +41,23 @@ It demonstrates how to:
 
 The recipe's `meta.notes` records its status, equipment, options, and limitations. The [kitchen test plan](docs/crispy-mushroom-mac-and-cheese-testing.md) provides blank observation tables, a flat-vs-ridged comparison, cost and time worksheets, and sources. Direct links such as `index.html?recipe=crispy-mushroom-mac-and-cheese` now open the requested recipe.
 
+### 🧪 Local cooking experiments
+
+The recipe view includes an optional experiment form for recording actual cooking outcomes: equipment, pan size, surface, stovetop method, oven conditions, ratings, elapsed time, cost, and notes.
+
+- Experiments are saved in this browser only.
+- Unanswered ratings stay `null`; they are never filled with invented values.
+- Two experiments can be compared in a semantic table (for example, flat versus ridged cast iron).
+- Experiment JSON can be exported and re-imported.
+- Recording an experiment does not mark the recipe “tested” or change its authored YAML.
+
 ## ⚠️ Current limitations
 
 - **Not every recipe is kitchen-tested.** Testing status is recorded per recipe; untested or proposed adaptations stay labelled.
 - **Offline use is incomplete.** The app is static and has no backend, but it depends on CDN-hosted libraries and has no service worker yet.
 - **Dietary toggles are suggestions, not automatic replacements.** Always review a substitution before applying it.
+- **Bookmarklet copies are not fully consolidated.** The in-app link, readable helper, and published snippet remain separate; bookmarklet output should be reviewed before saving.
+- **Source-versus-adaptation comparison is limited.** The repository does not reproduce the cookbook’s original quantities, so comparisons use recorded local experiments and documented provenance rather than fabricated source data.
 - **Nutrition is approximate and coverage-aware.** Missing reference data is disclosed instead of silently treated as zero.
 - **Automated axe checks are evidence, not WCAG 2.2 AA certification.** Manual screen-reader, keyboard, zoom, forced-colours, and touch testing is still required.
 - **No AI or WebMCP features are implemented.** Any future assistant work must be optional, proposal-based, and human-approved.
@@ -55,9 +67,11 @@ The recipe's `meta.notes` records its status, equipment, options, and limitation
 
 - **recipes/** — Recipe YAML files (validated, indexed, searchable)
 - **schemas/** — Versioned JSON Schema for recipe data
+- **src/recipes/validation.js** — Dependency-free shared validator used by browser imports and Node tests
+- **src/generated/** — Generated schema/conversion modules; never edit by hand
 - **experiments/** — Kitchen-experiment templates (unfilled observations only)
 - **tests/** — Node fixtures for scaling, units, import/export, nutrition, and deep links
-- **docs/** — [architecture](docs/ARCHITECTURE.md), [baseline audit](docs/BASELINE.md), [data model](docs/DATA-MODEL.md), [accessibility testing](docs/ACCESSIBILITY-TESTING.md), [experiment model](docs/RECIPE-EXPERIMENTS.md), [AI governance](docs/AI-GOVERNANCE.md), [licensing status](docs/LICENSING.md), the [Milestone 1 implementation report](docs/IMPLEMENTATION-REPORT-MILESTONE-1.md), and the [mushroom mac test plan](docs/crispy-mushroom-mac-and-cheese-testing.md)
+- **docs/** — [architecture](docs/ARCHITECTURE.md), [baseline audit](docs/BASELINE.md), [data model](docs/DATA-MODEL.md), [accessibility testing](docs/ACCESSIBILITY-TESTING.md), [experiment model](docs/RECIPE-EXPERIMENTS.md), [AI governance](docs/AI-GOVERNANCE.md), [licensing status](docs/LICENSING.md), the [Milestone 1 implementation report](docs/IMPLEMENTATION-REPORT-MILESTONE-1.md), the [1.1/1.2 implementation report](docs/IMPLEMENTATION-REPORT-1.1-1.2.md), and the [mushroom mac test plan](docs/crispy-mushroom-mac-and-cheese-testing.md)
 - **recipes.json** — Auto-generated index of all recipes (metadata only)
 - **recipes-index.html** — Searchable recipe browser with filters
 - **template.yaml** — Recipe schema with science fields
@@ -68,6 +82,8 @@ The recipe's `meta.notes` records its status, equipment, options, and limitation
 - **nutrition.yaml** — Per-100g macros for 50+ common ingredients
 - **ingredients-glossary.yaml** — Maps ingredient name variations to canonical names
 - **scripts/validate-schema.js** — JSON Schema, stable-ID, and duplicate-ID checks
+- **scripts/generate-schema-module.js** — Generates the browser schema module
+- **scripts/generate-conversions.js** — Generates browser conversion data from conversions.yaml
 - **scripts/validate-recipes.js** — Recipe quality validation
 - **scripts/generate-index.js** — Generates searchable recipes.json
 - **scripts/check-index.js** — Fails when recipes.json is stale
@@ -129,9 +145,9 @@ All recipes are **validated automatically**, and CI checks that the generated in
 ### Validation Checklist
 - ✅ Required fields: `meta`, `ingredients`, `steps`, `science_notes`, `history`
 - ✅ Valid metadata: name, source, servings (positive number), prep_time
-- ✅ Ingredients: each has name, qty_g (numeric), vol_est, function, ww_points
+- ✅ Ingredients: each has name, qty_g (number or null), vol_est, function, ww_points
 - ✅ Substitutions: each has name, ratio, science_note
-- ✅ No duplicate ingredient names
+- ✅ Repeated ingredient names with different roles are preserved
 - ✅ Minimum 2 ingredients, 1 step, 1 science note
 - ✅ JSON Schema validation and stable IDs matching filenames
 - ✅ No duplicate recipe IDs
@@ -142,7 +158,11 @@ All recipes are **validated automatically**, and CI checks that the generated in
 ```bash
 npm ci
 npm run validate:schema    # Versioned JSON Schema + stable IDs
+npm run generate:schema-module # Regenerate src/generated/recipe-schema.js
+npm run check:schema-module # Browser schema copy is synchronized
 npm run validate:recipes   # Recipe quality checks
+npm run generate:conversions # Regenerate src/generated/conversions.js after YAML changes
+npm run check:conversions  # Fail if generated conversion data is stale
 npm run check:index        # Fail if recipes.json is stale
 npm run test:unit          # Scaling, conversion, import/export fixtures
 npm run index:recipes      # Regenerate recipes.json after recipe changes

@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 const Ajv2020 = require('ajv/dist/2020');
+const RecipeValidation = require('../src/recipes/validation');
 
 const ROOT = path.resolve(__dirname, '..');
 const RECIPES_DIR = path.join(ROOT, 'recipes');
@@ -62,6 +63,15 @@ for (const filename of files) {
   if (!validate(recipe)) {
     for (const err of validate.errors) {
       reportError(file, formatPath(err.instancePath), err.message);
+    }
+  }
+
+  // Semantic checks shared with the browser import validator. Full structural
+  // validation remains with Ajv and the canonical schema above.
+  const shared = RecipeValidation.validateRecipe(recipe, { schema, legacyWarnings: false });
+  for (const err of shared.errors) {
+    if (['schemaVersion', 'estimatedQuantity', 'quantitySource'].includes(err.keyword)) {
+      reportError(file, err.path, err.message);
     }
   }
 

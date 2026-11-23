@@ -71,3 +71,11 @@ test('temperature conversion supports degree symbols and keeps readable spacing'
     'Preheat to 347F.'
   ]);
 });
+
+test('unknown density falls back to grams instead of pretending to know volume', () => {
+  const { app } = bootApp();
+  app.prefs = { system: 'auto', weightUnit: 'oz', volumeUnit: 'cups', tempUnit: 'F' };
+  app.precisionMode = false;
+  const mystery = { ...ingredient('mystery powder', 100), displayName: 'mystery powder' };
+  assert.equal(app.formatQuantity(mystery), '100 g');
+});

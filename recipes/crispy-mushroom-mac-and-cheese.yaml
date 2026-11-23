@@ -1,3 +1,54 @@
+schema_version: "2.0"
+id: crispy-mushroom-mac-and-cheese
+
+provenance:
+  type: adaptation
+  status: proposed
+  source_url: https://www.ko-media.ca/products/olive-gourmando-the-cookbook-digital
+  inspired_by:
+    title: "Olive + Gourmando: The Cookbook"
+    author: "Dyan Solomon"
+    page: 129
+  notes: >-
+    Original weeknight adaptation. The cookbook's written instructions and
+    images are not reproduced. This record is proposed and has not been
+    kitchen-tested.
+
+desired_outcomes:
+  - mushroom_forward
+  - crispy_top
+  - crispy_bottom
+  - creamy_centre
+  - weeknight_time
+  - supermarket_ingredients
+
+equipment:
+  preferred:
+    type: cast_iron_skillet
+    name: 12-inch flat cast-iron skillet
+    base: flat
+    size_inches: 12
+    oven_safe: true
+    stovetop_safe: true
+    notes: "Preferred for contact and portion release; use a trivet and remove silicone handle covers."
+  alternatives:
+    - type: metal_baking_pan
+      name: shallow 9 x 13-inch metal baking pan
+      size_inches: 13
+      oven_safe: true
+      stovetop_safe: false
+      notes: "Skip the stovetop pre-sear and extend the bake by about 5 minutes."
+  experimental:
+    - type: cast_iron_grill_pan
+      name: ridged cast-iron grill pan
+      base: ridged
+      size_inches: 10.5
+      oven_safe: true
+      stovetop_safe: true
+      notes: "Experimental comparison only; channels may add contact area but can make release and cleaning harder."
+
+testing_status: untested
+
 meta:
   name: Crispy Mushroom Mac and Cheese (Weeknight)
   source: https://www.ko-media.ca/products/olive-gourmando-the-cookbook-digital
@@ -288,6 +339,6 @@ science_notes:
   - "The starch that pasta releases into the cooking water helps the sauce cling and stabilises the cheese emulsion; a splash of pasta water can loosen a thick sauce without adding more fat."
 
 history:
-  - date: 2026-11-22
+  - date: "2026-11-22"
     note: "Proposed adaptation; not yet kitchen-tested."
     change: "Created a weeknight version inspired by Olive + Gourmando, simplified to supermarket ingredients; documented the crust experiments in docs/crispy-mushroom-mac-and-cheese-testing.md."

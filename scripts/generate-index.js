@@ -1,72 +1,33 @@
 #!/usr/bin/env node
+'use strict';
 
 /**
- * Generate a searchable recipe index (recipes.json)
+ * Generate the browser-facing recipe index (recipes.json).
  * Run: node scripts/generate-index.js
  */
 
 const fs = require('fs');
 const path = require('path');
-const yaml = require('js-yaml');
+const { buildRecipeIndex, DEFAULT_ROOT } = require('./lib/recipe-index');
 
-const RECIPES_DIR = path.join(__dirname, '..', 'recipes');
-const OUTPUT_FILE = path.join(__dirname, '..', 'recipes.json');
+const OUTPUT_FILE = path.join(DEFAULT_ROOT, 'recipes.json');
 
-async function main() {
+function main() {
   console.log('\n📋 Generating recipe index...\n');
+  const index = buildRecipeIndex();
 
-  if (!fs.existsSync(RECIPES_DIR)) {
-    console.error(`❌ Recipes directory not found: ${RECIPES_DIR}`);
-    process.exit(1);
+  for (const recipe of index.recipes) {
+    console.log(`  ✓ ${recipe.name}`);
   }
 
-  const files = fs.readdirSync(RECIPES_DIR).filter(f => f.endsWith('.yaml'));
-  const index = {
-    version: '1.0',
-    generated: new Date().toISOString(),
-    recipes: []
-  };
-
-  for (const filename of files) {
-    const filepath = path.join(RECIPES_DIR, filename);
-    try {
-      const content = fs.readFileSync(filepath, 'utf8');
-      const recipe = yaml.load(content);
-
-      const recipeId = filename.replace('.yaml', '');
-      const meta = recipe.meta || {};
-
-      index.recipes.push({
-        id: recipeId,
-        name: meta.name || 'Unnamed Recipe',
-        source: meta.source || '',
-        servings: meta.base_servings || 1,
-        prep_time: meta.prep_time || '',
-        cook_time: meta.cook_time || '',
-        status: meta.status || undefined,
-        ingredients_count: (recipe.ingredients || []).length,
-        steps_count: (recipe.steps || []).length,
-        has_science_notes: Array.isArray(recipe.science_notes) && recipe.science_notes.length > 0
-      });
-
-      console.log(`  ✓ ${meta.name || filename}`);
-    } catch (err) {
-      console.error(`  ❌ ${filename}: ${err.message}`);
-    }
-  }
-
-  // Sort by name
-  index.recipes.sort((a, b) => a.name.localeCompare(b.name));
-
-  // Write index file
-  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(index, null, 2));
+  fs.writeFileSync(OUTPUT_FILE, `${JSON.stringify(index, null, 2)}\n`);
   console.log(`\n✅ Generated ${index.recipes.length} recipes`);
-  console.log(`📄 Index saved to: recipes.json\n`);
-
-  process.exit(0);
+  console.log(`📄 Index saved to: ${OUTPUT_FILE}\n`);
 }
 
-main().catch(err => {
-  console.error('Fatal error:', err);
+try {
+  main();
+} catch (err) {
+  console.error(`❌ ${err.message}`);
   process.exit(1);
-});
+}

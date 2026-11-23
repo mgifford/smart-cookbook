@@ -1,0 +1,40 @@
+# Copy this file, rename it for a real attempt, and fill only observed values.
+# null means "not yet observed". Do not replace nulls with plausible guesses.
+recipe_id: crispy-mushroom-mac-and-cheese
+variation_id: weeknight
+
+experiment:
+  date: null
+  status: planned
+  tester: null
+
+equipment:
+  pan_type: null          # flat_cast_iron | ridged_cast_iron | metal_baking_pan
+  pan_size_inches: null
+  pan_seasoned: null
+  stovetop_pre_sear_used: null
+
+conditions:
+  oven_temperature_c: 210
+  bottom_browning_minutes: null
+  baking_minutes: null
+  bread_added_at_minutes: null
+  broiler_used: null
+
+observations:
+  top_crispness: null          # 1-5
+  bottom_crispness: null       # 1-5
+  mushroom_intensity: null     # 1-5
+  creaminess: null             # 1-5
+  sticking: null               # 1-5 (5 = severe)
+  ease_of_serving: null        # 1-5
+  cleaning_difficulty: null    # 1-5
+  actual_elapsed_minutes: null
+
+cost:
+  ingredients_consumed_cad: null
+  total_checkout_cad: null
+  pantry_assumptions: null
+  optional_premium_cad: null
+
+notes: ""

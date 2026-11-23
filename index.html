@@ -5,13 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Science-Based Smart Cookbook</title>
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js" integrity="sha384-+pxiN6T7yvpryuJmE1gM9PX7yQit15auDb+ZwwvJOd/4be2Cie5/IuVXgQb/S9du" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
   <!-- Cache-bust the main script so users pick up fixes immediately -->
   <script defer src="script.js?v=2026-01-10"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous"></script>
 </head>
 <body x-data="cookbookApp()" @init="init()">
+  <noscript>
+    <div class="noscript">
+      <strong>JavaScript is required for the interactive cookbook.</strong>
+      The recipes are still available as readable YAML in the
+      <a href="https://github.com/mgifford/smart-cookbook/tree/main/recipes">repository recipes directory</a>.
+    </div>
+  </noscript>
   <main>
     <header>
       <div class="flex justify-between items-center">
@@ -30,7 +37,7 @@
         <button type="button" @click="downloadBackup()" x-show="hasUnsavedChanges" class="btn-warning">⬇️ Backup All</button>
         <div class="flex items-center gap-2">
           <label for="servings-slider">Servings</label>
-          <input type="range" id="servings-slider" min="1" max="200" step="1" class="w-40" x-model.number="servings" @input="adjustServings()" @change="adjustServings()" />
+          <input type="range" id="servings-slider" min="1" max="64" step="1" class="w-40" x-model.number="servings" @input="adjustServings()" @change="adjustServings()" />
           <span class="w-12 text-right font-bold" x-text="servings"></span>
           <button type="button" class="secondary text-xs" @click="resetServings()" :title="`Reset to base (${current.meta.base_servings})`">●</button>
         </div>
@@ -152,8 +159,8 @@
     <section>
       <div>
         <h2 class="text-lg">Nutrition</h2>
-        <span class="text-xs text-red-300" x-show="nutritionError">Data unavailable (nutrition.yaml not found)</span>
-        <span class="text-xs text-slate-400" x-show="!nutritionLoaded && !nutritionError">Loading nutrition…</span>
+        <span class="text-xs text-red-300" x-show="nutritionError" role="status" aria-live="polite">Data unavailable (nutrition.yaml not found)</span>
+        <span class="text-xs text-slate-400" x-show="!nutritionLoaded && !nutritionError" role="status" aria-live="polite">Loading nutrition…</span>
       </div>
       <div x-show="nutritionLoaded && !nutritionError" class="grid-2col text-sm">
         <div class="nutrition-col">
@@ -173,7 +180,7 @@
           <p x-text="`Fiber: ${nutritionSummary().per.fiber.toFixed(1)} g`"></p>
         </div>
       </div>
-      <p class="text-xs text-slate-400" x-show="nutritionLoaded && !nutritionError" x-text="nutritionCoverageText()"></p>
+      <p class="text-xs text-slate-400" x-show="nutritionLoaded && !nutritionError" aria-live="polite" x-text="nutritionCoverageText()"></p>
     </section>
 
     <section>

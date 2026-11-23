@@ -241,30 +241,32 @@ function cookbookApp() {
   const convertTemperatureInText = (text, targetUnit) => {
     if (!text || !targetUnit) return text;
     
-    // Pattern to match temperatures like: 175C, 350F, 180 degrees C, 350 degrees F, etc.
-    const tempRegex = /(\d+)\s*(degrees?\s*)?(C|F|Celsius|Fahrenheit)/gi;
-    
-    return text.replace(tempRegex, (match, temp, degrees, unit) => {
+    // Match 175C, 350F, 180 degrees C, 350 degrees F, 400°F, etc.
+    const tempRegex = /(\d+(?:\.\d+)?)\s*(°\s*|degrees?\s*)?(C|F|Celsius|Fahrenheit)\b/gi;
+
+    return text.replace(tempRegex, (match, temp, degreeToken, unit) => {
       const tempNum = parseFloat(temp);
       const sourceUnit = unit.toUpperCase().charAt(0);
-      
-      if (sourceUnit === targetUnit.toUpperCase()) {
-        // Already in target unit
+      const target = targetUnit.toUpperCase();
+
+      if (sourceUnit === target) {
+        // Already in target unit; preserve the author's original formatting.
         return match;
       }
-      
+
       let converted;
-      if (targetUnit.toUpperCase() === 'F' && sourceUnit === 'C') {
-        // C to F
-        converted = Math.round((tempNum * 9/5) + 32);
-        return `${converted}${degrees || ''}F`;
-      } else if (targetUnit.toUpperCase() === 'C' && sourceUnit === 'F') {
-        // F to C
-        converted = Math.round((tempNum - 32) * 5/9);
-        return `${converted}${degrees || ''}C`;
+      if (target === 'F' && sourceUnit === 'C') {
+        converted = Math.round((tempNum * 9 / 5) + 32);
+      } else if (target === 'C' && sourceUnit === 'F') {
+        converted = Math.round((tempNum - 32) * 5 / 9);
+      } else {
+        return match;
       }
-      
-      return match;
+
+      const marker = degreeToken
+        ? (degreeToken.includes('°') ? '°' : ' degrees ')
+        : '';
+      return `${converted}${marker}${target}`;
     });
   };
 
@@ -835,6 +837,26 @@ function cookbookApp() {
     }
   };
 
+  // Repository recipes removed by the user are remembered so bootstrap does
+  // not silently restore them on reload. Clearing localStorage resets this.
+  const DELETED_RECIPES_KEY = 'cookbook-deleted-recipes';
+  const loadDeletedRecipeIds = () => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(DELETED_RECIPES_KEY) || '[]');
+      return new Set(Array.isArray(parsed) ? parsed : []);
+    } catch (_) {
+      return new Set();
+    }
+  };
+  const saveDeletedRecipeIds = (ids) => {
+    try {
+      localStorage.setItem(DELETED_RECIPES_KEY, JSON.stringify([...ids]));
+    } catch (_) {
+      /* storage may be unavailable or full; deletion still applies in memory */
+    }
+  };
+  const deletedRecipeIds = loadDeletedRecipeIds();
+
   // Load recipes from localStorage
   const loadRecipesFromStorage = () => {
     try {
@@ -868,13 +890,15 @@ function cookbookApp() {
       const res = await fetch(`recipes/${id}.yaml`, { cache: 'no-store' });
       if (!res.ok) throw new Error(`recipes/${id}.yaml ${res.status}`);
       const yamlText = await res.text();
-      const parsed = jsyaml.load(yamlText);
+      const parsed = jsyaml.load(yamlText) || {};
+      // Preserve every top-level field, including future optional metadata.
       return {
+        ...parsed,
         id,
         meta: parsed.meta || { name: id, source: '', base_servings: 1, prep_time: '' },
         ingredients: parsed.ingredients || [],
         steps: parsed.steps || [],
-        science_notes: parsed.science_notes || [],
+        science_notes: Array.isArray(parsed.science_notes) ? parsed.science_notes : [],
         history: parsed.history || []
       };
     } catch (err) {
@@ -957,7 +981,7 @@ function cookbookApp() {
 
         const existingIds = new Set(this.recipes.map(r => r.id));
         index.recipes.forEach(entry => {
-          if (!existingIds.has(entry.id)) {
+          if (!existingIds.has(entry.id) && !deletedRecipeIds.has(entry.id)) {
             this.recipes.push(placeholderFromIndex(entry));
           }
         });
@@ -1070,6 +1094,11 @@ function cookbookApp() {
     },
 
     upsertRecipe(recipe) {
+      // An explicit import of an id revives a previously deleted library entry.
+      if (deletedRecipeIds.has(recipe.id)) {
+        deletedRecipeIds.delete(recipe.id);
+        saveDeletedRecipeIds(deletedRecipeIds);
+      }
       const idx = this.recipes.findIndex(r => r.id === recipe.id);
       if (idx >= 0) this.recipes.splice(idx, 1, recipe);
       else this.recipes.push(recipe);
@@ -1160,9 +1189,12 @@ function cookbookApp() {
           return decodeEntities(String(s));
         }).filter(s => s && s.trim().length > 0);
 
-        const id = this.slugify(parsed.meta.name || `recipe-${Date.now()}`);
+        const requestedId = typeof parsed.id === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(parsed.id)
+          ? parsed.id
+          : this.slugify(parsed.meta.name || `recipe-${Date.now()}`);
         const recipe = {
-          id,
+          ...parsed,
+          id: requestedId,
           meta: parsed.meta,
           ingredients: parsed.ingredients,
           steps: parsed.steps || [],
@@ -1170,7 +1202,7 @@ function cookbookApp() {
           history: parsed.history || []
         };
         this.upsertRecipe(recipe);
-        this.selectedId = id;
+        this.selectedId = requestedId;
         this.loadRecipe();
         this.stepSignals = extractStepSignals(recipe.steps || []);
       } catch (e) {
@@ -1216,7 +1248,6 @@ function cookbookApp() {
     saveYaml() {
       try {
         const copy = clone(this.current);
-        delete copy.id;
         this.yamlText = jsyaml.dump(copy, { lineWidth: 120 });
       } catch (e) {
         alert('YAML save error: ' + e.message);
@@ -1234,8 +1265,12 @@ function cookbookApp() {
 
     deleteCurrentRecipe() {
       if (!confirm(`Delete "${this.current.meta.name}"? This cannot be undone.`)) return;
+      if (this.selectedId) {
+        deletedRecipeIds.add(this.selectedId);
+        saveDeletedRecipeIds(deletedRecipeIds);
+      }
       this.recipes = this.recipes.filter(r => r.id !== this.selectedId);
-      localStorage.setItem('cookbook-recipes', JSON.stringify(this.recipes));
+      this.persistRecipes();
       this.hasUnsavedChanges = true;
       if (this.recipes.length > 0) {
         this.selectedId = this.recipes[0].id;
@@ -1245,23 +1280,55 @@ function cookbookApp() {
       }
     },
 
-    downloadBackup() {
-      const backup = {
-        version: '1.0',
-        exported: new Date().toISOString(),
-        count: this.recipes.length,
-        recipes: this.recipes
-      };
-      const json = JSON.stringify(backup, null, 2);
-      const blob = new Blob([json], {type: 'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `cookbook-backup-${Date.now()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      this.hasUnsavedChanges = false;
-      alert(`Backed up ${this.recipes.length} recipes`);
+    async collectFullRecipes() {
+      const recipes = [];
+      const failed = [];
+      for (const recipe of this.recipes) {
+        const incomplete = recipe._placeholder
+          || !Array.isArray(recipe.ingredients)
+          || recipe.ingredients.length === 0;
+        let full = recipe;
+        if (incomplete) {
+          const fetched = await fetchRecipeYaml(recipe.id);
+          if (!fetched) {
+            failed.push(recipe.id);
+            continue;
+          }
+          full = fetched;
+        }
+        const copy = clone(full);
+        delete copy._placeholder;
+        recipes.push(copy);
+      }
+      return { recipes, failed };
+    },
+
+    async downloadBackup() {
+      try {
+        const { recipes, failed } = await this.collectFullRecipes();
+        const backup = {
+          version: '1.1',
+          exported: new Date().toISOString(),
+          count: recipes.length,
+          deleted_recipe_ids: [...deletedRecipeIds],
+          recipes
+        };
+        const json = JSON.stringify(backup, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cookbook-backup-${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        this.hasUnsavedChanges = false;
+        const warning = failed.length ? ` ${failed.length} recipe(s) could not be fetched: ${failed.join(', ')}.` : '';
+        alert(`Backed up ${recipes.length} recipes as JSON.${warning}`);
+      } catch (err) {
+        alert('Backup failed: ' + err.message);
+      }
     },
 
     async downloadAllAsZip() {
@@ -1269,20 +1336,27 @@ function cookbookApp() {
         alert('JSZip library not loaded. Please refresh the page.');
         return;
       }
-      const zip = new JSZip();
-      this.recipes.forEach(recipe => {
-        const yaml = jsyaml.dump(recipe, { lineWidth: 120 });
-        const filename = `${recipe.id}.yaml`;
-        zip.file(filename, yaml);
-      });
-      const blob = await zip.generateAsync({type: 'blob'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `cookbook-recipes-${Date.now()}.zip`;
-      a.click();
-      URL.revokeObjectURL(url);
-      alert(`Downloaded ${this.recipes.length} recipes as YAML files`);
+      try {
+        const { recipes, failed } = await this.collectFullRecipes();
+        const zip = new JSZip();
+        recipes.forEach(recipe => {
+          const yaml = jsyaml.dump(recipe, { lineWidth: 120 });
+          zip.file(`${recipe.id}.yaml`, yaml);
+        });
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cookbook-recipes-${Date.now()}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        const warning = failed.length ? ` ${failed.length} recipe(s) could not be fetched: ${failed.join(', ')}.` : '';
+        alert(`Downloaded ${recipes.length} recipes as YAML files.${warning}`);
+      } catch (err) {
+        alert('ZIP export failed: ' + err.message);
+      }
     },
 
     scaledQty(baseQty) {
@@ -1292,7 +1366,7 @@ function cookbookApp() {
     },
 
     adjustServings() {
-      const cap = this.isHighVolumeRecipe() ? 64 : 32;
+      const cap = 64;
       let s = Number(this.servings) || 1;
       if (s < 1) s = 1;
       if (s > cap) s = cap;
@@ -1304,12 +1378,6 @@ function cookbookApp() {
       const base = Number(this.current?.meta?.base_servings) || 1;
       this.servings = base;
       this.adjustServings();
-    },
-
-    isHighVolumeRecipe() {
-      const name = (this.current?.meta?.name || '').toLowerCase();
-      const tags = ['cookie', 'cookies', 'appetizer', 'snack', 'dip', 'bars', 'brownie', 'punch'];
-      return tags.some(t => name.includes(t));
     },
 
     findWWSub(ing) {

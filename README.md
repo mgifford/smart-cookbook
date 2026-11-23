@@ -1,19 +1,19 @@
 # 🧪 The Science Cookbook
 
-A **personal, science-based smart cookbook** that runs entirely client-side on GitHub Pages. No backend required—all data is stored in YAML files and localStorage for complete privacy and offline-first capability.
+A **personal, science-based smart cookbook** that runs client-side on GitHub Pages. There is no account or application backend: recipes are stored as YAML in the repository, and personal recipes/preferences live in your browser's localStorage. The current build still loads three libraries from a CDN, so first-load offline use is **not** yet guaranteed.
 
 ## ✨ Features
 
 ### 🎯 Core Functionality
-- **Precision Scaling**: Servings slider (0.25x to 200x) with gram-based accuracy
+- **Precision Scaling**: Scale from 1 to 64 servings, with gram-based precision and approximate household measures
 - **Unit Preferences**: Switch between g/oz, cups/ml, and C/F on the fly
 - **YAML Import/Export**: Load and save recipes in clean, version-controlled YAML format
 - **Bookmarklet Scraper**: One-click import from recipe websites (AllRecipes, etc.)
 - **LocalStorage Persistence**: Your recipes and preferences auto-save to your browser
 
 ### 🥗 Dietary Modes
-- **Weight-conscious Mode** (`wwMode`): Swap higher-point ingredients for lighter alternatives
-- **Vegetarian Mode** (`vegMode`): Automatically suggest plant-based substitutions (chicken→tofu, butter→coconut oil)
+- **Weight-conscious Mode** (`wwMode`): Shows lower-point substitution suggestions; it does **not** change quantities automatically
+- **Vegetarian Mode** (`vegMode`): Shows plant-based substitution suggestions; it does **not** change quantities automatically
 - **Precision Mode**: Show exact gram measurements instead of approximate volumes
 
 ### 🔬 Science Education
@@ -41,23 +41,39 @@ It demonstrates how to:
 
 The recipe's `meta.notes` records its status, equipment, options, and limitations. The [kitchen test plan](docs/crispy-mushroom-mac-and-cheese-testing.md) provides blank observation tables, a flat-vs-ridged comparison, cost and time worksheets, and sources. Direct links such as `index.html?recipe=crispy-mushroom-mac-and-cheese` now open the requested recipe.
 
+## ⚠️ Current limitations
+
+- **Not every recipe is kitchen-tested.** Testing status is recorded per recipe; untested or proposed adaptations stay labelled.
+- **Offline use is incomplete.** The app is static and has no backend, but it depends on CDN-hosted libraries and has no service worker yet.
+- **Dietary toggles are suggestions, not automatic replacements.** Always review a substitution before applying it.
+- **Nutrition is approximate and coverage-aware.** Missing reference data is disclosed instead of silently treated as zero.
+- **Automated axe checks are evidence, not WCAG 2.2 AA certification.** Manual screen-reader, keyboard, zoom, forced-colours, and touch testing is still required.
+- **No AI or WebMCP features are implemented.** Any future assistant work must be optional, proposal-based, and human-approved.
+- **Licensing needs review.** The repository currently contains both an AGPL-3.0 `LICENSE` and a CC BY-SA 4.0 `LICENSE.md`; see [docs/LICENSING.md](docs/LICENSING.md) and have the project owner resolve the conflict.
+
 ## 📂 Files
 
 - **recipes/** — Recipe YAML files (validated, indexed, searchable)
-- **docs/** — Kitchen-test plans and experiment records (for example, the mushroom mac and cheese test plan)
+- **schemas/** — Versioned JSON Schema for recipe data
+- **experiments/** — Kitchen-experiment templates (unfilled observations only)
+- **tests/** — Node fixtures for scaling, units, import/export, nutrition, and deep links
+- **docs/** — [architecture](docs/ARCHITECTURE.md), [baseline audit](docs/BASELINE.md), [data model](docs/DATA-MODEL.md), [accessibility testing](docs/ACCESSIBILITY-TESTING.md), [experiment model](docs/RECIPE-EXPERIMENTS.md), [AI governance](docs/AI-GOVERNANCE.md), [licensing status](docs/LICENSING.md), and the [mushroom mac test plan](docs/crispy-mushroom-mac-and-cheese-testing.md)
 - **recipes.json** — Auto-generated index of all recipes (metadata only)
 - **recipes-index.html** — Searchable recipe browser with filters
 - **template.yaml** — Recipe schema with science fields
 - **bookmarklet.js** — Scraper for JSON-LD recipe data with smart quantity parsing
-- **load-recipes.js** — Loads all recipe YAMLs into localStorage
 - **index.html** — Main app with Alpine.js, nutrition, copyright education, debug mode
 - **script.js** — Scaling, substitutions, unit conversions, nutrition calculations
 - **conversions.yaml** — Reference data for densities and unit conversions
 - **nutrition.yaml** — Per-100g macros for 50+ common ingredients
 - **ingredients-glossary.yaml** — Maps ingredient name variations to canonical names
+- **scripts/validate-schema.js** — JSON Schema, stable-ID, and duplicate-ID checks
 - **scripts/validate-recipes.js** — Recipe quality validation
 - **scripts/generate-index.js** — Generates searchable recipes.json
-- **.github/workflows/validate.yml** — Auto-validates & indexes on push
+- **scripts/check-index.js** — Fails when recipes.json is stale
+- **scripts/ci-a11y.js** — Playwright journeys plus axe checks on both pages and mobile
+- **.github/workflows/quality.yml** — Full quality gate on pushes and pull requests
+- **.github/workflows/validate.yml** — Recipe schema/index checks without auto-commits
 - **AGENTS.md** — AI assistant personas for development
 - **PHILOSOPHY.md** — Why open recipes matter + remix culture vision
 - **COPYRIGHT.md** — Complete legal guide to recipe copyright
@@ -77,15 +93,15 @@ python3 -m http.server 8010
 ### GitHub Pages Deployment
 1. Push to GitHub
 2. Enable Pages in Settings → Pages → Source: `main` branch
-3. Your cookbook will be live at `https://yourusername.github.io/open-recipies/`
+3. Your cookbook will be live at `https://yourusername.github.io/smart-cookbook/`
 
 ### Adding Recipes
 
-**Method 1: Load All Recipes from YAML**
+**Method 1: Browse the recipe library**
 1. Go to https://mgifford.github.io/smart-cookbook/
-2. Click the **"📥 Load All Recipes"** button at the top
-3. Browser loads all YAML files from `/recipes/` into localStorage
-4. Select any recipe from the dropdown
+2. Open [recipes-index.html](recipes-index.html) or pick a recipe from the dropdown
+3. Use a direct link such as `index.html?recipe=crispy-mushroom-mac-and-cheese`
+4. The app loads the recipe YAML on demand
 
 **Method 2: Bookmarklet Scraper**
 1. Drag the "Save to Cookbook" link to your bookmarks bar
@@ -102,12 +118,13 @@ python3 -m http.server 8010
 1. Create a new file: `recipes/your-recipe-name.yaml`
 2. Follow [RECIPE-AUTHORING.md](RECIPE-AUTHORING.md) standards
 3. Push to GitHub
-4. GitHub Actions automatically validates & indexes your recipe
-5. Recipe appears in the searchable browser at [recipes-index.html](recipes-index.html)
+4. Run `npm run index:recipes` and commit the regenerated `recipes.json`
+5. GitHub Actions validates the recipe and fails if the index is stale
+6. Recipe appears in the searchable browser at [recipes-index.html](recipes-index.html)
 
 ## ✅ Quality Assurance
 
-All recipes are **validated and indexed** automatically:
+All recipes are **validated automatically**, and CI checks that the generated index is current:
 
 ### Validation Checklist
 - ✅ Required fields: `meta`, `ingredients`, `steps`, `science_notes`, `history`
@@ -116,20 +133,30 @@ All recipes are **validated and indexed** automatically:
 - ✅ Substitutions: each has name, ratio, science_note
 - ✅ No duplicate ingredient names
 - ✅ Minimum 2 ingredients, 1 step, 1 science note
+- ✅ JSON Schema validation and stable IDs matching filenames
+- ✅ No duplicate recipe IDs
+- ✅ Generated index is synchronized with the YAML source
+- ✅ Unit fixtures plus Playwright/axe journeys pass
 
 ### Run Locally
 ```bash
-npm run validate:recipes   # Check all recipes for quality
-npm run index:recipes      # Generate searchable recipes.json
-npm run quality            # Full quality check (all validations)
+npm ci
+npm run validate:schema    # Versioned JSON Schema + stable IDs
+npm run validate:recipes   # Recipe quality checks
+npm run check:index        # Fail if recipes.json is stale
+npm run test:unit          # Scaling, conversion, import/export fixtures
+npm run index:recipes      # Regenerate recipes.json after recipe changes
+npm run quality            # Full local quality gate
 ```
 
 ### Automatic CI/CD
-Every push to GitHub triggers:
-1. **Validation** — Checks all recipe YAMLs
-2. **Indexing** — Generates updated `recipes.json`
-3. **Auto-commit** — Pushes index changes back
-4. **Block merging** — Fails if validation errors found
+Checks run on pushes and pull requests:
+1. **Validation** — YAML, JSON Schema, recipe quality, and stable IDs
+2. **Index integrity** — Fails if `recipes.json` is stale; run `npm run index:recipes` locally
+3. **Tests** — Unit fixtures plus Playwright user journeys and axe scans
+4. **Block merging** — Fails on genuine validation, automation, or accessibility errors
+
+Generated files are not auto-committed from pull requests. `npm run quality` is the local equivalent.
 
 ## 🔍 Recipe Browser
 
@@ -150,7 +177,7 @@ When `vegMode` is enabled:
 - **Chicken breast** → Firm tofu (press to remove water, marinate for flavor)
 - **Milk** → Almond milk (add 5g flour to compensate for lower protein)
 
-Substitutions show as **green text** with science notes explaining the chemistry.
+Substitutions appear as an icon and tooltip with a science note. They are **suggestions only**; the recipe quantities are not changed silently.
 
 ### Science Mode Explanations
 Toggle `scienceMode` to see:
@@ -160,7 +187,7 @@ Toggle `scienceMode` to see:
   - "Baking soda reacts with acidic bananas to produce CO₂ gas"
   - "Maillard reaction creates browning and nutty flavors at 175C"
 
-## � Open Culture & Copyright
+## 📜 Open Culture & Copyright
 
 Recipes are **humanity's shared inheritance**. The Science Cookbook embraces open culture principles:
 
@@ -186,10 +213,11 @@ Recipes are **humanity's shared inheritance**. The Science Cookbook embraces ope
 4. **Attribution is respectful** — Credit sources, legally not required
 5. **Improvements benefit everyone** — Share what you learn
 
-- **TailwindCSS** (CDN) - Dark theme optimized for kitchen use
+- **Vanilla CSS** - Dark theme optimized for kitchen use; no Tailwind build step
 - **Alpine.js** (CDN) - Reactive state management
-- **js-yaml** (CDN) - YAML parsing
-- **Pure Client-Side** - No backend, works offline
+- **js-yaml** (CDN) - YAML parsing, plus JSZip for downloads
+- **No backend or account** - Static GitHub Pages hosting
+- **Pinned CDN assets** - Alpine, js-yaml, and JSZip use exact versions with Subresource Integrity; the app still depends on the CDN and has no service worker yet
 
 ## 📝 Example Workflow
 
@@ -197,7 +225,7 @@ Recipes are **humanity's shared inheritance**. The Science Cookbook embraces ope
 2. **Click bookmarklet** → YAML copied
 3. **Paste and Load** → Recipe imported
 4. **Toggle Science Mode** → See ingredient chemistry
-5. **Enable Vegetarian Mode** → Auto-substitute animal products
+5. **Enable Vegetarian Mode** → Review substitution suggestions (apply changes manually)
 6. **Scale to 12 servings** → All ingredients update
 7. **Switch to Fahrenheit** → Temperatures convert in steps
 8. **Export YAML** → Save to Git for version control
@@ -274,7 +302,7 @@ ingredients:
     function: liquid, base
     ww_points: 0
     substitutions: []
-  
+
   - name: all-purpose flour
     qty_g: 240
     vol_est: "2 cups"

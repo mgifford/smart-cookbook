@@ -196,7 +196,8 @@ section > div:first-child {
 
 button {
   background-color: var(--color-accent-emerald);
-  color: var(--color-text-white);
+  /* Dark text keeps the primary button above 4.5:1 contrast. */
+  color: #0f172a;
   border: none;
   border-radius: 0.375rem;
   padding: 0.5rem 1rem;
@@ -221,10 +222,12 @@ button:disabled {
 
 button.secondary {
   background-color: var(--color-bg-light);
+  color: var(--color-text-white);
 }
 
 button.secondary:hover {
   background-color: var(--color-text-muted);
+  color: #0f172a;
 }
 
 button.btn-danger {
@@ -238,7 +241,7 @@ button.btn-danger:hover {
 
 button.btn-warning {
   background-color: var(--color-orange);
-  color: var(--color-text-white);
+  color: #0f172a;
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -265,6 +268,7 @@ button.btn-warning:hover {
 
 button.offline-indicator {
   background-color: var(--color-red);
+  color: var(--color-text-white);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -313,14 +317,15 @@ textarea {
 }
 
 input[type="checkbox"], input[type="radio"] {
-  width: 1rem;
-  height: 1rem;
+  width: 1.5rem;
+  height: 1.5rem;
   cursor: pointer;
   accent-color: var(--color-accent-emerald);
 }
 
 input[type="range"] {
   width: 10rem;
+  min-height: 1.5rem;
   cursor: pointer;
   accent-color: var(--color-accent-emerald);
 }
@@ -541,7 +546,8 @@ input[type="range"] {
 }
 
 .text-blue-400 {
-  color: var(--color-blue);
+  /* Lighter blue for AA contrast on the dark panel background. */
+  color: #93c5fd;
 }
 
 .text-purple-400 {
@@ -891,6 +897,19 @@ li.ingredient .science-note {
 }
 
 /* Collapsible recipe metadata: testing status, equipment, attribution */
+.noscript {
+  margin: 1rem;
+  padding: 1rem;
+  border: 2px solid var(--color-orange);
+  border-radius: 0.5rem;
+  background: var(--color-bg-medium);
+  color: var(--color-text-white);
+}
+
+.noscript a {
+  color: var(--color-accent-emerald-light);
+}
+
 .status-badge {
   align-self: flex-start;
   display: inline-block;
@@ -992,4 +1011,16 @@ article > div:first-child p.status-badge {
 .nutrition-col p {
   margin: 0;
   font-size: 0.875rem;
+}
+
+/* Respect the operating-system reduced-motion preference. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

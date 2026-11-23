@@ -5,40 +5,47 @@ on:
     branches: [main]
     paths:
       - 'recipes/**/*.yaml'
-      - 'scripts/validate-recipes.js'
-      - 'scripts/generate-index.js'
+      - 'schemas/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'recipes.json'
   pull_request:
-    branches: [main]
     paths:
       - 'recipes/**/*.yaml'
+      - 'schemas/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'recipes.json'
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v3
-      
+      - uses: actions/checkout@v4
+
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      
+          node-version: 22
+          cache: npm
+
       - name: Install dependencies
-        run: npm install js-yaml
-      
-      - name: Validate recipes
-        run: node scripts/validate-recipes.js
-      
-      - name: Generate recipe index
-        run: node scripts/generate-index.js
-      
-      - name: Commit index if changed
-        run: |
-          if [[ -n $(git status -s recipes.json) ]]; then
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git add recipes.json
-            git commit -m "🤖 Update recipe index"
-            git push
-          fi
+        run: npm ci
+
+      - name: Validate YAML syntax
+        run: npm run validate:yaml
+
+      - name: Validate JSON Schema and stable IDs
+        run: npm run validate:schema
+
+      - name: Validate recipe quality
+        run: npm run validate:recipes
+
+      - name: Check generated recipe index
+        run: npm run check:index
+
+      - name: Run unit fixtures
+        run: npm run test:unit

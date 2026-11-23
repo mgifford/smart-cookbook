@@ -10,7 +10,7 @@ Your Science Cookbook now contains **15 files** organized into three categories:
 
 ### 1. **index.html** — Main Web Application
 - **Purpose:** Single-page app UI
-- **Tech:** HTML5, TailwindCSS (CDN), Alpine.js (CDN)
+- **Tech:** HTML5, vanilla CSS, Alpine.js (CDN), js-yaml (CDN)
 - **Features:**
   - Recipe display with scaling
   - Ingredient substitutions (WW & Vegetarian modes)

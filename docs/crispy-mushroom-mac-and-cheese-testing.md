@@ -1,6 +1,6 @@
 # Crispy Mushroom Mac and Cheese — Kitchen Test Plan
 
-**Recipe:** [Crispy Mushroom Mac and Cheese (Weeknight)](../recipes/crispy-mushroom-mac-and-cheese.yaml)  
+**Recipe:** [Crispy Mushroom Mac and Cheese (Weeknight)](../recipes/crispy-mushroom-mac-and-cheese.yaml)
 **Status:** Proposed adaptation. **Not yet kitchen-tested.** Nothing in the observation tables below is filled in, and no result should be treated as verified until someone cooks it and records what happened.
 
 This document is a place to record real outcomes, not a claim that the recipe already works. It also separates principles that are well established from predictions that still need testing in this specific dish.
@@ -178,6 +178,8 @@ Compare the default garlic bread with panko and with leftover sourdough. Record 
 ---
 
 ## 7. Test record
+
+A machine-readable starting point is available at [experiments/crispy-mushroom-mac-and-cheese/experiment-template.yaml](../experiments/crispy-mushroom-mac-and-cheese/experiment-template.yaml). Copy it for each attempt and leave unobserved values as `null`.
 
 Copy this table for each attempt. Do not fill it with guessed values.
 

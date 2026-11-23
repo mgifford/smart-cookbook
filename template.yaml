@@ -1,8 +1,11 @@
+schema_version: "2.0"
+id: example-recipe
 meta:
   name: Example Recipe
   source: https://example.com/recipe
   base_servings: 4
-  prep_time: 20 min
+  prep_time: PT20M
+  cook_time: PT30M
   notes: >-
     Use whole units for ingredients commonly bought/measured that way (eggs, 
     bananas, etc.). See conversions.yaml for qty_g reference. Always include 
@@ -79,7 +82,7 @@ science_notes:
   - Butter adds fat which tenderizes by coating gluten strands
   - Baking at 180C triggers Maillard reaction for browning and flavor
 history:
-  - date: 2024-01-01
+  - date: "2024-01-01"
     rating: 4
     outcome: Good crumb, slightly dry.
     variables_changed: Reduced sugar by 10%.

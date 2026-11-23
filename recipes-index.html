@@ -5,9 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Recipe Browser - Science-Based Smart Cookbook</title>
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.5/dist/cdn.min.js" integrity="sha384-FYLKjwG3aohNhNZoVG8sY/5ntunm+MqylL90Q+rT3OM7AwV9/BKFjk/RjoIpIgsI" crossorigin="anonymous" defer></script>
 </head>
 <body x-data="recipeBrowser()" class="bg-slate-900 text-slate-100">
+  <noscript>
+    <div class="noscript">
+      <strong>JavaScript is required for the interactive recipe browser.</strong>
+      The recipe index and YAML files are available in the
+      <a href="https://github.com/mgifford/smart-cookbook/tree/main/recipes">repository</a>.
+    </div>
+  </noscript>
   <main>
     <header class="p-4 border-b border-slate-700">
       <div class="max-w-6xl mx-auto browser-header">

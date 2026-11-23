@@ -4,6 +4,26 @@
 
 This guide helps you write recipes that work beautifully with the cookbook's scaling, substitution, and display systems.
 
+## Before you start: the canonical schema
+
+New recipes should include:
+
+```yaml
+schema_version: "2.0"
+id: your-recipe-filename-without-extension
+```
+
+- `id` must match the YAML filename (`recipes/your-recipe.yaml` → `your-recipe`). It is the stable identity used by links, variations, and experiments.
+- Older recipes without `schema_version` or `id` remain valid; the validator reports them as legacy warnings and uses the filename as the id.
+- Run `npm run validate:schema` before publishing.
+- Run `npm run check:index`; if it fails, run `npm run index:recipes` and commit the regenerated `recipes.json`.
+- Preserve unknown fields. The import/export layer must not silently discard metadata it does not display.
+- Use ISO 8601 durations for times: `PT30M`, `PT1H`, `PT1H30M`.
+- Never invent Weight Watchers points. Use `ww_points: null` when a plan-specific value has not been calculated; `null` is not zero points.
+- Substitutions are proposals. They are never applied to quantities without an explicit user action.
+
+Optional metadata such as `provenance`, `desired_outcomes`, `equipment`, `testing_status`, and `variations` is documented in [docs/DATA-MODEL.md](docs/DATA-MODEL.md). Do not add it merely for decoration; add it when it helps testing or comparison.
+
 ---
 
 ## Rule 1: Always Use Grams for `qty_g`, But Keep `vol_est` Human-Friendly
@@ -106,8 +126,8 @@ whole_units_to_grams:
 
 When `vol_est` includes size, match standard sizes:
 
-✅ **Good:** "1 large egg", "1 medium banana", "1 stick butter"  
-✅ **Good:** "1.5 cups flour", "2 tbsp salt" (no size modifier needed for volume)  
+✅ **Good:** "1 large egg", "1 medium banana", "1 stick butter"
+✅ **Good:** "1.5 cups flour", "2 tbsp salt" (no size modifier needed for volume)
 ❌ **Bad:** "1 egg" (which size?), "2 bananas" (small? large?)
 
 ---
@@ -201,7 +221,7 @@ steps:
   - Cream butter and sugar until pale (about 3 minutes)
   - Beat in eggs one at a time
   - Fold in flour gently
-  
+
 science_notes:
   - "Creaming incorporates air bubbles; sugar crystals cut fat, creating structure"
   - "Eggs emulsify fat and water; add slowly to prevent splitting"
@@ -216,10 +236,10 @@ Use the `history` field to record iterations and improvements:
 
 ```yaml
 history:
-  - date: 2026-01-01
+  - date: "2026-01-01"
     note: "Initial recipe from AllRecipes"
     change: "Added description of Maillard reaction in step 2"
-  - date: 2026-01-04
+  - date: "2026-01-04"
     note: "User feedback: too dry"
     change: "Increased banana from 2 to 3, added 5g milk"
 ```
@@ -229,11 +249,13 @@ history:
 ## Example: Complete Well-Formed Recipe
 
 ```yaml
+schema_version: "2.0"
+id: banana-bread
 meta:
   name: Banana Bread
   source: https://example.com/recipe
-  base_servings: 1 loaf (12 slices)
-  prep_time: 90 min (15 prep, 60 bake, 15 cool)
+  base_servings: 12
+  prep_time: PT90M
 
 ingredients:
   - name: eggs
@@ -312,10 +334,10 @@ science_notes:
   - "Browning: Sugar undergoes Maillard reaction (150–160°C). Dark edges = good flavor."
 
 history:
-  - date: 2026-01-01
+  - date: "2026-01-01"
     note: "Initial version"
     change: "Adapted from AllRecipes basic recipe"
-  - date: 2026-01-04
+  - date: "2026-01-04"
     note: "User testing"
     change: "Increased banana from 2 to 3 for better moisture"
 ```
@@ -324,6 +346,7 @@ history:
 
 ## Checklist: Before Publishing a Recipe
 
+- [ ] `schema_version: "2.0"` and an `id` matching the filename are present
 - [ ] `qty_g` is filled in for every ingredient (not 0)
 - [ ] `vol_est` is human-friendly and matches `qty_g` (e.g., "2 large eggs" = 114g)
 - [ ] Size modifiers are specific ("1 medium banana" not "1 banana")
@@ -332,8 +355,10 @@ history:
 - [ ] Each substitution has `ratio`, `science_note`, and `tags`
 - [ ] Science notes explain the cooking chemistry in 1–2 sentences
 - [ ] History field is populated with at least one entry
-- [ ] Recipe scales correctly (test with 2×, 0.5×, etc.)
-- [ ] All temperatures are in both °C and °F
+- [ ] Recipe scales correctly (1–64 servings; test at least 2× and an awkward fraction)
+- [ ] `npm run validate:schema`, `npm run validate:recipes`, and `npm run check:index` pass
+- [ ] No invented WW points or nutrition; missing data is explicit
+- [ ] All temperatures are in both °C and °F where useful
 
 ---
 

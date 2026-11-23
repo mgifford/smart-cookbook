@@ -69,7 +69,7 @@ The recipe view includes an optional experiment form for recording actual cookin
 - **Recipe pages are static and focused.** They include basic title/description metadata, but no per-recipe images or social cards.
 - **Bookmarklet output still needs review.** It preserves unknown quantities and source text, but science notes and some metadata may need completion before an import passes validation.
 - **Source-versus-adaptation comparison is limited.** The repository does not reproduce the cookbook’s original quantities, so comparisons use recorded local experiments and documented provenance rather than fabricated source data.
-- **Nutrition is approximate and coverage-aware.** Missing reference data is disclosed instead of silently treated as zero.
+- **Nutrition is approximate and coverage-aware.** Missing reference data is disclosed instead of silently treated as zero. Displayed amounts are rounded to the nearest 5–10 g (calories to 10 kcal), not presented as laboratory measurements.
 - **Automated axe checks are evidence, not WCAG 2.2 AA certification.** Manual screen-reader, keyboard, zoom, forced-colours, and touch testing is still required.
 - **No AI or WebMCP features are implemented.** Any future assistant work must be optional, proposal-based, and human-approved.
 - **Licensing needs review.** The repository currently contains both an AGPL-3.0 `LICENSE` and a CC BY-SA 4.0 `LICENSE.md`; see [docs/LICENSING.md](docs/LICENSING.md) and have the project owner resolve the conflict.

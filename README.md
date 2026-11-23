@@ -56,7 +56,7 @@ The recipe view includes an optional experiment form for recording actual cookin
 - **Not every recipe is kitchen-tested.** Testing status is recorded per recipe; untested or proposed adaptations stay labelled.
 - **Offline use is incomplete.** The app is static and has no backend, but it depends on CDN-hosted libraries and has no service worker yet.
 - **Dietary toggles are suggestions, not automatic replacements.** Always review a substitution before applying it.
-- **Bookmarklet copies are not fully consolidated.** The in-app link, readable helper, and published snippet remain separate; bookmarklet output should be reviewed before saving.
+- **Bookmarklet output still needs review.** It preserves unknown quantities and source text, but science notes and some metadata may need completion before an import passes validation.
 - **Source-versus-adaptation comparison is limited.** The repository does not reproduce the cookbook’s original quantities, so comparisons use recorded local experiments and documented provenance rather than fabricated source data.
 - **Nutrition is approximate and coverage-aware.** Missing reference data is disclosed instead of silently treated as zero.
 - **Automated axe checks are evidence, not WCAG 2.2 AA certification.** Manual screen-reader, keyboard, zoom, forced-colours, and touch testing is still required.
@@ -68,6 +68,7 @@ The recipe view includes an optional experiment form for recording actual cookin
 - **recipes/** — Recipe YAML files (validated, indexed, searchable)
 - **schemas/** — Versioned JSON Schema for recipe data
 - **src/recipes/validation.js** — Dependency-free shared validator used by browser imports and Node tests
+- **src/bookmarklet/recipe-scraper.js** — Single source for JSON-LD scraping and safe YAML serialization
 - **src/generated/** — Generated schema/conversion modules; never edit by hand
 - **experiments/** — Kitchen-experiment templates (unfilled observations only)
 - **tests/** — Node fixtures for scaling, units, import/export, nutrition, and deep links
@@ -75,7 +76,7 @@ The recipe view includes an optional experiment form for recording actual cookin
 - **recipes.json** — Auto-generated index of all recipes (metadata only)
 - **recipes-index.html** — Searchable recipe browser with filters
 - **template.yaml** — Recipe schema with science fields
-- **bookmarklet.js** — Scraper for JSON-LD recipe data with smart quantity parsing
+- **bookmarklet.js** — Generated bookmarklet URL; source is `src/bookmarklet/recipe-scraper.js`
 - **index.html** — Main app with Alpine.js, nutrition, copyright education, debug mode
 - **script.js** — Scaling, substitutions, unit conversions, nutrition calculations
 - **conversions.yaml** — Reference data for densities and unit conversions
@@ -163,6 +164,8 @@ npm run check:schema-module # Browser schema copy is synchronized
 npm run validate:recipes   # Recipe quality checks
 npm run generate:conversions # Regenerate src/generated/conversions.js after YAML changes
 npm run check:conversions  # Fail if generated conversion data is stale
+npm run build:bookmarklet   # Regenerate bookmarklet.js from the single source
+npm run check:bookmarklet  # Fail if the generated bookmarklet is stale
 npm run check:index        # Fail if recipes.json is stale
 npm run test:unit          # Scaling, conversion, import/export fixtures
 npm run index:recipes      # Regenerate recipes.json after recipe changes
@@ -302,7 +305,7 @@ When editing recipe YAML, use these common conversions for `qty_g`:
 | Almond butter | 1 tablespoon | 16g |
 | Peanut butter | 1 tablespoon | 16g |
 
-**Pro tip:** When the bookmarklet imports a recipe, it tries to estimate `qty_g` from quantities like "1 cup flour" or "3 eggs". But it's always worth double-checking and refining the amounts!
+**Pro tip:** The bookmarklet converts explicit mass units such as `250 g` or `8 oz`. It leaves volumes and counted items as `null`/unknown for you to review; it does not invent a density or assume a count weight.
 
 ### Fixed-Amount Ingredients (`no_scale: true`)
 

@@ -47,7 +47,7 @@ Release 1.2 added:
 | Conversion data existed twice | `conversions.yaml` is authoritative; `src/generated/conversions.js` is checked for staleness; runtime tables removed |
 | Selected recipe reset on reload | Stored selection with URL > stored > default precedence; tombstoned recipes never win |
 | URL did not reflect selection | `replaceState` on load and `pushState` on explicit selection; popstate reloads the URL recipe |
-| Bookmarklet wrote zero for unknown quantity/WW | Both bookmarklet copies now write `null`; unsafe manual YAML quoting remains a known limitation |
+| Bookmarklet wrote zero for unknown quantity/WW | Single source generates safe quoted YAML, preserves unknown quantities as `null`, and supports `@graph`/structured instructions |
 | Experiment template was only a file | Browser form, local storage, edit/delete, JSON export/import, and comparison table implemented |
 | No structured recipe facts in the UI | Provenance, preferred equipment, testing status, and desired outcomes shown |
 | Repository and browser validation diverged | Shared validator tested against valid, invalid, legacy, duplicate, null/zero, and unsupported-version fixtures |
@@ -89,7 +89,7 @@ Release 1.2 added:
 | `npm run validate:recipes` | 11/11, 0 errors, 0 warnings |
 | `npm run check:index` | Synchronized |
 | `npm run check:conversions` | Synchronized |
-| `npm run test:unit` | 55/55 pass |
+| `npm run test:unit` | 64/64 pass |
 | `npm run lint:html` | Pass |
 | `npm run test:a11y` | 0 axe violations across both pages, desktop/320, experiment form, comparison table, and import-error state; journeys pass |
 | `npm run scan:security` | Pass, including template content and SRI |
@@ -108,7 +108,7 @@ Additional manual browser checks:
 
 ## 6. Remaining issues and limitations
 
-1. **Bookmarklet consolidation and YAML quoting** are incomplete. The three copies still exist; quantity/WW defaults were corrected, but structured `@graph` parsing and safe serialisation need follow-up.
+1. **Bookmarklet source** is consolidated into `src/bookmarklet/recipe-scraper.js`; `bookmarklet.js` is generated and checked. `@graph`, structured instructions, colons, quotes, unicode fractions, and unknown quantities are tested. The scraper intentionally leaves science notes for human completion.
 2. **Source-versus-adaptation comparison** is not implemented because the repository does not hold the cookbook’s original quantities. The UI compares recorded experiments instead of fabricating source data.
 3. **No automatic promotion** from an experiment to `tested`/`reviewed`; this is deliberate.
 4. **No IndexedDB migration**, cloud sync, accounts, photos, or attachments.
@@ -121,4 +121,4 @@ Additional manual browser checks:
 
 ## 7. Recommended next step
 
-Finish Release 1.1 by consolidating the bookmarklet into one generated source with a tested Schema.org parser and safe YAML serialisation. Then add source-recipe records for a real comparison, and complete manual accessibility testing of the experiment form and comparison table before treating Release 1.2 as reviewed.
+Complete manual accessibility testing of the experiment form and comparison table. Decide whether a source-recipe record can be added without reproducing the cookbook’s expressive text; until then the comparison remains experiment-based. Verify the generated bookmarklet in Firefox and Safari in addition to Chromium.

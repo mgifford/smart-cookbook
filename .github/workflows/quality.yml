@@ -11,6 +11,7 @@ concurrency:
 
 jobs:
   quality:
+    # ubuntu-latest currently resolves to 26.04, which Playwright 1.57 does not support.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:

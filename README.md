@@ -305,7 +305,7 @@ When editing recipe YAML, use these common conversions for `qty_g`:
 | Almond butter | 1 tablespoon | 16g |
 | Peanut butter | 1 tablespoon | 16g |
 
-**Pro tip:** When the bookmarklet imports a recipe, it tries to estimate `qty_g` from quantities like "1 cup flour" or "3 eggs". But it's always worth double-checking and refining the amounts!
+**Pro tip:** The bookmarklet converts explicit mass units such as `250 g` or `8 oz`. It leaves volumes and counted items as `null`/unknown for you to review; it does not invent a density or assume a count weight.
 
 ### Fixed-Amount Ingredients (`no_scale: true`)
 

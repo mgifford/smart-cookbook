@@ -1,0 +1,293 @@
+meta:
+  name: Crispy Mushroom Mac and Cheese (Weeknight)
+  source: https://www.ko-media.ca/products/olive-gourmando-the-cookbook-digital
+  base_servings: 5
+  prep_time: PT30M
+  cook_time: PT40M
+  status: "Proposed - not yet kitchen-tested"
+  notes: |
+    STATUS: Proposed adaptation, not yet kitchen-tested. Please record real
+    results in docs/crispy-mushroom-mac-and-cheese-testing.md and add a history
+    entry after cooking.
+
+    INSPIRATION: Dyan Solomon, Olive + Gourmando: The Cookbook (KO Éditions,
+    2019), ISBN 9782924965160, p. 129 (Mushroom Mac 'n' Cheese), with reference
+    to the cheese sauce (p. 274), croutons (p. 282), caramelized onions
+    (p. 284), garlic confit purée (p. 287), and grilled flatbreads
+    (pp. 158–159). No original instructions or images are reproduced. This is
+    an original weeknight adaptation.
+
+    SERVINGS AND TIME: 5 generous servings. About 30 minutes of preparation
+    and active cooking, plus about 40 minutes of baking, broiling, and resting.
+    Elapsed time is 60–75 minutes when pasta, mushrooms, sauce, and bread are
+    worked in parallel; parallel tasks are not counted twice.
+
+    MASSES: Liquid masses are approximate and used only for scaling math:
+    600 ml whole milk is entered as 613 g (about 1.02 g/ml) and 5 ml soy sauce
+    as 6 g. They are not claimed to be experimentally precise.
+
+    EQUIPMENT: 12-inch flat cast-iron skillet preferred. A shallow 9 × 13-inch
+    metal baking pan is the alternative. A ridged cast-iron grill pan is an
+    experimental option to compare, not a promised improvement. Remove any
+    silicone handle cover before baking, and do not use a glass lid in a hot
+    oven unless its individual rating explicitly allows it.
+
+    CRUSTS: A crispy bottom is an experimental outcome, not a guarantee. The
+    primary method is a lightly greased flat pan, a moderate 3–4 minute
+    stovetop pre-sear only if the pan is stovetop-safe, an uncovered oven
+    finish, and a 5-minute rest. Never leave a cheese-coated pan unattended
+    over direct heat. The top uses purchased garlic bread, pre-toasted and
+    added for the final 8–10 minutes; an optional 2–3 minute broiler finish is
+    for broiler-safe pans only.
+
+    BREAD ALTERNATIVES: The default is 120 g purchased garlic bread. Instead,
+    use 120 g cubed olive bread (fruitier, less garlicky, similar salt) or
+    about 60 g panko tossed with 15 g melted butter or olive oil (crispest and
+    most uniform, less garlicky, usually cheaper), or 120 g leftover sourdough
+    or crusty bread cubed and toasted with 1 minced garlic clove and 15 g oil
+    (best texture if dry, lowest cost). Do not count alternatives at the same
+    time as the default. The nutrition estimate uses the default ingredient
+    list, but purchased garlic bread is not currently mapped, so it is excluded
+    and disclosed in the coverage note.
+
+    MUSHROOM OPTION: For extra depth, soak 10–15 g dried porcini in 100 ml hot
+    water, chop, and add with the cremini. Strain and reduce the soaking liquid,
+    then subtract an equal volume from the milk. This is optional and is not
+    included in the nutrition estimate.
+
+    WEIGHT WATCHERS POINTS: Deliberately set to null for every ingredient.
+    Points vary by WW programme, portion, and product, and this recipe has not
+    been analysed against a specific plan. Null is used as the documented
+    "not calculated" sentinel; the app does not display or total it. Do not
+    read null as zero points.
+
+    NUTRITION: Values are approximate per-100 g reference data, not lab
+    measurements. The app reports coverage; purchased garlic bread is not
+    currently mapped and is therefore not counted.
+
+    EXPECTED DIFFERENCES: This is not intended to be identical to the
+    restaurant dish. It removes the multi-day flatbread, separate garlic
+    confit, truffle tapenade, several specialty cheeses, standalone croutons,
+    and a separate caramelized-onion recipe. It keeps generous mushrooms, a
+    rich cheese sauce, onion and garlic depth, a crunchy bread topping, oven
+    browning, and the creamy-versus-crisp contrast. Expect a more direct
+    cheddar-and-mushroom flavour, less truffle and less layered bread flavour,
+    and a bottom crust that depends on the pan and technique.
+
+ingredients:
+  - name: dry macaroni
+    qty_g: 350
+    vol_est: "350 g (about 3 1/2 cups) dry macaroni or small shells"
+    function: Structure/Starch
+    ww_points: null
+    substitutions:
+      - name: whole-wheat macaroni
+        ratio: 1.0
+        science_note: "More fibre and a firmer bite; it may need an extra minute of boiling and a little more pasta water."
+        tags: []
+      - name: small shells
+        ratio: 1.0
+        science_note: "Same dry weight; shells hold sauce in their cavities, so the dish can taste creamier with the same sauce."
+        tags: []
+
+  - name: brown cremini mushrooms
+    qty_g: 550
+    vol_est: "550 g (about 20 medium cremini mushrooms), sliced 5–6 mm thick"
+    function: Umami/Texture
+    ww_points: null
+    substitutions:
+      - name: white mushrooms
+        ratio: 1.0
+        science_note: "Similar water content and browning behaviour, but less earthy; brown them well and add the optional soy sauce for depth."
+        tags: []
+      - name: portobello mushrooms
+        ratio: 1.0
+        science_note: "Meatier and more savoury; remove the dark gills if they make the sauce muddy, and cut into bite-size pieces."
+        tags: []
+
+  - name: yellow onion
+    qty_g: 150
+    vol_est: "1 medium yellow onion, finely chopped"
+    function: Sweetness/Depth
+    ww_points: null
+    substitutions:
+      - name: shallots
+        ratio: 1.0
+        science_note: "Sweeter and milder; they brown faster, so lower the heat slightly and watch the pan."
+        tags: []
+
+  - name: garlic
+    qty_g: 12
+    vol_est: "3 cloves garlic, minced"
+    function: Aromatic
+    ww_points: null
+    substitutions:
+      - name: garlic powder
+        ratio: 0.17
+        science_note: "Use about 2 g; it lacks fresh garlic's pungency and allicin, so add it with the mushrooms rather than at the end."
+        tags: []
+
+  - name: mature cheddar cheese
+    qty_g: 250
+    vol_est: "250 g (about 2 1/4 cups) grated mature cheddar"
+    function: Fat/Umami/Melt
+    ww_points: null
+    substitutions:
+      - name: reduced-fat cheddar
+        ratio: 1.0
+        science_note: "Less fat and more protein can make the sauce tighter and slightly grainy; grate finely, add it off the heat, and loosen with pasta water."
+        tags: [ww]
+      - name: old cheddar
+        ratio: 1.0
+        science_note: "Drier and sharper; it melts less smoothly, so keep the sauce loose and add the cheese gradually."
+        tags: []
+
+  - name: butter
+    qty_g: 45
+    vol_est: "3 tbsp butter"
+    function: Fat/Richness
+    ww_points: null
+    substitutions:
+      - name: olive oil
+        ratio: 0.8
+        science_note: "Use about 36 g; an oil roux works, but the sauce is slightly less rich and browns differently."
+        tags: [veg, vegetarian]
+      - name: vegan butter
+        ratio: 1.0
+        science_note: "Plant fat replaces milk fat; choose a block-style butter for a smoother emulsion and check its salt level."
+        tags: [veg, vegetarian]
+
+  - name: all-purpose flour
+    qty_g: 45
+    vol_est: "about 1/3 cup all-purpose flour"
+    function: Thickener/Structure
+    ww_points: null
+    substitutions:
+      - name: gluten-free flour blend
+        ratio: 1.0
+        science_note: "Use a blend with xanthan gum; the roux may thicken a little differently, so adjust with milk or pasta water."
+        tags: []
+
+  - name: whole milk
+    qty_g: 613
+    vol_est: "600 ml (2 1/2 cups) whole milk"
+    function: Moisture/Richness
+    ww_points: null
+    substitutions:
+      - name: 2% milk
+        ratio: 1.0
+        science_note: "Slightly less rich and a little thinner; reduce the pasta water and taste the sauce before loosening."
+        tags: [ww]
+      - name: unsweetened oat milk
+        ratio: 1.0
+        science_note: "Lower protein can make the sauce less stable; use a barista-style oat milk and keep the heat gentle."
+        tags: [veg, vegetarian]
+
+  - name: dijon mustard
+    qty_g: 10
+    vol_est: "2 tsp Dijon mustard"
+    function: Acidity/Flavor
+    ww_points: null
+    substitutions:
+      - name: yellow mustard
+        ratio: 1.0
+        science_note: "Sharper and more acidic; use a little less at first, then taste the sauce."
+        tags: [veg, vegetarian]
+
+  - name: purchased garlic bread
+    qty_g: 120
+    vol_est: "about 3 thick slices (120 g) purchased garlic bread, cut into cubes"
+    function: Crunch/Browning
+    ww_points: null
+    substitutions:
+      - name: panko breadcrumbs
+        ratio: 0.5
+        science_note: "Use about 60 g panko tossed with 15 g melted butter or olive oil and toasted; crisper and more uniform, but less garlicky."
+        tags: [veg, vegetarian]
+      - name: cubed olive bread
+        ratio: 1.0
+        science_note: "Fruitier and less salty-garlicky; toast it well and add a minced garlic clove to the oil if you want more garlic."
+        tags: [veg, vegetarian]
+
+  - name: Parmesan cheese
+    qty_g: 25
+    vol_est: "1/4 cup finely grated Parmesan"
+    function: Umami/Browning
+    ww_points: null
+    substitutions: []
+
+  - name: olive oil
+    qty_g: 18
+    vol_est: "1 1/3 tbsp (18 g) olive oil, divided"
+    function: Fat/Browning
+    ww_points: null
+    substitutions:
+      - name: vegetable oil
+        ratio: 1.0
+        science_note: "Neutral and higher smoke point; use the same amount and expect slightly less olive flavour."
+        tags: [veg, vegetarian]
+
+  - name: soy sauce
+    qty_g: 6
+    vol_est: "1 tsp (5 ml) soy sauce, optional"
+    function: Umami, optional
+    ww_points: null
+    substitutions:
+      - name: tamari
+        ratio: 1.0
+        science_note: "Gluten-free and slightly deeper in flavour; use the same amount and taste before adding more salt."
+        tags: [veg, vegetarian]
+
+  - name: fine sea salt
+    qty_g: 4
+    vol_est: "about 2/3 tsp fine sea salt, plus more for the pasta water"
+    function: Seasoning
+    ww_points: null
+    substitutions:
+      - name: kosher salt
+        ratio: 1.5
+        science_note: "Use about 6 g by weight; kosher crystals are larger, so the same spoonful weighs less."
+        tags: []
+
+  - name: black pepper
+    qty_g: 1
+    vol_est: "1/2 tsp freshly ground black pepper"
+    function: Seasoning
+    ww_points: null
+    substitutions:
+      - name: white pepper
+        ratio: 1.0
+        science_note: "Earthier and less floral; use the same amount and adjust to taste."
+        tags: []
+
+steps:
+  - "Heat the oven to 210°C (410°F) with a rack in the middle. Remove any silicone handle cover from the skillet and do not use a glass lid in the oven. Lightly oil the skillet with about 1 tsp of the olive oil."
+  - "Bring a large pot of well-salted water to a boil. Add the macaroni and cook until about 2 minutes short of the package's al dente time. Reserve 120 ml (1/2 cup) pasta water, then drain without rinsing."
+  - "While the water heats, slice the mushrooms 5–6 mm thick. Cut larger caps in half or quarters so the pieces stay substantial and meaty."
+  - "Heat 1 1/2 tsp of the olive oil in a large skillet over medium-high heat. Add half the mushrooms in a single layer and cook 5–7 minutes without stirring for the first 2 minutes, then toss, until the released water has evaporated and the edges are deeply browned. Season lightly with a pinch of the salt, transfer to a bowl, and repeat with the remaining mushrooms and another 1 1/2 tsp oil."
+  - "Add the onion to the same skillet with a splash of water if the pan is dry. Cook over medium heat for 5–6 minutes, scraping up the browned bits, until softened and golden. Add the garlic and cook for 30–45 seconds, until fragrant but not browned. Return the mushrooms to the pan, add the soy sauce if using, and toss. Transfer the mixture to a bowl and wipe the skillet if needed."
+  - "Make the sauce: melt the butter in a saucepan over medium heat. Whisk in the flour and cook for 1–2 minutes, until it smells nutty but has not darkened. Add the milk in a thin stream while whisking, then simmer gently for 4–5 minutes, whisking, until the sauce is thick enough to coat the back of a spoon."
+  - "Remove the sauce from the heat. Whisk in the Dijon, then add the grated cheddar a handful at a time, stirring until melted. Season with the pepper and a little of the remaining salt. If the sauce is very thick, whisk in pasta water 1 tbsp at a time; it should be loose enough to coat the pasta and still flow into the pan."
+  - "While the sauce simmers, toast the garlic bread cubes on a small baking sheet at 210°C (410°F) for 5–6 minutes, until crisp and lightly golden. Set aside; the bread will finish browning on top of the pasta."
+  - "Add the drained pasta and the mushroom mixture to the sauce and fold until evenly combined. Check that mushroom pieces are distributed throughout, and add pasta water a splash at a time if the mixture is stiff."
+  - "Spread the mixture in the oiled skillet in an even layer about 2.5–3 cm (1–1.25 inches) deep. Scatter the Parmesan evenly over the top."
+  - "For the bottom crust, if the skillet is stovetop-safe: set it over medium heat for 3–4 minutes, rotating it once or twice, until you hear gentle sizzling and the edge looks set. Lift an edge with a thin spatula to check for light browning. Do not leave the pan unattended. If the pan is not stovetop-safe, or you are unsure, skip this step and extend the bake by 5 minutes."
+  - "Bake uncovered at 210°C (410°F) for 15 minutes. Scatter the toasted garlic bread over the top and bake for 8–10 minutes more, until the bread is golden and the sauce bubbles at the edges. For a deeper top colour, broil for 2–3 minutes only if the skillet is broiler-safe, watching constantly."
+  - "Rest for 5 minutes. Slide a thin spatula under each portion and lift it with as much browned base as possible. The target is a golden, crunchy top, browned patches underneath, a creamy centre, and clearly identifiable mushroom pieces."
+
+science_notes:
+  - "Mushrooms release a lot of water. While that water is present, the surface stays near 100°C and the mushrooms steam; once it evaporates, the surface can get hot enough for Maillard browning and roasted flavours."
+  - "Browning is a family of reactions between amino acids and reducing sugars, not a single switch at one temperature. It typically becomes noticeable on a dry surface around 140–165°C (285–330°F), and the browned crust adds savoury, roasted notes."
+  - "Aged mature cheddar is drier and more savoury than mild cheddar, so 250 g carries the sauce without Gruyère, blue cheese, or truffle. The béchamel supplies fat and starch that keep the melted cheese from tightening."
+  - "Cheese is an emulsion of fat, water, and protein. Boiling, or adding cheese to a very hot sauce, can make the casein proteins clump and the fat leak out, giving a grainy sauce; residual heat is enough to melt cheddar."
+  - "Pasta keeps absorbing water in the oven. Cooking it about two minutes short of al dente leaves room for that absorption, so the finished dish stays creamy instead of collapsing into soft strands."
+  - "Bread is mostly starch and water. Toasting it first drives off water and sets a crisp structure; bread added raw at the start would absorb sauce and steam, losing the crunch."
+  - "A flat pan gives the pasta a continuous contact surface. Ridges add contact along their channels but can lift parts of the mixture away at the peaks; whether they make more crust is a test question here, not a settled rule."
+  - "Bottom browning needs contact, fat, heat, and a dry interface. A wet sauce keeps the base near 100°C until water evaporates, and cheese proteins can stick; moderate stovetop heat, a lightly greased pan, and a 5-minute rest improve the odds but do not guarantee a crisp base."
+  - "A shallower layer puts more of the mixture near the hot pan and lets moisture escape faster, which favours browning; a deeper layer insulates the centre and stays creamier. A 12-inch skillet gives roughly a 2.5–3 cm layer for this batch."
+  - "The starch that pasta releases into the cooking water helps the sauce cling and stabilises the cheese emulsion; a splash of pasta water can loosen a thick sauce without adding more fat."
+
+history:
+  - date: 2026-11-22
+    note: "Proposed adaptation; not yet kitchen-tested."
+    change: "Created a weeknight version inspired by Olive + Gourmando, simplified to supermarket ingredients; documented the crust experiments in docs/crispy-mushroom-mac-and-cheese-testing.md."

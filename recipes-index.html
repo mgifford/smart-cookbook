@@ -10,13 +10,15 @@
 <body x-data="recipeBrowser()" class="bg-slate-900 text-slate-100">
   <main>
     <header class="p-4 border-b border-slate-700">
-      <div class="max-w-6xl mx-auto">
+      <div class="max-w-6xl mx-auto browser-header">
         <h1 class="text-3xl font-bold mb-2">🧪 Recipe Browser</h1>
         <p class="text-slate-400 mb-4">Search and explore all recipes in the Science Cookbook</p>
         
         <div class="flex flex-col gap-3">
           <!-- Search -->
+          <label for="recipe-search" class="sr-only">Search recipes by name</label>
           <input 
+            id="recipe-search"
             type="text" 
             x-model="searchQuery" 
             placeholder="Search recipes by name..." 
@@ -50,12 +52,12 @@
     </header>
 
     <article class="p-4">
-      <div class="max-w-6xl mx-auto">
-        <div class="mb-4 text-sm text-slate-400">
+      <div class="max-w-6xl mx-auto browser-results">
+        <div class="mb-4 text-sm text-slate-400" aria-live="polite">
           <span x-text="`Found ${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''}`"></span>
         </div>
 
-        <div x-show="loading" class="text-center py-8">
+        <div x-show="loading" class="text-center py-8" role="status">
           <p class="text-slate-400">Loading recipes...</p>
         </div>
 
@@ -66,7 +68,8 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <template x-for="recipe in filteredRecipes" :key="recipe.id">
             <div class="p-4 bg-slate-800 border border-slate-700 rounded hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/20 transition-all flex flex-col">
-              <h3 class="font-bold text-lg mb-2" x-text="recipe.name"></h3>
+              <h2 class="font-bold text-lg mb-2" x-text="recipe.name"></h2>
+              <p class="status-badge" x-show="recipe.status" x-text="recipe.status"></p>
               
               <div class="text-xs text-slate-400 space-y-1 mb-3">
                 <div x-show="recipe.servings" class="flex items-center gap-2">
@@ -96,10 +99,10 @@
               </div>
 
               <div x-show="recipe.source" class="text-xs text-slate-500 truncate mb-3">
-                <a href="#" x-bind:href="recipe.source" target="_blank" class="hover:text-emerald-400">📖 Source</a>
+                <a href="#" x-bind:href="recipe.source" target="_blank" rel="noopener" class="hover:text-emerald-400">📖 Source</a>
               </div>
 
-              <a :href="`index.html?recipe=${recipe.id}`" class="w-full px-3 py-2 text-sm bg-emerald-600 hover:bg-emerald-500 rounded font-semibold transition text-center block">
+              <a :href="`index.html?recipe=${recipe.id}`" :aria-label="`View recipe: ${recipe.name}`" class="w-full px-3 py-2 text-sm bg-emerald-600 text-slate-900 hover:bg-emerald-500 rounded font-semibold transition text-center block">
                 View Recipe →
               </a>
             </div>

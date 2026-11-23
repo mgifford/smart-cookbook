@@ -43,6 +43,7 @@ async function main() {
         servings: meta.base_servings || 1,
         prep_time: meta.prep_time || '',
         cook_time: meta.cook_time || '',
+        status: meta.status || undefined,
         ingredients_count: (recipe.ingredients || []).length,
         steps_count: (recipe.steps || []).length,
         has_science_notes: Array.isArray(recipe.science_notes) && recipe.science_notes.length > 0

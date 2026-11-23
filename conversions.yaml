@@ -8,6 +8,7 @@ ingredient_display_prefs:
     baking_powder: "tsp"  # 1 tsp ≈ 5g
     vanilla_extract: "tsp"
     almond_extract: "tsp"
+    dijon_mustard: "tsp"
     lemon_juice: "tbsp"
     lime_juice: "tbsp"
     orange_juice: "tbsp"
@@ -43,6 +44,7 @@ volume_conversions_g:
   cayenne_tsp: 2
   paprika_tsp: 2
   black_pepper_tsp: 2
+  dijon_mustard_tsp: 5
   lemon_juice_tbsp: 15
   lime_juice_tbsp: 15
   honey_tbsp: 21
@@ -105,6 +107,11 @@ densities_g_per_cup:
   greek yogurt: 245
   sour cream: 230
   peanut butter: 270
+  dry macaroni: 100
+  brown cremini mushrooms: 70
+  cheddar cheese: 113
+  parmesan cheese: 100
+  garlic bread: 50
 
 # Handy quick refs
 quick_refs:

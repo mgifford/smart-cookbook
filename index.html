@@ -32,23 +32,23 @@
           <label for="servings-slider">Servings</label>
           <input type="range" id="servings-slider" min="1" max="200" step="1" class="w-40" x-model.number="servings" @input="adjustServings()" @change="adjustServings()" />
           <span class="w-12 text-right font-bold" x-text="servings"></span>
-          <button type="button" class="btn-secondary text-xs" @click="resetServings()" :title="`Reset to base (${current.meta.base_servings})`">●</button>
+          <button type="button" class="secondary text-xs" @click="resetServings()" :title="`Reset to base (${current.meta.base_servings})`">●</button>
         </div>
         <label class="flex items-center gap-2">
           <input type="checkbox" id="ww-mode" x-model="wwMode" />
-          <span for="ww-mode">Weight-conscious</span>
+          <span>Weight-conscious</span>
         </label>
         <label class="flex items-center gap-2">
           <input type="checkbox" id="veg-mode" x-model="vegMode" />
-          <span for="veg-mode">Vegetarian</span>
+          <span>Vegetarian</span>
         </label>
         <label class="flex items-center gap-2">
           <input type="checkbox" id="precision-mode" x-model="precisionMode" checked />
-          <span for="precision-mode">Precision</span>
+          <span>Precision</span>
         </label>
         <label class="flex items-center gap-2">
           <input type="checkbox" id="science-mode" x-model="scienceMode" />
-          <span for="science-mode">Show Science</span>
+          <span>Show Science</span>
         </label>
       </div>
     </header>
@@ -58,6 +58,7 @@
         <div>
           <p class="text-sm text-slate-300" x-text="current.meta.source"></p>
           <h2 class="text-xl" x-text="current.meta.name"></h2>
+          <p class="status-badge" x-show="current.meta?.status" x-text="current.meta.status"></p>
           <div class="flex flex-wrap gap-2 mt-1 text-sm text-emerald-300">
             <template x-if="stepSignals.temp">
               <span class="badge">Preheat: <span x-text="stepSignals.temp.value"></span>°<span x-text="stepSignals.temp.unit"></span></span>
@@ -72,6 +73,11 @@
           <button type="button" @click="copyAIPrompt()">Ask AI</button>
         </div>
       </div>
+
+      <details class="recipe-notes" x-show="current.meta?.notes">
+        <summary>Adaptation notes, equipment &amp; testing status</summary>
+        <p class="text-sm" x-text="current.meta.notes"></p>
+      </details>
 
       <!-- DEBUG PANEL (show only with ?debug=true) -->
       <div x-show="debugMode" class="debug-panel">
@@ -167,6 +173,7 @@
           <p x-text="`Fiber: ${nutritionSummary().per.fiber.toFixed(1)} g`"></p>
         </div>
       </div>
+      <p class="text-xs text-slate-400" x-show="nutritionLoaded && !nutritionError" x-text="nutritionCoverageText()"></p>
     </section>
 
     <section>

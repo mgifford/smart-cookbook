@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated": "2026-01-11T03:25:49.630Z",
+  "generated": "2026-11-23T01:39:49.497Z",
   "recipes": [
     {
       "id": "broccoli-greens-soup",
@@ -55,6 +55,18 @@
       "cook_time": "PT40M",
       "ingredients_count": 14,
       "steps_count": 8,
+      "has_science_notes": true
+    },
+    {
+      "id": "crispy-mushroom-mac-and-cheese",
+      "name": "Crispy Mushroom Mac and Cheese (Weeknight)",
+      "source": "https://www.ko-media.ca/products/olive-gourmando-the-cookbook-digital",
+      "servings": 5,
+      "prep_time": "PT30M",
+      "cook_time": "PT40M",
+      "status": "Proposed - not yet kitchen-tested",
+      "ingredients_count": 15,
+      "steps_count": 13,
       "has_science_notes": true
     },
     {

@@ -42,18 +42,18 @@ glossary:
   # Eggs & Dairy
   - names: ["egg", "large egg", "medium egg", "chicken egg"]
     canonical: "egg"
-  - names: ["milk", "whole milk", "cow milk"]
-    canonical: "milk"
+  - names: ["milk", "whole milk", "cow milk", "3.25% milk", "homogenized milk"]
+    canonical: "whole milk"
   - names: ["greek yogurt", "strained yogurt"]
     canonical: "greek yogurt"
   - names: ["plain yogurt", "yogurt", "natural yogurt"]
     canonical: "yogurt"
   - names: ["cream", "heavy cream", "double cream", "whipping cream"]
     canonical: "cream"
-  - names: ["cheddar cheese", "sharp cheddar", "mild cheddar"]
+  - names: ["cheddar cheese", "sharp cheddar", "mild cheddar", "mature cheddar", "old cheddar", "mature cheddar cheese"]
     canonical: "cheddar cheese"
-  - names: ["parmesan", "parmigiano-reggiano", "parmesan cheese"]
-    canonical: "parmesan"
+  - names: ["parmesan", "parmigiano-reggiano", "parmesan cheese", "parmesan cheese, grated"]
+    canonical: "parmesan hard"
   - names: ["mozzarella", "fresh mozzarella"]
     canonical: "mozzarella"
   
@@ -67,9 +67,9 @@ glossary:
   - names: ["potato", "russet potato", "red potato", "white potato"]
     canonical: "potato"
   - names: ["onion", "yellow onion", "white onion"]
-    canonical: "onion"
+    canonical: "onion raw"
   - names: ["garlic", "garlic clove"]
-    canonical: "garlic"
+    canonical: "garlic raw"
   - names: ["broccoli", "fresh broccoli"]
     canonical: "broccoli"
   - names: ["spinach", "fresh spinach", "baby spinach"]
@@ -82,6 +82,8 @@ glossary:
     canonical: "cucumber"
   - names: ["zucchini", "courgette", "summer squash"]
     canonical: "zucchini"
+  - names: ["cremini mushroom", "cremini mushrooms", "brown cremini mushrooms", "brown mushrooms", "crimini mushrooms"]
+    canonical: "cremini mushroom raw"
   
   # Beans & Legumes
   - names: ["chickpea", "garbanzo bean", "canned chickpea", "cooked chickpea"]
@@ -130,12 +132,18 @@ glossary:
     canonical: "oat"
   - names: ["pasta", "spaghetti", "penne", "linguine", "dried pasta"]
     canonical: "pasta"
+  - names: ["dry macaroni", "macaroni", "elbow macaroni", "small shells", "dry pasta"]
+    canonical: "pasta dry"
   
   # Condiments & Seasonings
   - names: ["salt", "sea salt", "table salt", "kosher salt"]
     canonical: "salt"
   - names: ["black pepper", "ground black pepper"]
     canonical: "black pepper"
+  - names: ["dijon mustard", "dijon-style mustard"]
+    canonical: "mustard prepared"
+  - names: ["soy sauce", "shoyu"]
+    canonical: "soy sauce"
   - names: ["garlic powder", "powdered garlic"]
     canonical: "garlic powder"
   - names: ["paprika", "smoked paprika", "sweet paprika"]

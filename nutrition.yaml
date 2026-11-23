@@ -133,6 +133,30 @@
   carbs_g: 0
   notes: "All sodium; use grams/tsp from conversions"
 
+- name: black_pepper
+  calories_kcal: 251
+  protein_g: 10.4
+  fat_g: 3.3
+  carbs_g: 64
+  fiber_g: 25.3
+  notes: "USDA black pepper, ground; used in tiny amounts"
+
+- name: mustard_prepared
+  calories_kcal: 60
+  protein_g: 4.0
+  fat_g: 3.3
+  carbs_g: 5.8
+  fiber_g: 4.0
+  notes: "USDA prepared yellow mustard; Dijon-style brands vary"
+
+- name: soy_sauce
+  calories_kcal: 53
+  protein_g: 8.1
+  fat_g: 0.57
+  carbs_g: 4.9
+  fiber_g: 0.8
+  notes: "USDA soy sauce (shoyu); 5 ml is about 6 g"
+
 - name: honey
   calories_kcal: 304
   protein_g: 0.3
@@ -197,6 +221,14 @@
   protein_g: 5.8
   fat_g: 0.9
   carbs_g: 31
+
+- name: pasta_dry
+  calories_kcal: 371
+  protein_g: 13
+  fat_g: 1.5
+  carbs_g: 74.7
+  fiber_g: 3.2
+  notes: "USDA pasta, dry, enriched; 100 g dry weight"
 
 - name: bread_white
   calories_kcal: 266
@@ -424,6 +456,14 @@
   fat_g: 0.3
   carbs_g: 3.3
   fiber_g: 1
+
+- name: cremini_mushroom_raw
+  calories_kcal: 22
+  protein_g: 3.09
+  fat_g: 0.34
+  carbs_g: 4.3
+  fiber_g: 0.6
+  notes: "USDA brown/crimini mushrooms, raw; rounded"
 
 # Fruits
 - name: orange

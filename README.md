@@ -26,9 +26,25 @@ A **personal, science-based smart cookbook** that runs entirely client-side on G
     - Maillard reaction creating browning and flavor at 175C
     - Why folding (vs. beating) prevents tough textures
 
+### 🍄 Adaptation case study: Crispy Mushroom Mac and Cheese
+
+[Crispy Mushroom Mac and Cheese (Weeknight)](recipes/crispy-mushroom-mac-and-cheese.yaml) is an **original, proposed adaptation** inspired by Dyan Solomon's *Olive + Gourmando: The Cookbook* (p. 129). It is not a reproduction of the cookbook and has not been kitchen-tested yet.
+
+It demonstrates how to:
+
+- Simplify a multi-component restaurant recipe into a weeknight dish.
+- Replace expensive or specialty ingredients with ordinary supermarket ones.
+- Use purchased bread instead of building flatbread and croutons from scratch.
+- Choose equipment for a desired texture, with flat cast iron as the default and a ridged grill pan as an explicit experiment.
+- Keep the memorable characteristics: deep mushroom flavour, a rich cheese sauce, and a crisp top, with a browned bottom as a tested goal rather than a promise.
+- Record adaptations and real cooking observations instead of claiming results that have not happened.
+
+The recipe's `meta.notes` records its status, equipment, options, and limitations. The [kitchen test plan](docs/crispy-mushroom-mac-and-cheese-testing.md) provides blank observation tables, a flat-vs-ridged comparison, cost and time worksheets, and sources. Direct links such as `index.html?recipe=crispy-mushroom-mac-and-cheese` now open the requested recipe.
+
 ## 📂 Files
 
 - **recipes/** — Recipe YAML files (validated, indexed, searchable)
+- **docs/** — Kitchen-test plans and experiment records (for example, the mushroom mac and cheese test plan)
 - **recipes.json** — Auto-generated index of all recipes (metadata only)
 - **recipes-index.html** — Searchable recipe browser with filters
 - **template.yaml** — Recipe schema with science fields

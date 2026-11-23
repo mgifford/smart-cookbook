@@ -1,6 +1,9 @@
 function cookbookApp() {
+  const queryParams = new URLSearchParams(window.location.search);
   // Check if debug mode is enabled via ?debug=true
-  const debugMode = new URLSearchParams(window.location.search).get('debug') === 'true';
+  const debugMode = queryParams.get('debug') === 'true';
+  // Optional deep link: index.html?recipe=<id>
+  const requestedRecipeId = (queryParams.get('recipe') || '').trim();
   console.log('[DEBUG] Debug mode enabled:', debugMode);
 
   const clone = (obj) => {
@@ -23,11 +26,21 @@ function cookbookApp() {
   };
 
   const cleanIngredientName = (raw) => {
-    const decoded = decodeEntities(raw || '');
-    const unitTokens = '(cups?|cup|tbsp|tablespoons?|tsp|teaspoons?|oz|ounce?s?|pounds?|lbs?|grams?|g|kg|ml|millilit(er)?s?|lit(er)?s?|l)';
-    const regex = /^\s*([0-9]+[0-9.,\/\s]*)?\s*(cups?|cup|tbsp|tablespoons?|tsp|teaspoons?|oz|ounce?s?|pounds?|lbs?|grams?|g|kg|ml|millilit(er)?s?|lit(er)?s?|l)?\s*(of\s+)?/i;
-    const cleaned = decoded.replace(regex, '').trim();
-    return cleaned || decoded.trim();
+    const decoded = decodeEntities(raw || '')
+      .replace(/½/g, '1/2').replace(/⅓/g, '1/3').replace(/⅔/g, '2/3')
+      .replace(/¼/g, '1/4').replace(/¾/g, '3/4')
+      .replace(/⅛/g, '1/8').replace(/⅜/g, '3/8').replace(/⅝/g, '5/8').replace(/⅞/g, '7/8')
+      .trim();
+    // Only strip a leading quantity (and its unit) when a number is actually
+    // present. A word boundary on the unit prevents names such as "garlic",
+    // "ground cinnamon", "large eggs", or "lime" from losing their first letter.
+    const unit = '(?:cups?|tbsp|tablespoons?|tsp|teaspoons?|oz|ounces?|pounds?|lbs?|grams?|kg|ml|millilit(?:er)?s?|lit(?:er)?s?|g|l|cloves?|cans?|pinch(?:es)?|sprigs?|bunch(?:es)?|slices?|sticks?)';
+    const quantity = '\\d+(?:[.,]\\d+)?(?:\\s+\\d+\\/\\d+)?(?:\\/\\d+)?';
+    const regex = new RegExp(`^\\s*${quantity}\\s*${unit}?\\b\\.?\\s*(?:of\\s+)?`, 'i');
+    let cleaned = decoded.replace(regex, '').trim();
+    // Drop a leading parenthetical weight, e.g. "(400 g) diced tomatoes".
+    cleaned = cleaned.replace(/^\([^)]*\)\s*/, '').trim();
+    return cleaned || decoded;
   };
 
   // Strip zero-width and exotic whitespace so ingredient names don't split (e.g., "l arge")
@@ -441,7 +454,19 @@ function cookbookApp() {
     'rolled oats': 80,
     'cornstarch': 128,
     'cocoa powder': 85,
-    'rice': 185
+    'rice': 185,
+    // Values added for Crispy Mushroom Mac and Cheese; see conversions.yaml.
+    'dry macaroni': 100,
+    'macaroni': 100,
+    'small shells': 100,
+    'brown cremini mushrooms': 70,
+    'cremini mushrooms': 70,
+    'cheddar cheese': 113,
+    'mature cheddar cheese': 113,
+    'parmesan cheese': 100,
+    'garlic bread': 50,
+    'purchased garlic bread': 50,
+    'whole milk': 245
   };
 
   const ounceToGrams = 28.3495;
@@ -512,6 +537,9 @@ function cookbookApp() {
 
   const resolveWholeUnitKey = (volEst, ingredientName) => {
     const haystack = `${volEst || ''} ${ingredientName || ''}`.toLowerCase();
+    // Processed forms are not whole items: garlic bread is not a garlic clove,
+    // garlic powder is not a clove, tomato sauce is not a tomato, and so on.
+    if (/\b(powder|ground|dried|bread|sauce|paste|juice|zest|confit|oil)\b/i.test(haystack)) return null;
     const candidates = [
       { key: 'garlic clove', tokens: ['garlic clove', 'garlic'] },
       { key: 'onion', tokens: ['onion'] },
@@ -572,6 +600,7 @@ function cookbookApp() {
     'lime juice': { unit: 'tbsp', gramsPerUnit: 15 },
     'orange juice': { unit: 'tbsp', gramsPerUnit: 15 },
     'soy sauce': { unit: 'tbsp', gramsPerUnit: 18 },
+    'dijon mustard': { unit: 'tsp', gramsPerUnit: 5 },
     'vinegar': { unit: 'tbsp', gramsPerUnit: 15 },
     'honey': { unit: 'tbsp', gramsPerUnit: 21 },
     'maple syrup': { unit: 'tbsp', gramsPerUnit: 20 },
@@ -878,6 +907,9 @@ function cookbookApp() {
   console.log('[DEBUG] sampleRecipes:', sampleRecipes);
   const recipesToUse = (Array.isArray(initialRecipes) && initialRecipes.length > 0) ? initialRecipes : sampleRecipes;
   const firstRecipe = recipesToUse[0] || { id: 'empty', meta: { name: 'No Recipe', source: '', base_servings: 1 }, ingredients: [], steps: [], science_notes: [] };
+  const initialSelectedId = requestedRecipeId || firstRecipe.id;
+  const initialRecipe = recipesToUse.find(r => r.id === initialSelectedId) || firstRecipe;
+  let nutritionCache = { key: null, value: null };
 
   return {
     debugMode,
@@ -933,10 +965,10 @@ function cookbookApp() {
         // Keep selector stable and alphabetized
         this.recipes.sort((a, b) => (a.meta?.name || a.id).localeCompare(b.meta?.name || b.id));
 
-        const hasSelected = this.recipes.some(r => r.id === this.selectedId);
-        // Default selection to first recipe from index if none selected yet or selection is invalid
-        if ((!this.selectedId || !hasSelected) && this.recipes.length > 0) {
-          this.selectedId = this.recipes[0].id;
+        // Honour ?recipe=<id> when it exists; otherwise fall back to the first
+        // recipe in the index if nothing valid is selected.
+        if (!this.selectedId || !this.recipes.some(r => r.id === this.selectedId)) {
+          if (this.recipes.length > 0) this.selectedId = this.recipes[0].id;
         }
 
         if (this.selectedId) {
@@ -950,9 +982,9 @@ function cookbookApp() {
       }
     },
     recipes: recipesToUse,
-    selectedId: firstRecipe.id,
-    current: clone(firstRecipe),
-    servings: firstRecipe.meta.base_servings,
+    selectedId: initialSelectedId,
+    current: clone(initialRecipe),
+    servings: initialRecipe.meta?.base_servings || 1,
     hasUnsavedChanges: false,
     wwMode: true,
     vegMode: true,
@@ -1134,6 +1166,7 @@ function cookbookApp() {
           meta: parsed.meta,
           ingredients: parsed.ingredients,
           steps: parsed.steps || [],
+          science_notes: Array.isArray(parsed.science_notes) ? parsed.science_notes : [],
           history: parsed.history || []
         };
         this.upsertRecipe(recipe);
@@ -1280,13 +1313,14 @@ function cookbookApp() {
     },
 
     findWWSub(ing) {
-      if (!this.wwMode) return null;
+      if (!this.wwMode || !Array.isArray(ing.substitutions)) return null;
       return ing.substitutions.find(sub => (sub.tags || []).includes('ww')) || null;
     },
 
     findVegSub(ing) {
       if (!this.vegMode) return null;
-      const direct = ing.substitutions.find(sub => (sub.tags || []).includes('veg') || (sub.tags || []).includes('vegetarian'));
+      const substitutions = Array.isArray(ing.substitutions) ? ing.substitutions : [];
+      const direct = substitutions.find(sub => (sub.tags || []).includes('veg') || (sub.tags || []).includes('vegetarian'));
       if (direct) return direct;
 
       // Fallback to meat substitution library
@@ -1373,9 +1407,23 @@ function cookbookApp() {
 
     nutritionSummary() {
       const _v = this.nutritionVersion;
+      const ingredients = Array.isArray(this.current?.ingredients) ? this.current.ingredients : [];
+      const cacheKey = [
+        this.selectedId,
+        this.servings,
+        this.current?.meta?.base_servings,
+        _v,
+        ingredients.map(i => `${i.name || ''}:${i.qty_g}`).join('|')
+      ].join('::');
+      if (nutritionCache.key === cacheKey) return nutritionCache.value;
+
       const base = { calories: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 };
+      const missing = [];
       this.displayIngredients().forEach(ing => {
-        if (!ing.nutrition) return;
+        if (!ing.nutrition) {
+          missing.push(ing.displayName);
+          return;
+        }
         base.calories += ing.nutrition.calories || 0;
         base.protein += ing.nutrition.protein || 0;
         base.fat += ing.nutrition.fat || 0;
@@ -1390,7 +1438,28 @@ function cookbookApp() {
         carbs: +(base.carbs / servings).toFixed(1),
         fiber: +(base.fiber / servings).toFixed(1)
       };
-      return { total: base, per }; 
+      const value = {
+        total: base,
+        per,
+        coverage: {
+          covered: ingredients.length - missing.length,
+          total: ingredients.length,
+          missing
+        }
+      };
+      nutritionCache = { key: cacheKey, value };
+      return value;
+    },
+
+    nutritionCoverageText() {
+      const coverage = this.nutritionSummary().coverage;
+      if (!coverage.total) return '';
+      const base = `Approximate: nutrition data covers ${coverage.covered} of ${coverage.total} ingredients.`;
+      const caveat = ' Values are per-100 g references, not lab measurements.';
+      if (!coverage.missing.length) return `${base}${caveat}`;
+      const names = coverage.missing.slice(0, 3).join(', ');
+      const more = coverage.missing.length > 3 ? ` and ${coverage.missing.length - 3} more` : '';
+      return `${base} Not counted: ${names}${more}.${caveat}`;
     },
 
     formattedIngredient(ing) {
@@ -1425,9 +1494,9 @@ function cookbookApp() {
     gramToVolume(name, grams) {
       const density = densityPerCup[name] || 240;
       const cups = grams / density;
-      if (cups >= 1) {
+      if (cups >= 0.5) {
         const val = roundToStep(cups, 0.25, 0.25);
-        return `${toFractionQuarter(val)} cups`;
+        return `${toFractionQuarter(val)} ${val > 1 ? 'cups' : 'cup'}`;
       }
       const tbsp = cups * 16;
       if (tbsp >= 1) {
@@ -1456,6 +1525,12 @@ function cookbookApp() {
       return grams / 28.3495;
     },
 
+    formatGrams(qty) {
+      const roundedG = qty >= 100 ? roundToStep(qty, 1) : qty >= 10 ? roundToStep(qty, 0.5) : roundToStep(qty, 0.1, 0.1);
+      const places = roundedG >= 100 ? 0 : 1;
+      return `${formatNumber(roundedG, { max: places, min: 0 })} g`;
+    },
+
     formatQuantity(ing) {
       const qty = Number(ing.qty_g);
       const hasQty = Number.isFinite(qty) && qty > 0;
@@ -1469,18 +1544,33 @@ function cookbookApp() {
           if (per && per > 0) {
             const count = qty / per;
             if (count >= 0.25) {
-              return `${toFractionQuarter(count)} ${key}${count >= 2 ? 's' : ''}`;
+              const display = toFractionQuarter(count);
+              const noun = key.split(' ')[0];
+              // If the ingredient name already contains the noun, do not repeat it
+              // ("1 onion", not "1 onion onion").
+              if (ingName.toLowerCase().includes(noun)) {
+                if (key === 'garlic clove' && !/clove/i.test(ingName)) {
+                  return `${display} clove${count >= 2 ? 's' : ''}`;
+                }
+                return display;
+              }
+              return `${display} ${key}${count >= 2 ? 's' : ''}`;
             }
           }
         }
       }
 
-      // Best-fit: for auto system, prefer volume for liquids/condiments
-      if (!this.precisionMode && hasQty && this.prefs.system === 'auto' && prefersVolume(ingName)) {
-        if (this.prefs.volumeUnit === 'ml') return this.gramToMl(ingName.toLowerCase(), qty);
-        return this.gramToVolume(ingName.toLowerCase(), qty);
+      // Precision mode means weight, regardless of volume or display preferences.
+      if (this.precisionMode && hasQty) {
+        if (this.prefs.weightUnit === 'oz') {
+          const oz = this.gramToOunces(qty);
+          const roundedOz = oz >= 8 ? roundToStep(oz, 0.1) : oz >= 1 ? roundToStep(oz, 0.05) : roundToStep(oz, 0.01, 0.01);
+          const places = roundedOz >= 1 ? 1 : 2;
+          return `${formatNumber(roundedOz, { max: places, min: 0 })} oz`;
+        }
+        return this.formatGrams(qty);
       }
-      
+
       // Check if this ingredient has a display preference (e.g., salt prefers tsp)
       const displayPref = getDisplayPref(ingName);
       if (displayPref && hasQty) {
@@ -1499,21 +1589,24 @@ function cookbookApp() {
           const cups = roundToStep(units / 16, 0.25, 0.25); // 16 tbsp = 1 cup
           return `${toFractionQuarter(cups)} cups`;
         }
-        const unitStr = units === 1 ? displayPref.unit : displayPref.unit;
-        return `${trimZeros(units.toFixed(2))} ${unitStr}`;
+        // Small amounts of a tablespoon-preference ingredient read better in tsp.
+        if (displayPref.unit === 'tbsp' && units > 0 && units < 1) {
+          const tsp = roundToStep(qty / (displayPref.gramsPerUnit / 3), 0.25, 0.25);
+          return `${toFractionQuarter(tsp)} tsp`;
+        }
+        return `${toFractionQuarter(units)} ${displayPref.unit}`;
       }
 
-      if (this.precisionMode && hasQty) {
-        if (this.prefs.weightUnit === 'oz') {
-          const oz = this.gramToOunces(qty);
-          const roundedOz = oz >= 8 ? roundToStep(oz, 0.1) : oz >= 1 ? roundToStep(oz, 0.05) : roundToStep(oz, 0.01, 0.01);
-          const places = roundedOz >= 1 ? 1 : 2;
-          return `${formatNumber(roundedOz, { max: places, min: 0 })} oz`;
-        }
-        const roundedG = qty >= 100 ? roundToStep(qty, 1) : qty >= 10 ? roundToStep(qty, 0.5) : roundToStep(qty, 0.1, 0.1);
-        const places = roundedG >= 100 ? 0 : 1;
-        return `${formatNumber(roundedG, { max: places, min: 0 })} g`;
+      // Best-fit: for auto system, prefer volume for liquids/condiments
+      if (hasQty && this.prefs.system === 'auto' && prefersVolume(ingName)) {
+        if (this.prefs.volumeUnit === 'ml') return this.gramToMl(ingName.toLowerCase(), qty);
+        return this.gramToVolume(ingName.toLowerCase(), qty);
       }
+
+      // Metric regions show grams for solids and ml for liquids. Converting
+      // cheese, mushrooms, or flour to millilitres is misleading.
+      const metricUnits = this.prefs.system === 'metric' || (this.prefs.system === 'auto' && this.prefs.volumeUnit === 'ml');
+      if (hasQty && metricUnits && !prefersVolume(ingName)) return this.formatGrams(qty);
 
       // If no numeric qty, show vol_est if present
       if (!hasQty && ing.vol_est) return amountFromVolEst(ing.vol_est);

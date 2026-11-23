@@ -57,7 +57,7 @@ The recipe's `meta.notes` records its status, equipment, options, and limitation
 - **schemas/** — Versioned JSON Schema for recipe data
 - **experiments/** — Kitchen-experiment templates (unfilled observations only)
 - **tests/** — Node fixtures for scaling, units, import/export, nutrition, and deep links
-- **docs/** — [architecture](docs/ARCHITECTURE.md), [baseline audit](docs/BASELINE.md), [data model](docs/DATA-MODEL.md), [accessibility testing](docs/ACCESSIBILITY-TESTING.md), [experiment model](docs/RECIPE-EXPERIMENTS.md), [AI governance](docs/AI-GOVERNANCE.md), [licensing status](docs/LICENSING.md), and the [mushroom mac test plan](docs/crispy-mushroom-mac-and-cheese-testing.md)
+- **docs/** — [architecture](docs/ARCHITECTURE.md), [baseline audit](docs/BASELINE.md), [data model](docs/DATA-MODEL.md), [accessibility testing](docs/ACCESSIBILITY-TESTING.md), [experiment model](docs/RECIPE-EXPERIMENTS.md), [AI governance](docs/AI-GOVERNANCE.md), [licensing status](docs/LICENSING.md), the [Milestone 1 implementation report](docs/IMPLEMENTATION-REPORT-MILESTONE-1.md), and the [mushroom mac test plan](docs/crispy-mushroom-mac-and-cheese-testing.md)
 - **recipes.json** — Auto-generated index of all recipes (metadata only)
 - **recipes-index.html** — Searchable recipe browser with filters
 - **template.yaml** — Recipe schema with science fields

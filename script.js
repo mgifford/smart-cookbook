@@ -1752,6 +1752,19 @@ function cookbookApp() {
       return value;
     },
 
+    formatNutrition(value, unit = 'g') {
+      const number = Number(value) || 0;
+      const step = unit === 'kcal'
+        ? 10
+        : Math.abs(number) >= 50
+          ? 10
+          : Math.abs(number) >= 10
+            ? 5
+            : 1;
+      const rounded = Math.round(number / step) * step;
+      return `≈ ${rounded} ${unit}`;
+    },
+
     nutritionCoverageLabel() {
       const coverage = this.nutritionSummary().coverage;
       return coverage.missing.length ? 'Known-ingredient subtotal' : 'Estimated nutrition total';
@@ -1772,7 +1785,7 @@ function cookbookApp() {
         const more = coverage.missing.length > 3 ? ` and ${coverage.missing.length - 3} more` : '';
         parts.push(`Not counted: ${names}${more}. Actual nutrition will be higher or otherwise different.`);
       }
-      parts.push('Values are per-100 g references, not lab measurements.');
+      parts.push('Displayed values are rounded to the nearest 5–10 g (calories to 10 kcal); they are per-100 g references, not lab measurements.');
       return parts.join(' ');
     },
 

@@ -67,3 +67,12 @@ test('repeated legitimate ingredients are both counted in nutrition', async () =
   assert.equal(summary.coverage.covered, 2);
   assert.equal(summary.total.calories, Math.round(717 * 0.6)); // 60 g butter total
 });
+
+test('nutrition display is rounded to a defensible approximate precision', async () => {
+  const { app } = await initApp();
+  assert.equal(app.formatNutrition(172.8, 'g'), '≈ 170 g');
+  assert.equal(app.formatNutrition(34.6, 'g'), '≈ 35 g');
+  assert.equal(app.formatNutrition(19.2, 'g'), '≈ 20 g');
+  assert.equal(app.formatNutrition(3.8, 'g'), '≈ 4 g');
+  assert.equal(app.formatNutrition(729, 'kcal'), '≈ 730 kcal');
+});

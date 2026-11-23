@@ -108,7 +108,7 @@ Import/export must not discard data the app does not understand.
 5. `ww_points: null` is accepted and means not calculated.
 6. Existing recipes are never automatically rewritten by validation or indexing.
 7. Importing an id that already exists asks for confirmation before replacing the stored recipe.
-8. The bookmarklet still has multiple source copies; its unknown quantities and WW values now use `null`, but YAML quoting and consolidation remain follow-up work.
+8. `bookmarklet.js` is generated from `src/bookmarklet/recipe-scraper.js`; the generator preserves unknown quantities as `null`, quotes strings safely, and handles `@graph`/structured instructions. It intentionally leaves science notes empty for human completion.
 
 Gradual migration: add `schema_version` and `id` to new recipes; backfill legacy recipes only with explicit review.
 

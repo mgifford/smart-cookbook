@@ -87,7 +87,7 @@ Passing checks are evidence, not proof of correctness, accessibility conformance
 ## 6. Known architectural limits
 
 1. `script.js` is still a large Alpine closure; pure calculations are not yet fully extracted. Tests exercise them through a jsdom harness.
-2. The bookmarklet still has multiple copies; eliminating them is a follow-up.
+2. `bookmarklet.js` is generated from `src/bookmarklet/recipe-scraper.js`; `check:bookmarklet` prevents drift. The scraper does not invent science notes or volumes.
 3. There is no storage schema version or migration framework; experiment and tombstone shapes are currently additive.
 4. Source-recipe-versus-adaptation comparison is not implemented because the source quantities are not recorded.
 5. Offline support is not implemented.

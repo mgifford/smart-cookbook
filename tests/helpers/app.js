@@ -58,6 +58,7 @@ function bootApp({ url = 'http://127.0.0.1:4189/index.html', fetchStub = createF
   window.SmartCookbookConversions = require(path.join(ROOT, 'src', 'generated', 'conversions.js'));
   window.SMART_COOKBOOK_RECIPE_SCHEMA = require(path.join(ROOT, 'src', 'generated', 'recipe-schema.js'));
   window.RecipeValidation = require(path.join(ROOT, 'src', 'recipes', 'validation.js'));
+  window.RecipeScraper = require(path.join(ROOT, 'src', 'bookmarklet', 'recipe-scraper.js'));
   window.alert = (message) => {
     window.__alerts = (window.__alerts || []).concat(String(message));
   };

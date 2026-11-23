@@ -41,7 +41,7 @@ function createFetchStub() {
   };
 }
 
-function bootApp({ url = 'http://127.0.0.1:4189/index.html', fetchStub = createFetchStub() } = {}) {
+function bootApp({ url = 'http://127.0.0.1:4189/index.html', fetchStub = createFetchStub(), storage = {} } = {}) {
   const dom = new JSDOM('<!doctype html><html><body></body></html>', {
     url,
     runScripts: 'dangerously',
@@ -55,11 +55,17 @@ function bootApp({ url = 'http://127.0.0.1:4189/index.html', fetchStub = createF
   window.console.info = () => {};
   window.console.error = () => {};
   window.jsyaml = require('js-yaml');
+  window.SmartCookbookConversions = require(path.join(ROOT, 'src', 'generated', 'conversions.js'));
+  window.SMART_COOKBOOK_RECIPE_SCHEMA = require(path.join(ROOT, 'src', 'generated', 'recipe-schema.js'));
+  window.RecipeValidation = require(path.join(ROOT, 'src', 'recipes', 'validation.js'));
   window.alert = (message) => {
     window.__alerts = (window.__alerts || []).concat(String(message));
   };
   window.confirm = () => true;
   window.fetch = fetchStub;
+  Object.entries(storage).forEach(([key, value]) => {
+    window.localStorage.setItem(key, String(value));
+  });
 
   const script = window.document.createElement('script');
   script.textContent = fs.readFileSync(path.join(ROOT, 'script.js'), 'utf8');

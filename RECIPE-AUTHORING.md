@@ -30,8 +30,9 @@ Optional metadata such as `provenance`, `desired_outcomes`, `equipment`, `testin
 
 Every ingredient has two quantity fields:
 
-- **`qty_g`** (required): The canonical weight in grams. Used for scaling math.
+- **`qty_g`** (required): The canonical weight in grams. Used for scaling math. Use `null` when the mass is genuinely unknown; do not use `0` for unknown.
 - **`vol_est`** (required): The human-friendly volume/unit string. Shown in the UI.
+- **`estimated`** and **`quantity_source`** (optional): Mark a mass as estimated and preserve where it came from. An estimate must never look like a verified weight.
 
 ### Example: Whole Units (Eggs, Bananas, etc.)
 
@@ -50,6 +51,20 @@ Every ingredient has two quantity fields:
 qty_g: 228
 vol_est: "228 g eggs"  # ❌ redundant and ugly
 ```
+
+**Unknown quantities:**
+```yaml
+- name: mushrooms
+  qty_g: null
+  vol_est: "2 generous handfuls"
+  estimated: false
+  quantity_source:
+    original: "2 generous handfuls"
+    method: unknown
+    reviewed: false
+```
+
+The UI will show “quantity unknown”; the ingredient will not scale or contribute nutrition. An estimate may be shown, but it is labelled and exported as an estimate.
 
 ---
 
@@ -184,6 +199,21 @@ The `function` field explains the ingredient's role in the recipe. Use these tag
 ```
 
 ---
+
+## Rule 6b: Keep repeated ingredient entries
+
+Do not merge ingredients just because they share a name. The same ingredient may appear in different components:
+
+```yaml
+- name: butter
+  qty_g: 40
+  vol_est: "40 g for cheese sauce"
+- name: butter
+  qty_g: 20
+  vol_est: "20 g for bread topping"
+```
+
+Both entries, their order, quantities, functions, notes, and substitutions must survive import/export. A shopping-list consolidation is a separate, explicit operation and must not mutate the recipe.
 
 ## Rule 7: Provide Smart Substitutions
 
@@ -347,7 +377,8 @@ history:
 ## Checklist: Before Publishing a Recipe
 
 - [ ] `schema_version: "2.0"` and an `id` matching the filename are present
-- [ ] `qty_g` is filled in for every ingredient (not 0)
+- [ ] Every `qty_g` is a positive number or explicitly `null` for unknown (not a stand-in 0)
+- [ ] Estimated quantities carry `estimated: true` and a `quantity_source`
 - [ ] `vol_est` is human-friendly and matches `qty_g` (e.g., "2 large eggs" = 114g)
 - [ ] Size modifiers are specific ("1 medium banana" not "1 banana")
 - [ ] `function` field lists 2–4 roles (structure, fat, moisture, leavening, flavor, etc.)
@@ -358,6 +389,8 @@ history:
 - [ ] Recipe scales correctly (1–64 servings; test at least 2× and an awkward fraction)
 - [ ] `npm run validate:schema`, `npm run validate:recipes`, and `npm run check:index` pass
 - [ ] No invented WW points or nutrition; missing data is explicit
+- [ ] Repeated ingredients with different roles are kept as separate entries
+- [ ] Experiments are not used to mark a recipe tested without a real, recorded cook
 - [ ] All temperatures are in both °C and °F where useful
 
 ---

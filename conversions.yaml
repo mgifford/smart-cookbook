@@ -21,6 +21,36 @@ ingredient_display_prefs:
     molasses: "tbsp"
     peanut_butter: "tbsp"
     tahini: "tbsp"
+    sea_salt: "tsp"
+    cinnamon: "tsp"
+    nutmeg: "tsp"
+    ginger: "tsp"
+    cayenne: "tsp"
+    paprika: "tsp"
+    black_pepper: "tsp"
+  aliases:
+    kosher_salt: "salt"
+    table_salt: "salt"
+    fine_sea_salt: "sea_salt"
+    caster_sugar: "granulated_sugar"
+    confectioners_sugar: "powdered_sugar"
+    icing_sugar: "powdered_sugar"
+    brown_sugar_packed: "brown_sugar"
+    dark_brown_sugar: "brown_sugar"
+    light_brown_sugar: "brown_sugar"
+    greek_yoghurt: "greek_yogurt"
+    ap_flour: "all-purpose_flour"
+    all_purpose_flour: "all-purpose_flour"
+    plain_flour: "all-purpose_flour"
+    wholemeal_flour: "whole_wheat_flour"
+    icing_sugar_powdered: "powdered_sugar"
+    powdered_sugar: "powdered_sugar"
+    rolled_oats: "oats"
+    old_fashioned_oats: "oats"
+    whole_milk: "milk"
+    buttermilk: "milk"
+    heavy_cream: "cream"
+    double_cream: "cream"
   by_category:
     spices: "tsp"  # cinnamon, nutmeg, ginger, etc.
     herbs_dried: "tsp"
@@ -32,6 +62,7 @@ ingredient_display_prefs:
 volume_conversions_g:
   salt_tsp: 6
   salt_tbsp: 18
+  sea_salt_tsp: 6
   baking_soda_tsp: 5
   baking_soda_tbsp: 15
   baking_powder_tsp: 5
@@ -44,9 +75,13 @@ volume_conversions_g:
   cayenne_tsp: 2
   paprika_tsp: 2
   black_pepper_tsp: 2
+  hot_sauce_tsp: 5
+  worcestershire_sauce_tsp: 5
+  molasses_tbsp: 20
   dijon_mustard_tsp: 5
   lemon_juice_tbsp: 15
   lime_juice_tbsp: 15
+  orange_juice_tbsp: 15
   honey_tbsp: 21
   maple_syrup_tbsp: 20
   peanut_butter_tbsp: 16
@@ -92,8 +127,8 @@ densities_g_per_cup:
   granulated sugar: 200
   brown sugar (packed): 200
   powdered sugar: 120
-  cocoa powder: 90
-  rolled oats: 90
+  cocoa powder: 85  # Runtime baseline; verify with a scale before changing.
+  rolled oats: 80  # Runtime baseline; verify with a scale before changing.
   almond flour: 96
   butter: 227
   oil (neutral): 218
@@ -112,6 +147,63 @@ densities_g_per_cup:
   cheddar cheese: 113
   parmesan cheese: 100
   garlic bread: 50
+  # Runtime-compatibility entries; values were previously duplicated in script.js.
+  brown sugar: 200
+  yogurt: 245
+  cream: 238
+  heavy cream: 238
+  buttermilk: 245
+  milk: 245
+  vegetable oil: 218
+  coconut oil: 218
+  olive oil: 218
+  coconut milk: 226
+  diced tomatoes: 240
+  tomatoes: 240
+  tomato sauce: 245
+  tomato paste: 262
+  broth: 240
+  stock: 240
+  chicken stock: 240
+  vegetable stock: 240
+  lentils: 192
+  red lentils: 192
+  oats: 80
+  rice: 185
+  macaroni: 100
+  small shells: 100
+  cremini mushrooms: 70
+  mature cheddar cheese: 113
+  purchased garlic bread: 50
+
+# Ingredient names whose display should prefer volume in US/auto mode.
+volume_first:
+  - water
+  - milk
+  - buttermilk
+  - cream
+  - half and half
+  - yogurt
+  - greek yogurt
+  - broth
+  - stock
+  - vegetable stock
+  - chicken stock
+  - beef stock
+  - oil
+  - neutral oil
+  - vegetable oil
+  - olive oil
+  - coconut oil
+  - canola oil
+  - coconut milk
+  - coconut milk (canned)
+  - juice
+  - lemon juice
+  - lime juice
+  - orange juice
+  - vinegar
+  - soy sauce
 
 # Handy quick refs
 quick_refs:
@@ -133,6 +225,7 @@ whole_units_to_grams:
     medium: 50
     large: 57
     extra_large: 64
+    default: 57
   bananas:
     small: 101
     medium: 118
@@ -184,6 +277,10 @@ whole_units_to_grams:
     small: 150
     medium: 200
     large: 250
+  cilantro_bunch:
+    default: 90
+  cinnamon_stick:
+    default: 2.6
 
 # Common dairy/packaged units (grams)
 packaged_units:

@@ -28,6 +28,8 @@ The check is `scripts/ci-a11y.js`. It starts a local static server when pointed 
 | Search | Typing `Crispy` filters the browser to one card |
 | Deep link from a card | The card points at `index.html?recipe=crispy-mushroom-mac-and-cheese` |
 | Recipe-browser reflow | No horizontal overflow at 320 CSS px |
+| Experiment form | The form opens, saves a record, and the record persists after reload |
+| Invalid import | An invalid YAML import shows a visible error summary and focuses it |
 | Runtime errors | No page errors or console errors during the journeys |
 
 ### axe coverage
@@ -35,7 +37,9 @@ The check is `scripts/ci-a11y.js`. It starts a local static server when pointed 
 axe is run at:
 
 - `index.html`, desktop (1280 × 900)
+- `index.html` with the experiment form open
 - `index.html`, 320 × 844
+- `index.html` with an invalid-import error summary
 - `recipes-index.html`, desktop
 - `recipes-index.html`, 320 × 844
 
@@ -115,7 +119,9 @@ Test at least one desktop and one mobile screen reader (for example NVDA + Firef
 |---|---|
 | Dark-only theme; no light/system theme selector | Not implemented (Milestone 3) |
 | No cooking mode | Not implemented (Milestone 3) |
-| No live region for nutrition loading/errors or coverage updates | Nutrition status/coverage now use `aria-live`; verify with a screen reader |
+| Live regions for nutrition/form/import status | Added; verify announcements with a real screen reader |
+| Experiment form and comparison table | Automated axe/Playwright coverage added; manual screen-reader and zoom testing still required |
+| Source-versus-adaptation comparison | Not implemented; no source quantities are fabricated |
 | Nutrition details use `title` (hover-only) | Open |
 | Checkbox/range target height | Raised to 24 px; verify touch spacing in a real browser |
 | `prefers-reduced-motion` override | Added; still needs a real OS-level check |

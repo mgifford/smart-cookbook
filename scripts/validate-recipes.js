@@ -57,8 +57,6 @@ function validateRecipe(filename, recipe) {
 
   // Validate ingredients
   if (Array.isArray(recipe.ingredients)) {
-    const ingredientNames = new Set();
-
     recipe.ingredients.forEach((ing, idx) => {
       const ingId = `ingredients[${idx}]`;
 
@@ -70,20 +68,16 @@ function validateRecipe(filename, recipe) {
         }
       }
 
-      // Check qty_g is numeric and positive
-      if (typeof ing.qty_g !== 'number' || ing.qty_g < 0) {
-        error(filename, `${ingId}.qty_g`, `Must be a non-negative number, got: ${ing.qty_g}`);
+      // qty_g may be null to mean "unknown", or a non-negative number.
+      if (ing.qty_g === null) {
+        warning(filename, `${ingId}.qty_g`, 'Quantity is unknown; it will not scale or contribute nutrition.');
+      } else if (typeof ing.qty_g !== 'number' || ing.qty_g < 0) {
+        error(filename, `${ingId}.qty_g`, `Must be a non-negative number or null, got: ${ing.qty_g}`);
         fileErrors++;
       }
 
-      // Check for duplicate ingredient names
-      const cleanName = (ing.name || '').toLowerCase().trim();
-      if (cleanName) {
-        if (ingredientNames.has(cleanName)) {
-          warning(filename, `${ingId}.name`, `Duplicate ingredient: "${ing.name}"`);
-        }
-        ingredientNames.add(cleanName);
-      }
+      // Duplicate names are allowed: the same ingredient can be used in
+      // separate components (for example, butter in a sauce and a topping).
 
       // Validate substitutions if present
       if (Array.isArray(ing.substitutions)) {

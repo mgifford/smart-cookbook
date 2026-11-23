@@ -40,17 +40,24 @@ meta:
   prep_time: string
 ingredients:
   - name: string
-    qty_g: number >= 0
+    qty_g: number >= 0 | null
     vol_est: string
     function: string
     ww_points: number | null
     substitutions: []
+    estimated: boolean          # optional
+    quantity_source:            # optional, recommended when estimated/unknown
+      original: string
+      method: explicit | estimated_from_description | unknown | imported | legacy
+      reviewed: boolean
 steps: [string, ...]
 science_notes: [string, ...]
 history: []
 ```
 
-`ww_points` is deliberately nullable. `null` means **not calculated**; it does not mean zero points. Do not invent Weight Watchers values.
+`qty_g` may be `null` when the source gives no usable mass. `null` is **unknown**, not zero. An estimated mass is numeric but must carry `estimated: true` and a `quantity_source.method` of `estimated_from_description`. Explicit zero remains `0` and is not silently replaced.
+
+`ww_points` is deliberately nullable. `null` means **not calculated**; it does not mean zero points. Explicit `0` remains zero. Do not invent Weight Watchers values.
 
 `substitutions` entries require `name`, a positive `ratio`, and a `science_note`. A substitution is a proposal and is not applied automatically.
 
@@ -68,12 +75,14 @@ The schema allows and documents:
 - `testing_status` (`proposed`, `untested`, `tested`, `reviewed`)
 - `variations`
 - `dietary_information`
-- ingredient-level `optional`, `no_scale`, `estimated`, `notes`
+- ingredient-level `optional`, `no_scale`, `estimated`, `quantity_source`, `notes`
 - additional properties at object levels
 
 Additional properties are intentionally allowed so legacy and future metadata survive validation. That does not mean arbitrary data is displayed; it means it is not silently discarded.
 
 The pilot recipe now carries structured provenance, desired outcomes, equipment, and testing status. Legacy recipes do not need to be migrated immediately.
+
+**Pilot metadata consolidation:** status, inspiration, and equipment moved from the long `meta.notes` prose into `meta.status`, `provenance`, `testing_status`, and `equipment`. The remaining notes cover time/mass assumptions, crust technique, bread alternatives, the optional porcini addition, WW/nutrition caveats, and expected differences. Detailed pan comparisons and test procedures remain in `docs/crispy-mushroom-mac-and-cheese-testing.md`. No unique information was discarded; duplicated prose was removed.
 
 ---
 
@@ -99,6 +108,7 @@ Import/export must not discard data the app does not understand.
 5. `ww_points: null` is accepted and means not calculated.
 6. Existing recipes are never automatically rewritten by validation or indexing.
 7. Importing an id that already exists asks for confirmation before replacing the stored recipe.
+8. The bookmarklet still has multiple source copies; its unknown quantities and WW values now use `null`, but YAML quoting and consolidation remain follow-up work.
 
 Gradual migration: add `schema_version` and `id` to new recipes; backfill legacy recipes only with explicit review.
 
@@ -111,10 +121,30 @@ Gradual migration: add `schema_version` and `id` to new recipes; backfill legacy
 | `cookbook-recipes` | Personal/working recipe array |
 | `cookbook-prefs` | Unit/system preferences |
 | `cookbook-deleted-recipes` | Tombstones for library recipes the user removed |
+| `cookbook-selected-recipe` | Last explicitly selected recipe, subject to URL precedence |
+| `cookbook-experiments` | Local cooking experiment records (private until exported) |
 
 Deletion writes a tombstone so bootstrap does not resurrect a repository recipe. An explicit import of the same id clears the tombstone after a replacement confirmation. Clearing site data restores the library.
 
 No storage schema version exists yet. Add one before changing stored shapes; migrations must be explicit and tested.
+
+Selection precedence is: valid `?recipe=` URL, then a valid stored `cookbook-selected-recipe`, then the first recipe. A tombstoned id never wins and is never revived by bootstrap.
+
+Backups include a manifest:
+
+```json
+{
+  "format_version": "2.0",
+  "export_type": "complete | partial",
+  "expected_recipes": 12,
+  "exported_recipes": 11,
+  "missing_recipe_ids": ["example-recipe"]
+}
+```
+
+A partial JSON/ZIP export is only created after explicit confirmation, and the ZIP includes `manifest.json`. A complete export is never labelled complete when a recipe failed to load.
+
+Repeated ingredient names are preserved in authored order. Nutrition counts each legitimate entry. Any shopping-list consolidation must be a separate operation and must not mutate the recipe.
 
 ---
 
@@ -127,11 +157,20 @@ The schema allows optional `variations` and `testing_status`. The pilot recipe r
 - `testing_status: untested`
 - desired outcomes and equipment alternatives
 
-A kitchen experiment template is kept in `docs/crispy-mushroom-mac-and-cheese-testing.md`. It uses blank observations and `null` values; it is not populated with invented results. A dedicated personal-experiment store/export is a Milestone 2 deliverable, not implemented yet.
+A kitchen experiment template is kept in `experiments/crispy-mushroom-mac-and-cheese/experiment-template.yaml` and the prose plan in `docs/crispy-mushroom-mac-and-cheese-testing.md`. The browser now provides a local experiment form, list, edit/delete, JSON export/import, and a two-experiment comparison table. Unanswered ratings remain `null`; saving an observation does not publish it or promote the recipe to tested/reviewed.
 
 ---
 
-## 9. Validation and tests
+## 9. Shared validation and generated data
+
+- `schemas/recipe.schema.json` is the canonical contract.
+- `src/generated/recipe-schema.js` is generated from it and checked by `npm run check:schema-module`.
+- `src/recipes/validation.js` is a dependency-free validator for the schema subset used by the browser. It is also exercised in Node tests; Ajv remains the complete Node validator.
+- Browser imports display a visible error summary with field paths and preserve the pasted text.
+- Duplicate ingredient names are preserved. A shopping-list consolidation, if added later, must be a separate explicit operation.
+- `conversions.yaml` is the authored conversion source. `src/generated/conversions.js` is generated and checked by `npm run check:conversions`; runtime code does not keep a second copy.
+
+## 10. Validation and tests
 
 ```bash
 npm run validate:schema   # JSON Schema + stable IDs + duplicates

@@ -4,6 +4,10 @@ function cookbookApp() {
   const debugMode = queryParams.get('debug') === 'true';
   // Optional deep link: index.html?recipe=<id>
   const requestedRecipeId = (queryParams.get('recipe') || '').trim();
+  // Loaded by src/recipes/validation.js and src/generated/recipe-schema.js.
+  const recipeValidation = typeof window !== 'undefined' ? window.RecipeValidation : null;
+  const recipeSchema = typeof window !== 'undefined' ? window.SMART_COOKBOOK_RECIPE_SCHEMA : null;
+  const runtimeConversions = typeof window !== 'undefined' ? window.SmartCookbookConversions : null;
   console.log('[DEBUG] Debug mode enabled:', debugMode);
 
   const clone = (obj) => {
@@ -114,13 +118,13 @@ function cookbookApp() {
 
   const amountFromVolEst = (vol) => {
     if (!vol) return '';
-    const re = /^\s*([0-9]+(?:[0-9.,\/\s]*[0-9])?)\s*(cups?|cup|tbsp|tablespoons?|tsp|teaspoons?|oz|ounce?s?|pounds?|lbs?|grams?|g|kg|ml|millilit(er)?s?|lit(er)?s?|l)?/i;
+    const re = /^\s*([0-9]+(?:[0-9.,\/\s]*[0-9])?)\s*(cups?|cup|tbsp|tablespoons?|tsp|teaspoons?|oz|ounce?s?|pounds?|lbs?|grams?|g|kg|ml|millilit(er)?s?|lit(er)?s?|l)?\b/i;
     const m = String(vol).match(re);
-    if (m) {
-      const qty = m[1].trim();
-      const unit = m[2] ? m[2].trim() : '';
-      return `${qty}${unit ? ' ' + unit : ''}`;
+    if (m && m[1] && m[2]) {
+      return `${m[1].trim()} ${m[2].trim()}`;
     }
+    // Preserve descriptions such as "2 generous handfuls" rather than
+    // manufacturing a unit from the first letter of a word.
     return vol;
   };
 
@@ -174,7 +178,7 @@ function cookbookApp() {
     const sizeHint = /large/.test(str) ? 'large' : /small/.test(str) ? 'small' : 'medium';
     
     // Try to extract number and unit at the start
-    const match = str.match(/^\s*([0-9.\/]+)\s*(cups?|cup|tbsp|tbsp|tablespoons?|tsp|teaspoons?|oz|ounce?s?|pounds?|lbs?|grams?|g|kg|eggs?|egg|bananas?|banana|apples?|apple|onions?|carrots?|cloves?|garlic|tomatoes?|peppers?|potatoes?|limes?|lemons?|oranges?|cans?)/i);
+    const match = str.match(/^\s*([0-9.\/]+)\s*(cups?|cup|tbsp|tbsp|tablespoons?|tsp|teaspoons?|oz|ounce?s?|pounds?|lbs?|grams?|g|kg|eggs?|egg|bananas?|banana|apples?|apple|onions?|carrots?|cloves?|garlic|tomatoes?|peppers?|potatoes?|limes?|lemons?|oranges?|cans?)\b/i);
     
     if (!match) return 0;
     
@@ -342,14 +346,14 @@ function cookbookApp() {
         item: sub.name,
         ratio: sub.ratio,
         notes: sub.science_note,
-        ww_points: sub.ww_points,
+        ww_points: sub.ww_points ?? null,
         tags: sub.tags
       })),
       extensions: {
         x_qty_g: Number.isFinite(ing.qty_g) ? Number(ing.qty_g) : null,
         x_vol_est: ing.vol_est || null,
         x_function: ing.function || null,
-        x_ww_points: ing.ww_points || null,
+        x_ww_points: ing.ww_points ?? null,
         x_substitutions: ing.substitutions || []
       }
     }));
@@ -366,7 +370,7 @@ function cookbookApp() {
         extras: {
           science_notes: r.science_notes || [],
           history: r.history || [],
-          ww_points: r.meta?.ww_points || null
+          ww_points: r.meta?.ww_points ?? null
         }
       }
     };
@@ -390,19 +394,35 @@ function cookbookApp() {
         }
       }
       const volEst = ext.x_vol_est || ing.volume || ((ing.unit || ing.quantity) ? `${ing.quantity ?? ''} ${ing.unit ?? ''}`.trim() : '');
+      const wwSource = ext.x_ww_points ?? ing.ww_points;
+      const wwPoints = wwSource === null || wwSource === undefined || wwSource === '' ? null : Number(wwSource);
+      const hasQty = Number.isFinite(qtyG);
+      const quantitySource = ext.x_quantity_source && typeof ext.x_quantity_source === 'object'
+        ? ext.x_quantity_source
+        : {
+            original: sanitizeText(volEst || ''),
+            method: hasQty ? 'explicit' : 'unknown',
+            reviewed: false
+          };
       return {
         name: sanitizeText(ing.item || ing.name || 'ingredient'),
-        qty_g: Number.isFinite(qtyG) ? qtyG : 0,
+        qty_g: hasQty ? qtyG : null,
         vol_est: sanitizeText(volEst || ''),
         function: ext.x_function || ing.function || ing.notes || '',
-        ww_points: Number(ext.x_ww_points || ing.ww_points) || 0,
-        substitutions: (ext.x_substitutions || ing.substitutions || []).map(sub => ({
-          name: sub.item || sub.name || '',
-          ratio: sub.ratio || 1,
-          science_note: sub.science_note || sub.notes || '',
-          ww_points: sub.ww_points || 0,
-          tags: sub.tags || []
-        }))
+        ww_points: Number.isFinite(wwPoints) ? wwPoints : null,
+        estimated: ext.x_estimated === true,
+        quantity_source: quantitySource,
+        substitutions: (ext.x_substitutions || ing.substitutions || []).map(sub => {
+          const rawWw = sub.ww_points;
+          const subWw = rawWw === null || rawWw === undefined || rawWw === '' ? null : Number(rawWw);
+          return {
+            name: sub.item || sub.name || '',
+            ratio: sub.ratio || 1,
+            science_note: sub.science_note || sub.notes || '',
+            ww_points: Number.isFinite(subWw) ? subWw : null,
+            tags: sub.tags || []
+          };
+        })
       };
     });
 
@@ -420,56 +440,8 @@ function cookbookApp() {
     };
   };
 
-  const densityPerCup = {
-    'all-purpose flour': 120,
-    'whole wheat flour': 120,
-    'brown sugar': 200,
-    'granulated sugar': 200,
-    'powdered sugar': 120,
-    'greek yogurt': 245,
-    'yogurt': 245,
-    'cream': 238,
-    'heavy cream': 238,
-    'buttermilk': 245,
-    'butter': 227,
-    'milk': 245,
-    'water': 240,
-    'oil (neutral)': 218,
-    'vegetable oil': 218,
-    'coconut oil': 218,
-    'olive oil': 218,
-    'honey': 340,
-    'maple syrup': 320,
-    'coconut milk': 226,
-    'coconut milk (canned)': 226,
-    'diced tomatoes': 240,
-    'tomatoes': 240,
-    'tomato sauce': 245,
-    'tomato paste': 262,
-    'broth': 240,
-    'stock': 240,
-    'chicken stock': 240,
-    'vegetable stock': 240,
-    'lentils': 192,
-    'red lentils': 192,
-    'oats': 80,
-    'rolled oats': 80,
-    'cornstarch': 128,
-    'cocoa powder': 85,
-    'rice': 185,
-    // Values added for Crispy Mushroom Mac and Cheese; see conversions.yaml.
-    'dry macaroni': 100,
-    'macaroni': 100,
-    'small shells': 100,
-    'brown cremini mushrooms': 70,
-    'cremini mushrooms': 70,
-    'cheddar cheese': 113,
-    'mature cheddar cheese': 113,
-    'parmesan cheese': 100,
-    'garlic bread': 50,
-    'purchased garlic bread': 50,
-    'whole milk': 245
-  };
+  // Authored in conversions.yaml; generated into src/generated/conversions.js.
+  const densityPerCup = runtimeConversions?.densitiesPerCup || {};
 
   const ounceToGrams = 28.3495;
 
@@ -492,28 +464,9 @@ function cookbookApp() {
     return fracStr || '0';
   };
 
-  const packagedUnitWeights = {
-    'can_14_5_oz': 411,
-    'can_15_oz': 425,
-    'can_13_5_oz': 383
-  };
+  const packagedUnitWeights = runtimeConversions?.packagedUnitWeights || {};
 
-  const wholeUnitWeights = {
-    egg: { small: 43, medium: 50, large: 57, xl: 64, default: 57 },
-    banana: { small: 101, medium: 118, large: 136, default: 118 },
-    apple: { small: 149, medium: 182, large: 223, default: 182 },
-    onion: { small: 70, medium: 150, large: 200, default: 150 },
-    carrot: { small: 60, medium: 120, large: 180, default: 120 },
-    'garlic clove': { small: 3, medium: 5, large: 7, default: 5 },
-    tomato: { small: 100, medium: 150, large: 250, default: 150 },
-    'bell pepper': { small: 119, medium: 149, large: 186, default: 149 },
-    potato: { small: 150, medium: 300, large: 400, default: 300 },
-    lime: { medium: 52, default: 52 },
-    lemon: { medium: 84, default: 84 },
-    orange: { medium: 184, default: 184 },
-    'cilantro bunch': { default: 90 },
-    'cinnamon stick': { default: 2.6 }
-  };
+  const wholeUnitWeights = runtimeConversions?.wholeUnitWeights || {};
 
   const parseMixedNumber = (token) => {
     if (!token) return NaN;
@@ -591,67 +544,12 @@ function cookbookApp() {
   };
 
   // Display preferences for common ingredients (volume units preferred over grams)
-  const ingredientDisplayPrefs = {
-    salt: { unit: 'tsp', gramsPerUnit: 6 },
-    'sea salt': { unit: 'tsp', gramsPerUnit: 6 },
-    'baking soda': { unit: 'tsp', gramsPerUnit: 5 },
-    'baking powder': { unit: 'tsp', gramsPerUnit: 5 },
-    'vanilla extract': { unit: 'tsp', gramsPerUnit: 5 },
-    'almond extract': { unit: 'tsp', gramsPerUnit: 5 },
-    'lemon juice': { unit: 'tbsp', gramsPerUnit: 15 },
-    'lime juice': { unit: 'tbsp', gramsPerUnit: 15 },
-    'orange juice': { unit: 'tbsp', gramsPerUnit: 15 },
-    'soy sauce': { unit: 'tbsp', gramsPerUnit: 18 },
-    'dijon mustard': { unit: 'tsp', gramsPerUnit: 5 },
-    'vinegar': { unit: 'tbsp', gramsPerUnit: 15 },
-    'honey': { unit: 'tbsp', gramsPerUnit: 21 },
-    'maple syrup': { unit: 'tbsp', gramsPerUnit: 20 },
-    'molasses': { unit: 'tbsp', gramsPerUnit: 20 },
-    'peanut butter': { unit: 'tbsp', gramsPerUnit: 16 },
-    'tahini': { unit: 'tbsp', gramsPerUnit: 15 },
-    'cinnamon': { unit: 'tsp', gramsPerUnit: 2.6 },
-    'nutmeg': { unit: 'tsp', gramsPerUnit: 2.2 },
-    'ginger': { unit: 'tsp', gramsPerUnit: 2 },
-    'cayenne': { unit: 'tsp', gramsPerUnit: 2 },
-    'paprika': { unit: 'tsp', gramsPerUnit: 2 },
-    'black pepper': { unit: 'tsp', gramsPerUnit: 2 },
-    'pepper': { unit: 'tsp', gramsPerUnit: 2 }
-  };
+  const ingredientDisplayPrefs = runtimeConversions?.displayPrefs || {};
 
   // Aliases resolve to a canonical key in ingredientDisplayPrefs
-  const ingredientAliasMap = {
-    'kosher salt': 'salt',
-    'table salt': 'salt',
-    'fine sea salt': 'sea salt',
-    'caster sugar': 'granulated sugar',
-    'confectioners sugar': 'granulated sugar',
-    'icing sugar': 'granulated sugar',
-    'brown sugar (packed)': 'brown sugar',
-    'dark brown sugar': 'brown sugar',
-    'light brown sugar': 'brown sugar',
-    'greek yoghurt': 'greek yogurt',
-    'ap flour': 'all-purpose flour',
-    'all purpose flour': 'all-purpose flour',
-    'plain flour': 'all-purpose flour',
-    'wholemeal flour': 'whole wheat flour',
-    'icing sugar (powdered)': 'powdered sugar',
-    'powdered sugar': 'powdered sugar',
-    'confectioners sugar': 'powdered sugar',
-    'rolled oats': 'oats',
-    'old fashioned oats': 'oats',
-    'whole milk': 'milk',
-    'buttermilk': 'milk',
-    'heavy cream': 'cream',
-    'double cream': 'cream'
-  };
+  const ingredientAliasMap = runtimeConversions?.aliases || {};
 
-  const volumeFirst = new Set([
-    'water', 'milk', 'buttermilk', 'cream', 'half and half', 'yogurt', 'greek yogurt',
-    'broth', 'stock', 'vegetable stock', 'chicken stock', 'beef stock',
-    'oil', 'neutral oil', 'vegetable oil', 'olive oil', 'coconut oil', 'canola oil',
-    'coconut milk', 'coconut milk (canned)', 'juice', 'lemon juice', 'lime juice', 'orange juice',
-    'vinegar', 'soy sauce'
-  ].map(normalizeKey));
+  const volumeFirst = new Set(runtimeConversions?.volumeFirst || []);
 
   const getDisplayPref = (ingName) => {
     const lower = (ingName || '').toLowerCase();
@@ -857,6 +755,54 @@ function cookbookApp() {
   };
   const deletedRecipeIds = loadDeletedRecipeIds();
 
+  const EXPERIMENTS_KEY = 'cookbook-experiments';
+  const loadExperimentsFromStorage = () => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(EXPERIMENTS_KEY) || '[]');
+      return Array.isArray(parsed) ? parsed.filter((item) => item && typeof item === 'object' && item.id && item.recipe_id) : [];
+    } catch (_) {
+      return [];
+    }
+  };
+  const saveExperimentsToStorage = (experiments) => {
+    try {
+      localStorage.setItem(EXPERIMENTS_KEY, JSON.stringify(experiments));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+  const localToday = () => {
+    const now = new Date();
+    return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  };
+  const hashString = (value) => {
+    let hash = 2166136261;
+    const text = String(value);
+    for (let i = 0; i < text.length; i += 1) {
+      hash ^= text.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(16);
+  };
+
+  const SELECTED_RECIPE_KEY = 'cookbook-selected-recipe';
+  const loadSelectedRecipeId = () => {
+    try {
+      return localStorage.getItem(SELECTED_RECIPE_KEY) || '';
+    } catch (_) {
+      return '';
+    }
+  };
+  const saveSelectedRecipeId = (id) => {
+    try {
+      if (id) localStorage.setItem(SELECTED_RECIPE_KEY, id);
+      else localStorage.removeItem(SELECTED_RECIPE_KEY);
+    } catch (_) {
+      /* selection persistence is best-effort */
+    }
+  };
+
   // Load recipes from localStorage
   const loadRecipesFromStorage = () => {
     try {
@@ -931,7 +877,10 @@ function cookbookApp() {
   console.log('[DEBUG] sampleRecipes:', sampleRecipes);
   const recipesToUse = (Array.isArray(initialRecipes) && initialRecipes.length > 0) ? initialRecipes : sampleRecipes;
   const firstRecipe = recipesToUse[0] || { id: 'empty', meta: { name: 'No Recipe', source: '', base_servings: 1 }, ingredients: [], steps: [], science_notes: [] };
-  const initialSelectedId = requestedRecipeId || firstRecipe.id;
+  const storedSelectedId = loadSelectedRecipeId();
+  const initialSelectedId = requestedRecipeId
+    || (storedSelectedId && !deletedRecipeIds.has(storedSelectedId) ? storedSelectedId : '')
+    || firstRecipe.id;
   const initialRecipe = recipesToUse.find(r => r.id === initialSelectedId) || firstRecipe;
   let nutritionCache = { key: null, value: null };
 
@@ -943,9 +892,53 @@ function cookbookApp() {
     nutritionLoaded: false,
     nutritionError: null,
     nutritionVersion: 0,
+    importErrors: [],
+    importWarnings: [],
+    experiments: loadExperimentsFromStorage(),
+    experimentJson: '',
+    experimentStatus: '',
+    experimentSaved: false,
+    editingExperimentId: null,
+    comparisonAId: '',
+    comparisonBId: '',
+    experimentForm: {
+      date: localToday(),
+      recipe_id: '',
+      variation_id: 'weeknight',
+      recipe_revision: '',
+      equipment: {
+        pan_type: '',
+        pan_size_inches: '',
+        surface: '',
+        stovetop_pre_sear: false,
+        oven_temperature_c: '',
+        baking_minutes: '',
+        broiler_used: false
+      },
+      ingredient_changes: '',
+      observations: {
+        top_crispness: '',
+        bottom_crispness: '',
+        mushroom_intensity: '',
+        creaminess: '',
+        sticking: '',
+        cleaning_difficulty: '',
+        ease_of_serving: ''
+      },
+      actual_elapsed_minutes: '',
+      cost_cad: '',
+      notes: ''
+    },
       stepSignals: { temp: null, timeMinutes: null },
     async init() {
       console.log('[DEBUG] init() called');
+      if (typeof window !== 'undefined' && !this._historyBound) {
+        this._historyBound = true;
+        window.addEventListener('popstate', () => {
+          const id = new URLSearchParams(window.location.search).get('recipe');
+          if (id) this.loadRecipe(id, { skipUrl: true });
+        });
+      }
       console.log('[DEBUG] recipes array:', this.recipes);
       console.log('[DEBUG] selectedId:', this.selectedId);
       console.log('[DEBUG] current:', this.current);
@@ -989,10 +982,18 @@ function cookbookApp() {
         // Keep selector stable and alphabetized
         this.recipes.sort((a, b) => (a.meta?.name || a.id).localeCompare(b.meta?.name || b.id));
 
-        // Honour ?recipe=<id> when it exists; otherwise fall back to the first
-        // recipe in the index if nothing valid is selected.
-        if (!this.selectedId || !this.recipes.some(r => r.id === this.selectedId)) {
-          if (this.recipes.length > 0) this.selectedId = this.recipes[0].id;
+        // Precedence: a valid ?recipe= link, then a valid stored selection,
+        // then the first recipe. Never revive a tombstoned library recipe.
+        const selectedIsValid = this.selectedId
+          && !deletedRecipeIds.has(this.selectedId)
+          && this.recipes.some(r => r.id === this.selectedId);
+        if (!selectedIsValid) {
+          const stored = loadSelectedRecipeId();
+          const storedIsValid = stored
+            && !deletedRecipeIds.has(stored)
+            && this.recipes.some(r => r.id === stored);
+          if (storedIsValid) this.selectedId = stored;
+          else if (this.recipes.length > 0) this.selectedId = this.recipes[0].id;
         }
 
         if (this.selectedId) {
@@ -1008,6 +1009,7 @@ function cookbookApp() {
     recipes: recipesToUse,
     selectedId: initialSelectedId,
     current: clone(initialRecipe),
+    _historyBound: false,
     servings: initialRecipe.meta?.base_servings || 1,
     hasUnsavedChanges: false,
     wwMode: true,
@@ -1016,7 +1018,7 @@ function cookbookApp() {
     precisionMode: false,
     showCopyright: false,
     yamlText: '',
-    bookmarkletCode: 'javascript:(async()=>{try{const ld=[...document.querySelectorAll("script[type=\\"application/ld+json\\"]")].map(e=>{try{return JSON.parse(e.textContent)}catch{return null}}).flat().filter(Boolean);const r=ld.find(n=>{const t=n["@type"];return Array.isArray(t)?t.includes("Recipe"):t==="Recipe"});if(!r)throw new Error("No JSON-LD recipe found");const toA=v=>Array.isArray(v)?v:(v?[v]:[]);const norm=name=>String(name).replace(/[\\n\\r\\t\\u00AD\\u200B\\u200C\\u200D\\u2060\\xA0]+/g," ").replace(/½/g,"1/2").replace(/¼/g,"1/4").replace(/¾/g,"3/4").replace(/⅓/g,"1/3").replace(/⅔/g,"2/3").replace(/⅕/g,"1/5").replace(/⅖/g,"2/5").replace(/⅗/g,"3/5").replace(/⅘/g,"4/5").replace(/⅙/g,"1/6").replace(/⅚/g,"5/6").replace(/⅛/g,"1/8").replace(/⅜/g,"3/8").replace(/⅝/g,"5/8").replace(/⅞/g,"7/8").replace(/\\s+/g," ").trim();const m=new Map();toA(r.recipeIngredient).forEach(raw=>{const normalized=norm(raw);if(!m.has(normalized))m.set(normalized,{name:normalized,qty_g:0,vol_est:normalized,function:"",ww_points:0,substitutions:[]})});const ing=Array.from(m.values());const steps=toA(r.recipeInstructions).map(s=>typeof s==="string"?s.trim():String(s&&s.text||s&&s["@type"]||"").trim()).filter(Boolean);let src=r.url||r.mainEntityOfPage;if(typeof src==="object")src=src["@id"]||src.url||"";src=src||location.href;const y=[];y.push("meta:");y.push(`  name: ${r.name||"Unknown Recipe"}`);y.push(`  source: ${src}`);y.push(`  base_servings: ${r.recipeYield||1}`);y.push(`  prep_time: ${r.totalTime||""}`);y.push("ingredients:");ing.forEach(i=>{y.push(`  - name: ${i.name}`);y.push(`    qty_g: ${i.qty_g}`);y.push(`    vol_est: "${i.vol_est}"`);y.push("    function: ");y.push("    ww_points: ");y.push("    substitutions: []")});y.push("steps:");steps.forEach(s=>y.push(`  - ${s.replace(/\\n/g," ")}`));y.push("history: []");const txt=y.join("\\n");await navigator.clipboard.writeText(txt);alert("Recipe YAML copied! Paste into import box, then fill in qty_g values.")}catch(e){alert("Bookmarklet error: "+e.message)}})();',
+    bookmarkletCode: 'javascript:(async()=>{try{const ld=[...document.querySelectorAll("script[type=\\"application/ld+json\\"]")].map(e=>{try{return JSON.parse(e.textContent)}catch{return null}}).flat().filter(Boolean);const r=ld.find(n=>{const t=n["@type"];return Array.isArray(t)?t.includes("Recipe"):t==="Recipe"});if(!r)throw new Error("No JSON-LD recipe found");const toA=v=>Array.isArray(v)?v:(v?[v]:[]);const norm=name=>String(name).replace(/[\\n\\r\\t\\u00AD\\u200B\\u200C\\u200D\\u2060\\xA0]+/g," ").replace(/½/g,"1/2").replace(/¼/g,"1/4").replace(/¾/g,"3/4").replace(/⅓/g,"1/3").replace(/⅔/g,"2/3").replace(/⅕/g,"1/5").replace(/⅖/g,"2/5").replace(/⅗/g,"3/5").replace(/⅘/g,"4/5").replace(/⅙/g,"1/6").replace(/⅚/g,"5/6").replace(/⅛/g,"1/8").replace(/⅜/g,"3/8").replace(/⅝/g,"5/8").replace(/⅞/g,"7/8").replace(/\\s+/g," ").trim();const m=new Map();toA(r.recipeIngredient).forEach(raw=>{const normalized=norm(raw);if(!m.has(normalized))m.set(normalized,{name:normalized,qty_g:null,vol_est:normalized,function:"",ww_points:null,substitutions:[]})});const ing=Array.from(m.values());const steps=toA(r.recipeInstructions).map(s=>typeof s==="string"?s.trim():String(s&&s.text||s&&s["@type"]||"").trim()).filter(Boolean);let src=r.url||r.mainEntityOfPage;if(typeof src==="object")src=src["@id"]||src.url||"";src=src||location.href;const y=[];y.push("meta:");y.push(`  name: ${r.name||"Unknown Recipe"}`);y.push(`  source: ${src}`);y.push(`  base_servings: ${r.recipeYield||1}`);y.push(`  prep_time: ${r.totalTime||""}`);y.push("ingredients:");ing.forEach(i=>{y.push(`  - name: ${i.name}`);y.push(`    qty_g: ${i.qty_g}`);y.push(`    vol_est: "${i.vol_est}"`);y.push("    function: ");y.push("    ww_points: ");y.push("    substitutions: []")});y.push("steps:");steps.forEach(s=>y.push(`  - ${s.replace(/\\n/g," ")}`));y.push("history: []");const txt=y.join("\\n");await navigator.clipboard.writeText(txt);alert("Recipe YAML copied! Paste into import box, then fill in qty_g values.")}catch(e){alert("Bookmarklet error: "+e.message)}})();',
     prefs: loadPrefs() || defaultPrefs,
 
     async loadRecipe(id = this.selectedId, opts = {}) {
@@ -1024,6 +1026,13 @@ function cookbookApp() {
       if (!recipeId) return;
 
       this.selectedId = recipeId;
+      saveSelectedRecipeId(recipeId);
+      if (!opts.skipUrl && typeof window !== 'undefined' && window.history) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('recipe', recipeId);
+        const method = opts.pushHistory ? 'pushState' : 'replaceState';
+        window.history[method]({ recipeId }, '', url);
+      }
       this.loadingRecipeId = recipeId;
 
       try {
@@ -1055,6 +1064,7 @@ function cookbookApp() {
           console.log('[DEBUG] current.ingredients length:', this.current.ingredients?.length);
           console.log('[DEBUG] current.steps length:', this.current.steps?.length);
           this.stepSignals = extractStepSignals(this.current.steps || []);
+          this.prepareExperimentForm();
         }
       } finally {
         this.loadingRecipeId = null;
@@ -1109,9 +1119,16 @@ function cookbookApp() {
       try {
         const parsed = jsyaml.load(this.yamlText);
         console.log('Parsed YAML:', parsed);
-        if (!parsed || !parsed.meta || !parsed.ingredients) {
-          alert('YAML missing meta or ingredients');
-          console.error('Parse failed:', { meta: !!parsed?.meta, ingredients: !!parsed?.ingredients });
+        if (!parsed || typeof parsed !== 'object' || !parsed.meta || !parsed.ingredients) {
+          this.importErrors = [{
+            path: '(root)',
+            message: 'YAML must contain both a meta mapping and an ingredients list.'
+          }];
+          this.importWarnings = [];
+          setTimeout(() => {
+            const panel = document.getElementById('import-errors');
+            if (panel) panel.focus();
+          }, 0);
           return;
         }
         
@@ -1134,50 +1151,73 @@ function cookbookApp() {
         parsed.meta.name = cleanUnicode(decodeEntities(parsed.meta.name || ''));
         if (parsed.meta && typeof parsed.meta.source === 'object') parsed.meta.source = parsed.meta.source.url || parsed.meta.source['@id'] || '';
         if (parsed.meta && typeof parsed.meta.source !== 'string') parsed.meta.source = '';
-        // clean base_servings: strip non-numeric, take first number if comma-separated
-        const baseStr = String(parsed.meta.base_servings || '').split(/[ ,]/)[0];
-        const baseServ = Number(baseStr.replace(/[^0-9.]/g, ''));
-        parsed.meta.base_servings = Number.isFinite(baseServ) && baseServ > 0 ? baseServ : 1;
+        // Normalize base_servings only when a positive number can be read.
+        // Invalid values remain invalid so the shared validator can report them.
+        const rawBase = parsed.meta.base_servings;
+        const baseMatch = String(rawBase ?? '').match(/\d+(?:\.\d+)?/);
+        if (baseMatch && Number(baseMatch[0]) > 0) {
+          parsed.meta.base_servings = Number(baseMatch[0]);
+        } else {
+          parsed.meta.base_servings = rawBase;
+        }
 
-        // Normalize ingredients and dedupe
-        const seen = new Set();
+        // Normalize ingredients. Never deduplicate by name: the same ingredient
+        // may legitimately appear twice for different purposes/components.
+        const invalidQuantities = [];
         parsed.ingredients = (parsed.ingredients || []).map(ing => {
-          let qty = Number(ing.qty_g);
           const rawName = cleanUnicode(ing.name || '');
           const cleanedName = cleanIngredientName(rawName);
           const volEstClean = cleanUnicode(ing.vol_est || '');
+          const rawQty = typeof ing.qty_g === 'string' && ing.qty_g.trim() !== ''
+            ? Number(ing.qty_g)
+            : ing.qty_g;
+          const invalidQty = rawQty !== null && rawQty !== undefined && rawQty !== ''
+            && !(typeof rawQty === 'number' && Number.isFinite(rawQty) && rawQty >= 0);
+          if (invalidQty) invalidQuantities.push(cleanedName || `ingredient ${parsed.ingredients.indexOf(ing) + 1}`);
+          const hasExplicitQty = typeof rawQty === 'number' && Number.isFinite(rawQty) && rawQty >= 0;
+          let qty = hasExplicitQty ? rawQty : null;
           let estimated = false;
-          if (!Number.isFinite(qty) || qty <= 0) {
-            const est = autoEstimateQty(volEstClean, cleanedName);
-            if (est > 0) {
-              qty = est;
+          let method = hasExplicitQty ? 'explicit' : 'unknown';
+
+          if (!hasExplicitQty) {
+            const estimate = autoEstimateQty(volEstClean, cleanedName);
+            if (estimate > 0) {
+              qty = estimate;
               estimated = true;
+              method = 'estimated_from_description';
             }
           }
+
+          const source = ing.quantity_source && typeof ing.quantity_source === 'object'
+            ? ing.quantity_source
+            : {};
+
           return {
             ...ing,
             name: cleanedName,
             qty_g: qty,
             vol_est: volEstClean,
             estimated,
+            quantity_source: {
+              ...source,
+              original: source.original ?? (volEstClean || cleanedName),
+              method: source.method || method,
+              reviewed: source.reviewed === true
+            },
             function: ing.function || '',
-            ww_points: ing.ww_points || 0,
+            // Preserve null (not calculated) and 0 (explicitly zero) exactly.
+            ww_points: ing.ww_points === undefined ? null : ing.ww_points,
             substitutions: ing.substitutions || []
           };
-        }).filter(ing => {
-          const key = `${ing.name.toLowerCase()}`;
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
         });
 
-        const missing = parsed.ingredients.filter(ing => !Number.isFinite(ing.qty_g) || ing.qty_g <= 0).map(ing => ing.name);
-        if (missing.length > 0) {
-          alert(`Heads up: ${missing.length} ingredient(s) still missing grams and will not scale: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '...' : ''}`);
+        const unknownQuantities = parsed.ingredients.filter(ing => ing.qty_g === null).map(ing => ing.name);
+        const estimatedQuantities = parsed.ingredients.filter(ing => ing.estimated).map(ing => `${ing.name} (${Math.round(ing.qty_g)}g estimated)`);
+        if (unknownQuantities.length > 0) {
+          console.info('[INFO] Unknown quantities:', unknownQuantities);
         }
-        const estimated = parsed.ingredients.filter(ing => ing.estimated).map(ing => `${ing.name} (${ing.qty_g}g estimated)`);
-        if (estimated.length > 0) {
-          console.info('[INFO] Estimated qty_g for:', estimated);
+        if (estimatedQuantities.length > 0) {
+          console.info('[INFO] Estimated qty_g for:', estimatedQuantities);
         }
 
         // Normalize steps (ensure strings and decode entities)
@@ -1189,13 +1229,37 @@ function cookbookApp() {
           return decodeEntities(String(s));
         }).filter(s => s && s.trim().length > 0);
 
-        const requestedId = typeof parsed.id === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(parsed.id)
+        const hasExplicitId = typeof parsed.id === 'string' && parsed.id.trim() !== '';
+        const validExplicitId = hasExplicitId && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(parsed.id);
+        if (hasExplicitId && !validExplicitId) {
+          this.importErrors = [{ path: 'id', message: 'Recipe id must use lowercase letters, digits, and single hyphens.' }];
+          this.importWarnings = [];
+          setTimeout(() => {
+            const panel = document.getElementById('import-errors');
+            if (panel) panel.focus();
+          }, 0);
+          return;
+        }
+        const requestedId = validExplicitId
           ? parsed.id
           : this.slugify(parsed.meta.name || `recipe-${Date.now()}`);
         if (this.recipes.some(r => r.id === requestedId)
           && !confirm(`A recipe with id "${requestedId}" already exists. Replace it?`)) {
           return;
         }
+        if (invalidQuantities.length > 0) {
+          this.importErrors = invalidQuantities.map((name) => ({
+            path: 'ingredients',
+            message: `${name}: qty_g must be a non-negative number or null.`
+          }));
+          this.importWarnings = [];
+          setTimeout(() => {
+            const panel = document.getElementById('import-errors');
+            if (panel) panel.focus();
+          }, 0);
+          return;
+        }
+
         const recipe = {
           ...parsed,
           id: requestedId,
@@ -1205,12 +1269,52 @@ function cookbookApp() {
           science_notes: Array.isArray(parsed.science_notes) ? parsed.science_notes : [],
           history: parsed.history || []
         };
+
+        if (!recipeValidation) {
+          this.importErrors = [{ path: '(validator)', message: 'Recipe validator is unavailable. Reload the page before importing.' }];
+          this.importWarnings = [];
+          return;
+        }
+
+        const validation = recipeValidation.validateRecipe(recipe, {
+          schema: recipeSchema,
+          legacyWarnings: false
+        });
+        this.importWarnings = validation.warnings.slice();
+        if (unknownQuantities.length > 0) {
+          this.importWarnings.push({
+            path: 'ingredients',
+            message: `${unknownQuantities.length} ingredient(s) have unknown quantities and will not scale: ${unknownQuantities.slice(0, 5).join(', ')}${unknownQuantities.length > 5 ? '...' : ''}`
+          });
+        }
+        if (estimatedQuantities.length > 0) {
+          this.importWarnings.push({
+            path: 'ingredients',
+            message: `${estimatedQuantities.length} quantity estimate(s) are marked as estimated, not verified.`
+          });
+        }
+
+        if (!validation.valid) {
+          this.importErrors = validation.errors;
+          setTimeout(() => {
+            const panel = document.getElementById('import-errors');
+            if (panel) panel.focus();
+          }, 0);
+          return;
+        }
+
+        this.importErrors = [];
         this.upsertRecipe(recipe);
         this.selectedId = requestedId;
         this.loadRecipe();
         this.stepSignals = extractStepSignals(recipe.steps || []);
       } catch (e) {
-        alert('YAML parse error: ' + e.message);
+        this.importErrors = [{ path: '(root)', message: e.message }];
+        this.importWarnings = [];
+        setTimeout(() => {
+          const panel = document.getElementById('import-errors');
+          if (panel) panel.focus();
+        }, 0);
       }
     },
 
@@ -1244,12 +1348,28 @@ function cookbookApp() {
           return;
         }
         const recipe = { id, ...mapped };
+        if (!recipeValidation) {
+          this.importErrors = [{ path: '(validator)', message: 'Recipe validator is unavailable. Reload the page before importing.' }];
+          this.importWarnings = [];
+          return;
+        }
+        const validation = recipeValidation.validateRecipe(recipe, { schema: recipeSchema });
+        this.importErrors = validation.errors;
+        this.importWarnings = validation.warnings;
+        if (!validation.valid) {
+          setTimeout(() => {
+            const panel = document.getElementById('import-errors');
+            if (panel) panel.focus();
+          }, 0);
+          return;
+        }
         this.upsertRecipe(recipe);
         this.selectedId = id;
         this.loadRecipe();
         this.stepSignals = extractStepSignals(recipe.steps || []);
       } catch (e) {
-        alert('ORF import error: ' + e.message);
+        this.importErrors = [{ path: '(root)', message: e.message }];
+        this.importWarnings = [];
       }
     },
 
@@ -1278,6 +1398,7 @@ function cookbookApp() {
         saveDeletedRecipeIds(deletedRecipeIds);
       }
       this.recipes = this.recipes.filter(r => r.id !== this.selectedId);
+      saveSelectedRecipeId('');
       this.persistRecipes();
       this.hasUnsavedChanges = true;
       if (this.recipes.length > 0) {
@@ -1291,6 +1412,7 @@ function cookbookApp() {
     async collectFullRecipes() {
       const recipes = [];
       const failed = [];
+      const expected = this.recipes.length;
       for (const recipe of this.recipes) {
         const incomplete = recipe._placeholder
           || !Array.isArray(recipe.ingredients)
@@ -1304,21 +1426,55 @@ function cookbookApp() {
           }
           full = fetched;
         }
+        if (!Array.isArray(full.ingredients) || full.ingredients.length === 0
+          || !Array.isArray(full.steps) || full.steps.length === 0) {
+          failed.push(recipe.id);
+          continue;
+        }
         const copy = clone(full);
         delete copy._placeholder;
         recipes.push(copy);
       }
-      return { recipes, failed };
+      return { recipes, failed, expected };
+    },
+
+    buildExportManifest({ expected, recipes, failed }) {
+      return {
+        format_version: '2.0',
+        export_type: failed.length ? 'partial' : 'complete',
+        expected_recipes: expected,
+        exported_recipes: recipes.length,
+        missing_recipe_ids: failed
+      };
+    },
+
+    async prepareExport() {
+      let result = await this.collectFullRecipes();
+      if (result.failed.length > 0) {
+        const retry = confirm(`Could not load ${result.failed.length} recipe(s): ${result.failed.join(', ')}. Retry before exporting?`);
+        if (retry) result = await this.collectFullRecipes();
+      }
+      if (result.failed.length > 0) {
+        const partial = confirm(`Still missing ${result.failed.length} recipe(s): ${result.failed.join(', ')}. Export a partial backup that explicitly lists them? Choose Cancel to stop.`);
+        if (!partial) {
+          alert('Export cancelled. No backup was created.');
+          return null;
+        }
+      }
+      return result;
     },
 
     async downloadBackup() {
       try {
-        const { recipes, failed } = await this.collectFullRecipes();
+        const result = await this.prepareExport();
+        if (!result) return;
+        const { recipes, failed, expected } = result;
         const backup = {
-          version: '1.1',
+          version: '2.0',
           exported: new Date().toISOString(),
           count: recipes.length,
           deleted_recipe_ids: [...deletedRecipeIds],
+          manifest: this.buildExportManifest({ expected, recipes, failed }),
           recipes
         };
         const json = JSON.stringify(backup, null, 2);
@@ -1332,8 +1488,11 @@ function cookbookApp() {
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
         this.hasUnsavedChanges = false;
-        const warning = failed.length ? ` ${failed.length} recipe(s) could not be fetched: ${failed.join(', ')}.` : '';
-        alert(`Backed up ${recipes.length} recipes as JSON.${warning}`);
+        if (failed.length) {
+          alert(`Partial JSON backup: ${recipes.length} of ${expected} recipes. Missing: ${failed.join(', ')}.`);
+        } else {
+          alert(`Complete JSON backup: ${recipes.length} recipes.`);
+        }
       } catch (err) {
         alert('Backup failed: ' + err.message);
       }
@@ -1345,12 +1504,15 @@ function cookbookApp() {
         return;
       }
       try {
-        const { recipes, failed } = await this.collectFullRecipes();
+        const result = await this.prepareExport();
+        if (!result) return;
+        const { recipes, failed, expected } = result;
         const zip = new JSZip();
         recipes.forEach(recipe => {
           const yaml = jsyaml.dump(recipe, { lineWidth: 120 });
           zip.file(`${recipe.id}.yaml`, yaml);
         });
+        zip.file('manifest.json', JSON.stringify(this.buildExportManifest({ expected, recipes, failed }), null, 2));
         const blob = await zip.generateAsync({ type: 'blob' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1360,8 +1522,11 @@ function cookbookApp() {
         a.click();
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-        const warning = failed.length ? ` ${failed.length} recipe(s) could not be fetched: ${failed.join(', ')}.` : '';
-        alert(`Downloaded ${recipes.length} recipes as YAML files.${warning}`);
+        if (failed.length) {
+          alert(`Partial ZIP backup: ${recipes.length} of ${expected} recipes. Missing: ${failed.join(', ')}. See manifest.json.`);
+        } else {
+          alert(`Complete ZIP backup: ${recipes.length} recipes.`);
+        }
       } catch (err) {
         alert('ZIP export failed: ' + err.message);
       }
@@ -1420,7 +1585,7 @@ function cookbookApp() {
           name: first.name,
           ratio: first.ratio || 1,
           science_note: first.science_note || '',
-          ww_points: first.ww_points || 0,
+          ww_points: first.ww_points ?? null,
           tags: ['veg']
         };
       }
@@ -1451,7 +1616,10 @@ function cookbookApp() {
         
         // No auto-swap; surface suggestions instead
         const shouldScale = ing.no_scale !== true;
-        const qty = shouldScale ? this.scaledQty(ing.qty_g) : ing.qty_g;
+        const hasQuantity = typeof ing.qty_g === 'number' && Number.isFinite(ing.qty_g) && ing.qty_g > 0;
+        const qty = hasQuantity
+          ? (shouldScale ? this.scaledQty(ing.qty_g) : ing.qty_g)
+          : ing.qty_g;
         const nutrition = ingredientNutrition(baseName, qty);
         const nutritionTooltip = nutrition
           ? `${nutrition.calories} kcal • P ${nutrition.protein}g • F ${nutrition.fat}g • C ${nutrition.carbs}g${nutrition.fiber ? ' • Fiber ' + nutrition.fiber + 'g' : ''}`
@@ -1473,6 +1641,9 @@ function cookbookApp() {
           ww_points: ing.ww_points,
           science_note: suggestion ? suggestion.text : '',
           swapped: false,
+          hasQuantity,
+          quantity_source: ing.quantity_source || null,
+          quantityUnknown: !hasQuantity && ing.estimated !== true,
           estimated: ing.estimated === true,
           nutrition,
           nutritionTooltip,
@@ -1494,10 +1665,12 @@ function cookbookApp() {
       if (nutritionCache.key === cacheKey) return nutritionCache.value;
 
       const base = { calories: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 };
-      const missing = [];
+      const missingQuantities = [];
+      const missingReferences = [];
       this.displayIngredients().forEach(ing => {
         if (!ing.nutrition) {
-          missing.push(ing.displayName);
+          if (!ing.hasQuantity) missingQuantities.push(ing.displayName);
+          else missingReferences.push(ing.displayName);
           return;
         }
         base.calories += ing.nutrition.calories || 0;
@@ -1514,28 +1687,344 @@ function cookbookApp() {
         carbs: +(base.carbs / servings).toFixed(1),
         fiber: +(base.fiber / servings).toFixed(1)
       };
+      const missing = [...missingQuantities, ...missingReferences];
       const value = {
         total: base,
         per,
         coverage: {
           covered: ingredients.length - missing.length,
           total: ingredients.length,
-          missing
+          missing,
+          missingQuantities,
+          missingReferences
         }
       };
       nutritionCache = { key: cacheKey, value };
       return value;
     },
 
+    nutritionCoverageLabel() {
+      const coverage = this.nutritionSummary().coverage;
+      return coverage.missing.length ? 'Known-ingredient subtotal' : 'Estimated nutrition total';
+    },
+
     nutritionCoverageText() {
       const coverage = this.nutritionSummary().coverage;
       if (!coverage.total) return '';
-      const base = `Approximate: nutrition data covers ${coverage.covered} of ${coverage.total} ingredients.`;
-      const caveat = ' Values are per-100 g references, not lab measurements.';
-      if (!coverage.missing.length) return `${base}${caveat}`;
-      const names = coverage.missing.slice(0, 3).join(', ');
-      const more = coverage.missing.length > 3 ? ` and ${coverage.missing.length - 3} more` : '';
-      return `${base} Not counted: ${names}${more}.${caveat}`;
+      const parts = [`Approximate: nutrition data covers ${coverage.covered} of ${coverage.total} ingredients.`];
+      if (coverage.missingQuantities.length) {
+        parts.push(`${coverage.missingQuantities.length} ingredient(s) lack a usable quantity.`);
+      }
+      if (coverage.missingReferences.length) {
+        parts.push(`${coverage.missingReferences.length} ingredient(s) lack reference data.`);
+      }
+      if (coverage.missing.length) {
+        const names = coverage.missing.slice(0, 3).join(', ');
+        const more = coverage.missing.length > 3 ? ` and ${coverage.missing.length - 3} more` : '';
+        parts.push(`Not counted: ${names}${more}. Actual nutrition will be higher or otherwise different.`);
+      }
+      parts.push('Values are per-100 g references, not lab measurements.');
+      return parts.join(' ');
+    },
+
+    provenanceText(provenance) {
+      if (!provenance) return '';
+      const type = provenance.type ? provenance.type.replace(/_/g, ' ') : 'provenance';
+      const status = provenance.status ? provenance.status.replace(/_/g, ' ') : '';
+      return status ? `${type} · ${status}` : type;
+    },
+
+    equipmentText(item) {
+      if (!item) return '';
+      const parts = [];
+      if (item.name) parts.push(item.name);
+      else if (item.type) parts.push(item.type.replace(/_/g, ' '));
+      if (item.base) parts.push(`${item.base} base`);
+      if (item.size_inches) parts.push(`${item.size_inches} in`);
+      return parts.join(' · ');
+    },
+
+    outcomesText(outcomes) {
+      if (!Array.isArray(outcomes) || outcomes.length === 0) return '';
+      return outcomes.map((outcome) => String(outcome).replace(/_/g, ' ')).join(', ');
+    },
+
+    recipeFingerprint() {
+      if (!this.current) return '';
+      return hashString(JSON.stringify({
+        id: this.current.id,
+        meta: this.current.meta,
+        ingredients: this.current.ingredients,
+        steps: this.current.steps
+      }));
+    },
+
+    prepareExperimentForm() {
+      const id = this.current?.id || '';
+      if (this.experimentForm.recipe_id !== id) this.resetExperimentForm();
+      this.refreshComparison();
+    },
+
+    resetExperimentForm() {
+      this.experimentForm = {
+        date: localToday(),
+        recipe_id: this.current?.id || '',
+        variation_id: 'weeknight',
+        recipe_revision: this.recipeFingerprint(),
+        equipment: {
+          pan_type: '',
+          pan_size_inches: '',
+          surface: '',
+          stovetop_pre_sear: false,
+          oven_temperature_c: '',
+          baking_minutes: '',
+          broiler_used: false
+        },
+        ingredient_changes: '',
+        observations: {
+          top_crispness: '',
+          bottom_crispness: '',
+          mushroom_intensity: '',
+          creaminess: '',
+          sticking: '',
+          cleaning_difficulty: '',
+          ease_of_serving: ''
+        },
+        actual_elapsed_minutes: '',
+        cost_cad: '',
+        notes: ''
+      };
+      this.editingExperimentId = null;
+      this.experimentSaved = false;
+      this.experimentStatus = 'No experiment saved yet.';
+    },
+
+    numberOrNull(value) {
+      if (value === '' || value === null || value === undefined) return null;
+      const number = Number(value);
+      return Number.isFinite(number) && number >= 0 ? number : null;
+    },
+
+    ratingOrNull(value) {
+      if (value === '' || value === null || value === undefined) return null;
+      const number = Number(value);
+      return Number.isInteger(number) && number >= 1 && number <= 5 ? number : null;
+    },
+
+    experimentsForCurrent() {
+      const id = this.current?.id;
+      if (!id) return [];
+      return this.experiments
+        .filter((experiment) => experiment.recipe_id === id)
+        .slice()
+        .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) || String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
+    },
+
+    experimentValue(value, suffix = '') {
+      if (value === null || value === undefined || value === '') return 'Not recorded';
+      if (value === true) return 'Yes';
+      if (value === false) return 'No';
+      return `${value}${suffix}`;
+    },
+
+    experimentLabel(experiment) {
+      const pan = experiment?.equipment?.pan_type || 'pan not recorded';
+      return `${experiment?.date || 'date not recorded'} · ${pan.replace(/_/g, ' ')}`;
+    },
+
+    markExperimentDirty() {
+      if (!this.experimentSaved) return;
+      this.experimentSaved = false;
+      this.experimentStatus = 'Unsaved changes.';
+    },
+
+    saveExperiment() {
+      const form = this.experimentForm || {};
+      const recipeId = this.current?.id || form.recipe_id;
+      if (!recipeId) {
+        this.experimentStatus = 'Open a recipe before saving an experiment.';
+        return;
+      }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(form.date || ''))) {
+        this.experimentStatus = 'Enter a valid cooking date (YYYY-MM-DD).';
+        return;
+      }
+
+      const equipment = form.equipment || {};
+      const observations = form.observations || {};
+      const existing = this.experiments.find((experiment) => experiment.id === this.editingExperimentId);
+      const record = {
+        id: existing?.id || `exp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        recipe_id: recipeId,
+        variation_id: form.variation_id || 'weeknight',
+        recipe_revision: form.recipe_revision || this.recipeFingerprint(),
+        date: form.date,
+        equipment: {
+          pan_type: equipment.pan_type || '',
+          pan_size_inches: this.numberOrNull(equipment.pan_size_inches),
+          surface: equipment.surface || '',
+          stovetop_pre_sear: equipment.stovetop_pre_sear === true,
+          oven_temperature_c: this.numberOrNull(equipment.oven_temperature_c),
+          baking_minutes: this.numberOrNull(equipment.baking_minutes),
+          broiler_used: equipment.broiler_used === true
+        },
+        ingredient_changes: String(form.ingredient_changes || '').trim(),
+        observations: {
+          top_crispness: this.ratingOrNull(observations.top_crispness),
+          bottom_crispness: this.ratingOrNull(observations.bottom_crispness),
+          mushroom_intensity: this.ratingOrNull(observations.mushroom_intensity),
+          creaminess: this.ratingOrNull(observations.creaminess),
+          sticking: this.ratingOrNull(observations.sticking),
+          cleaning_difficulty: this.ratingOrNull(observations.cleaning_difficulty),
+          ease_of_serving: this.ratingOrNull(observations.ease_of_serving)
+        },
+        actual_elapsed_minutes: this.numberOrNull(form.actual_elapsed_minutes),
+        cost_cad: this.numberOrNull(form.cost_cad),
+        notes: String(form.notes || '').trim(),
+        created_at: existing?.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const index = this.experiments.findIndex((experiment) => experiment.id === record.id);
+      const next = this.experiments.slice();
+      if (index >= 0) next.splice(index, 1, record);
+      else next.push(record);
+
+      if (!saveExperimentsToStorage(next)) {
+        this.experimentStatus = 'Could not save the experiment in this browser. Storage may be full or unavailable.';
+        return;
+      }
+      this.experiments = next;
+      this.editingExperimentId = record.id;
+      this.experimentSaved = true;
+      this.experimentStatus = 'Saved locally at ' + new Date().toLocaleTimeString() + '.';
+      this.refreshComparison();
+    },
+
+    editExperiment(id) {
+      const experiment = this.experiments.find((item) => item.id === id);
+      if (!experiment) return;
+      const copy = clone(experiment);
+      this.experimentForm = {
+        date: copy.date || localToday(),
+        recipe_id: copy.recipe_id,
+        variation_id: copy.variation_id || 'weeknight',
+        recipe_revision: copy.recipe_revision || '',
+        equipment: { ...(copy.equipment || {}) },
+        ingredient_changes: copy.ingredient_changes || '',
+        observations: { ...(copy.observations || {}) },
+        actual_elapsed_minutes: copy.actual_elapsed_minutes ?? '',
+        cost_cad: copy.cost_cad ?? '',
+        notes: copy.notes || ''
+      };
+      this.editingExperimentId = id;
+      this.experimentSaved = true;
+      this.experimentStatus = 'Editing a saved experiment.';
+    },
+
+    deleteExperiment(id) {
+      if (!confirm('Delete this locally saved experiment? This cannot be undone.')) return;
+      const next = this.experiments.filter((experiment) => experiment.id !== id);
+      if (!saveExperimentsToStorage(next)) {
+        this.experimentStatus = 'Could not update experiment storage.';
+        return;
+      }
+      this.experiments = next;
+      if (this.editingExperimentId === id) this.resetExperimentForm();
+      this.experimentStatus = 'Experiment deleted from this browser.';
+      this.refreshComparison();
+    },
+
+    exportExperiments() {
+      this.experimentJson = JSON.stringify({
+        format_version: '1.0',
+        exported: new Date().toISOString(),
+        experiments: this.experiments
+      }, null, 2);
+      this.experimentStatus = 'Experiment JSON prepared. It has not been uploaded anywhere.';
+    },
+
+    importExperiments() {
+      let data;
+      try {
+        data = JSON.parse(this.experimentJson || '');
+      } catch (error) {
+        this.experimentStatus = 'Experiment import failed: invalid JSON.';
+        return;
+      }
+      const incoming = Array.isArray(data) ? data : data?.experiments;
+      if (!Array.isArray(incoming)) {
+        this.experimentStatus = 'Experiment import failed: expected an experiments array.';
+        return;
+      }
+      const valid = incoming.filter((experiment) => experiment && typeof experiment === 'object' && experiment.id && experiment.recipe_id);
+      if (valid.length !== incoming.length) {
+        this.experimentStatus = 'Experiment import failed: every record needs an id and recipe_id.';
+        return;
+      }
+      const next = this.experiments.slice();
+      for (const experiment of valid) {
+        const index = next.findIndex((item) => item.id === experiment.id);
+        if (index >= 0) {
+          if (!confirm(`An experiment with id "${experiment.id}" already exists. Replace it?`)) continue;
+          next.splice(index, 1, experiment);
+        } else {
+          next.push(experiment);
+        }
+      }
+      if (!saveExperimentsToStorage(next)) {
+        this.experimentStatus = 'Could not save imported experiments in this browser.';
+        return;
+      }
+      this.experiments = next;
+      this.experimentStatus = `Imported ${valid.length} experiment(s).`;
+      this.refreshComparison();
+    },
+
+    refreshComparison() {
+      const list = this.experimentsForCurrent();
+      if (list.length < 2) {
+        this.comparisonAId = '';
+        this.comparisonBId = '';
+        return;
+      }
+      const ids = new Set(list.map((experiment) => experiment.id));
+      if (!ids.has(this.comparisonAId)) this.comparisonAId = list[0].id;
+      if (!ids.has(this.comparisonBId) || this.comparisonBId === this.comparisonAId) {
+        this.comparisonBId = list.find((experiment) => experiment.id !== this.comparisonAId)?.id || '';
+      }
+    },
+
+    comparisonRows() {
+      const first = this.experiments.find((experiment) => experiment.id === this.comparisonAId);
+      const second = this.experiments.find((experiment) => experiment.id === this.comparisonBId);
+      if (!first || !second) return [];
+      const row = (label, getter) => ({
+        label,
+        a: getter(first),
+        b: getter(second)
+      });
+      return [
+        row('Date', (experiment) => this.experimentValue(experiment.date)),
+        row('Pan type', (experiment) => this.experimentValue(experiment.equipment?.pan_type)),
+        row('Pan size (inches)', (experiment) => this.experimentValue(experiment.equipment?.pan_size_inches)),
+        row('Surface', (experiment) => this.experimentValue(experiment.equipment?.surface)),
+        row('Stovetop pre-sear', (experiment) => this.experimentValue(experiment.equipment?.stovetop_pre_sear)),
+        row('Oven temperature (C)', (experiment) => this.experimentValue(experiment.equipment?.oven_temperature_c)),
+        row('Baking minutes', (experiment) => this.experimentValue(experiment.equipment?.baking_minutes)),
+        row('Broiler used', (experiment) => this.experimentValue(experiment.equipment?.broiler_used)),
+        row('Top crispness (1–5)', (experiment) => this.experimentValue(experiment.observations?.top_crispness)),
+        row('Bottom crispness (1–5)', (experiment) => this.experimentValue(experiment.observations?.bottom_crispness)),
+        row('Mushroom flavour (1–5)', (experiment) => this.experimentValue(experiment.observations?.mushroom_intensity)),
+        row('Interior creaminess (1–5)', (experiment) => this.experimentValue(experiment.observations?.creaminess)),
+        row('Sticking (1–5)', (experiment) => this.experimentValue(experiment.observations?.sticking)),
+        row('Cleaning difficulty (1–5)', (experiment) => this.experimentValue(experiment.observations?.cleaning_difficulty)),
+        row('Ease of serving (1–5)', (experiment) => this.experimentValue(experiment.observations?.ease_of_serving)),
+        row('Actual elapsed minutes', (experiment) => this.experimentValue(experiment.actual_elapsed_minutes)),
+        row('Approximate cost (CAD)', (experiment) => this.experimentValue(experiment.cost_cad)),
+        row('Recipe revision', (experiment) => this.experimentValue(experiment.recipe_revision)),
+        row('Notes', (experiment) => this.experimentValue(experiment.notes))
+      ];
     },
 
     formattedIngredient(ing) {
@@ -1568,7 +2057,9 @@ function cookbookApp() {
     },
 
     gramToVolume(name, grams) {
-      const density = densityPerCup[name] || 240;
+      const density = densityPerCup[name];
+      // No ingredient-specific density means no honest volume estimate.
+      if (!density) return null;
       const cups = grams / density;
       if (cups >= 0.5) {
         const val = roundToStep(cups, 0.25, 0.25);
@@ -1585,7 +2076,9 @@ function cookbookApp() {
     },
 
     gramToMl(name, grams) {
-      const density = densityPerCup[name] || 240; // grams per cup
+      const density = densityPerCup[name]; // grams per cup
+      // Do not use water density as a universal assumption.
+      if (!density) return null;
       const mlPerCup = 240;
       const ml = grams / density * mlPerCup;
       if (ml >= 1000) {
@@ -1675,8 +2168,10 @@ function cookbookApp() {
 
       // Best-fit: for auto system, prefer volume for liquids/condiments
       if (hasQty && this.prefs.system === 'auto' && prefersVolume(ingName)) {
-        if (this.prefs.volumeUnit === 'ml') return this.gramToMl(ingName.toLowerCase(), qty);
-        return this.gramToVolume(ingName.toLowerCase(), qty);
+        const volume = this.prefs.volumeUnit === 'ml'
+          ? this.gramToMl(ingName.toLowerCase(), qty)
+          : this.gramToVolume(ingName.toLowerCase(), qty);
+        return volume || this.formatGrams(qty);
       }
 
       // Metric regions show grams for solids and ml for liquids. Converting
@@ -1685,17 +2180,24 @@ function cookbookApp() {
       if (hasQty && metricUnits && !prefersVolume(ingName)) return this.formatGrams(qty);
 
       // If no numeric qty, show vol_est if present
-      if (!hasQty && ing.vol_est) return amountFromVolEst(ing.vol_est);
+      if (!hasQty && ing.vol_est) {
+        const amount = amountFromVolEst(ing.vol_est);
+        return amount.toLowerCase() === String(ingName).toLowerCase() ? '' : amount;
+      }
 
-      // volume path
-      if (this.prefs.volumeUnit === 'ml') return this.gramToMl(ingName.toLowerCase(), hasQty ? qty : 0);
-      // cups/tbsp/tsp fallback
-      return this.gramToVolume(ingName.toLowerCase(), hasQty ? qty : 0);
+      // Volume path; unknown densities fall back to an honest weight.
+      if (this.prefs.volumeUnit === 'ml') {
+        return this.gramToMl(ingName.toLowerCase(), hasQty ? qty : 0) || this.formatGrams(qty);
+      }
+      return this.gramToVolume(ingName.toLowerCase(), hasQty ? qty : 0) || this.formatGrams(qty);
     },
 
     async copyRecipe() {
       const ingredients = this.displayIngredients()
-        .map(ing => `• ${this.formatQuantity(ing)} ${ing.displayName}`.trim())
+        .map(ing => {
+          const note = ing.estimated ? ' (estimated)' : ing.quantityUnknown ? ' (quantity unknown)' : '';
+          return `• ${this.formatQuantity(ing)} ${ing.displayName}${note}`.trim();
+        })
         .join('\n');
       const steps = this.current.steps
         .map((s, i) => `${i + 1}. ${s}`)

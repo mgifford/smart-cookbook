@@ -57,73 +57,43 @@ meta:
   cook_time: PT40M
   status: "Proposed - not yet kitchen-tested"
   notes: |
-    STATUS: Proposed adaptation, not yet kitchen-tested. Please record real
-    results in docs/crispy-mushroom-mac-and-cheese-testing.md and add a history
-    entry after cooking.
-
-    INSPIRATION: Dyan Solomon, Olive + Gourmando: The Cookbook (KO Éditions,
-    2019), ISBN 9782924965160, p. 129 (Mushroom Mac 'n' Cheese), with reference
-    to the cheese sauce (p. 274), croutons (p. 282), caramelized onions
-    (p. 284), garlic confit purée (p. 287), and grilled flatbreads
-    (pp. 158–159). No original instructions or images are reproduced. This is
-    an original weeknight adaptation.
-
-    SERVINGS AND TIME: 5 generous servings. About 30 minutes of preparation
-    and active cooking, plus about 40 minutes of baking, broiling, and resting.
-    Elapsed time is 60–75 minutes when pasta, mushrooms, sauce, and bread are
-    worked in parallel; parallel tasks are not counted twice.
-
-    MASSES: Liquid masses are approximate and used only for scaling math:
-    600 ml whole milk is entered as 613 g (about 1.02 g/ml) and 5 ml soy sauce
-    as 6 g. They are not claimed to be experimentally precise.
-
-    EQUIPMENT: 12-inch flat cast-iron skillet preferred. A shallow 9 × 13-inch
-    metal baking pan is the alternative. A ridged cast-iron grill pan is an
-    experimental option to compare, not a promised improvement. Remove any
-    silicone handle cover before baking, and do not use a glass lid in a hot
-    oven unless its individual rating explicitly allows it.
+    TIME AND MASSES: About 30 minutes of preparation/active cooking and about
+    40 minutes of oven time, broiling, and resting; 60–75 minutes elapsed when
+    tasks overlap. Liquid masses are approximate for scaling: 600 ml whole milk
+    is entered as 613 g and 5 ml soy sauce as 6 g.
 
     CRUSTS: A crispy bottom is an experimental outcome, not a guarantee. The
     primary method is a lightly greased flat pan, a moderate 3–4 minute
     stovetop pre-sear only if the pan is stovetop-safe, an uncovered oven
     finish, and a 5-minute rest. Never leave a cheese-coated pan unattended
-    over direct heat. The top uses purchased garlic bread, pre-toasted and
-    added for the final 8–10 minutes; an optional 2–3 minute broiler finish is
-    for broiler-safe pans only.
+    over direct heat. Pre-toast the bread and add it for the final 8–10
+    minutes; broil only if the pan is broiler-safe.
 
-    BREAD ALTERNATIVES: The default is 120 g purchased garlic bread. Instead,
-    use 120 g cubed olive bread (fruitier, less garlicky, similar salt) or
-    about 60 g panko tossed with 15 g melted butter or olive oil (crispest and
-    most uniform, less garlicky, usually cheaper), or 120 g leftover sourdough
-    or crusty bread cubed and toasted with 1 minced garlic clove and 15 g oil
-    (best texture if dry, lowest cost). Do not count alternatives at the same
-    time as the default. The nutrition estimate uses the default ingredient
-    list, but purchased garlic bread is not currently mapped, so it is excluded
-    and disclosed in the coverage note.
+    BREAD: Default is 120 g purchased garlic bread. Alternatives: 120 g cubed
+    olive bread, or about 60 g panko tossed with 15 g melted butter or oil, or
+    120 g leftover sourdough toasted with garlic and oil. Do not count
+    alternatives at the same time as the default; nutrition uses the default
+    ingredient list, and purchased garlic bread is currently unmapped and
+    disclosed as excluded.
 
     MUSHROOM OPTION: For extra depth, soak 10–15 g dried porcini in 100 ml hot
-    water, chop, and add with the cremini. Strain and reduce the soaking liquid,
-    then subtract an equal volume from the milk. This is optional and is not
-    included in the nutrition estimate.
+    water, chop, and add with the cremini. Strain and reduce the liquid, then
+    subtract an equal volume from the milk. Optional; not in the nutrition
+    estimate.
 
-    WEIGHT WATCHERS POINTS: Deliberately set to null for every ingredient.
-    Points vary by WW programme, portion, and product, and this recipe has not
-    been analysed against a specific plan. Null is used as the documented
-    "not calculated" sentinel; the app does not display or total it. Do not
-    read null as zero points.
+    WW POINTS: Deliberately null for every ingredient. Points vary by plan,
+    portion, and product. Null means not calculated, not zero.
 
-    NUTRITION: Values are approximate per-100 g reference data, not lab
-    measurements. The app reports coverage; purchased garlic bread is not
-    currently mapped and is therefore not counted.
+    NUTRITION: Approximate per-100 g references, not lab measurements. The app
+    reports ingredient coverage and labels an incomplete total as a
+    known-ingredient subtotal.
 
-    EXPECTED DIFFERENCES: This is not intended to be identical to the
-    restaurant dish. It removes the multi-day flatbread, separate garlic
-    confit, truffle tapenade, several specialty cheeses, standalone croutons,
-    and a separate caramelized-onion recipe. It keeps generous mushrooms, a
-    rich cheese sauce, onion and garlic depth, a crunchy bread topping, oven
-    browning, and the creamy-versus-crisp contrast. Expect a more direct
-    cheddar-and-mushroom flavour, less truffle and less layered bread flavour,
-    and a bottom crust that depends on the pan and technique.
+    EXPECTED DIFFERENCES: Not identical to the inspiration. This version
+    removes the multi-day flatbread, garlic confit, truffle tapenade,
+    specialty-cheese mixture, standalone croutons, and separate caramelized
+    onions. Expect a more direct cheddar-and-mushroom flavour, less truffle,
+    and a bottom crust that depends on pan and technique.
+
 
 ingredients:
   - name: dry macaroni

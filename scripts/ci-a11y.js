@@ -129,6 +129,35 @@ const logViolations = () => {
 
     await analyze(page, 'index.html desktop');
 
+    // Experiment form and its interactive state.
+    await page.locator('details.experiment-panel summary').click();
+    await page.waitForTimeout(100);
+    assert(await page.locator('#exp-date').isVisible(), 'experiment form did not open');
+    await analyze(page, 'index.html experiment form');
+
+    // Save and reload a local experiment.
+    await page.selectOption('#exp-pan', 'flat_cast_iron');
+    await page.selectOption('#exp-top', '4');
+    await page.fill('#exp-notes', 'Playwright accessibility journey fixture.');
+    await page.click('form.experiment-form button[type="submit"]');
+    await page.waitForTimeout(150);
+    assert((await page.locator('section').filter({ hasText: 'Cooking experiments' }).innerText()).includes('Saved locally'), 'experiment was not saved');
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.waitForFunction(() => document.querySelectorAll('#recipe-select option').length > 0, null, { timeout: 15000 });
+    assert(await page.inputValue('#recipe-select') === 'crispy-mushroom-mac-and-cheese', 'selected recipe did not persist across reload');
+    const savedExperiments = await page.evaluate(() => JSON.parse(localStorage.getItem('cookbook-experiments') || '[]'));
+    assert(savedExperiments.length === 1, 'experiment did not persist across reload');
+    assert(savedExperiments[0].observations.top_crispness === 4, 'rating was not stored as a number');
+
+    // Add a second experiment and check the comparison table state.
+    await page.locator('details.experiment-panel summary').click();
+    await page.selectOption('#exp-pan', 'ridged_cast_iron');
+    await page.selectOption('#exp-bottom', '5');
+    await page.click('form.experiment-form button[type="submit"]');
+    await page.waitForTimeout(150);
+    assert(await page.locator('table.experiment-table').isVisible(), 'experiment comparison table did not render');
+    await analyze(page, 'index.html experiment comparison');
+
     // Keyboard scaling.
     await page.locator('#servings-slider').focus();
     const before = await page.locator('#servings-slider').inputValue();
@@ -146,6 +175,14 @@ const logViolations = () => {
     }));
     assert(overflow.scrollWidth <= overflow.clientWidth, `index.html overflows at 320px (${overflow.scrollWidth} > ${overflow.clientWidth})`);
     await analyze(page, 'index.html 320px');
+
+    // Invalid import error summary.
+    await page.fill('#yaml-input', 'meta:\n  name: Invalid fixture\n');
+    await page.click('button:has-text("Load YAML")');
+    await page.waitForTimeout(100);
+    assert(await page.locator('#import-errors').isVisible(), 'invalid import did not show an error summary');
+    assert(await page.evaluate(() => document.activeElement && document.activeElement.id) === 'import-errors', 'import error summary did not receive focus');
+    await analyze(page, 'index.html import errors');
 
     // Recipe browser: search, card, and direct link.
     await page.setViewportSize({ width: 1280, height: 900 });

@@ -6,6 +6,8 @@ This file contains the system prompts (personas) used to maintain and build this
 
 - Make minimal, reviewable changes; preserve existing recipes and user data.
 - Never silently discard unknown YAML or localStorage fields during import, normalization, or export.
+- Preserve the difference between an explicit zero, `null` (unknown/not calculated), and a missing field. Never deduplicate ingredient entries by name; repeated names can represent different components.
+- Route browser imports through the shared validator and show a visible field-level error summary. Do not save invalid recipe data as a completed recipe.
 - Distinguish source-documented facts, deterministic calculations, estimates, proposals, human-tested results, and AI suggestions.
 - Never fabricate cooking results, nutrition values, Weight Watchers points, accessibility conformance, or performance measurements.
 - Add reproducible tests for behaviour changes; a passing test is not proof that a defect is fixed.
@@ -210,10 +212,10 @@ This file contains the system prompts (personas) used to maintain and build this
 > - Required top-level fields: `meta`, `ingredients`, `steps`, `science_notes`, `history`
 > - Required `meta` fields: `name`, `source`, `base_servings`, `prep_time`
 > - Required ingredient fields: `name`, `qty_g`, `vol_est`, `function`, `ww_points`, `substitutions`
-> - `qty_g` must be numeric and ≥ 0
+> - `qty_g` must be a number ≥ 0 or `null` for unknown; estimates require `estimated: true` and `quantity_source`
 > - `substitutions` array can be empty but must exist
 > - Each substitution needs: `name`, `ratio` (positive number), `science_note`, `tags` (array)
-> - No duplicate ingredient names
+> - Repeated ingredient names are allowed when they represent different components; do not deduplicate
 > - Minimum 2 ingredients, 1 step, 1 science note per recipe
 >
 > **Output Format:**

@@ -53,7 +53,7 @@
     const parseYield = (value) => {
       const first = Array.isArray(value) ? value[0] : value;
       const match = normalize(first).match(/[0-9]+(?:\.[0-9]+)?/);
-      return match ? Number(match[0]) : 1;
+      return match ? Number(match[0]) : null;
     };
     const parseQuantity = (rawValue) => {
       const original = normalize(rawValue);
@@ -174,7 +174,7 @@
       'meta:',
       `  name: ${quote(meta.name || 'Imported Recipe')}`,
       `  source: ${quote(meta.source || '')}`,
-      `  base_servings: ${Number(meta.base_servings) > 0 ? Number(meta.base_servings) : 1}`,
+      `  base_servings: ${Number(meta.base_servings) > 0 ? Number(meta.base_servings) : 'null'}`,
       `  prep_time: ${quote(meta.prep_time || '')}`,
       'provenance:',
       '  type: source',

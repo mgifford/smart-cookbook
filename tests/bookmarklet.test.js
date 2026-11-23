@@ -83,10 +83,13 @@ test('explicit mass is converted and original text is retained', () => {
   assert.equal(result.ingredients[3].qty_g, 500);
 });
 
-test('missing source metadata falls back to the page URL', () => {
-  const node = recipeNode({ url: undefined });
+test('missing source metadata falls back to the page URL and missing yield stays unknown', () => {
+  const node = recipeNode({ url: undefined, recipeYield: undefined });
   const result = scraper.parseRecipeJsonLd([node], 'https://example.com/fallback');
   assert.equal(result.meta.source, 'https://example.com/fallback');
+  assert.equal(result.meta.base_servings, null);
+  const parsed = yaml.load(scraper.recipeToYaml(result));
+  assert.equal(parsed.meta.base_servings, null);
 });
 
 test('unexpected structures return null instead of a fabricated recipe', () => {

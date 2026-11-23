@@ -98,6 +98,7 @@ Release 1.2 added:
 | `npm run validate:recipes` | 11/11, 0 errors, 0 warnings |
 | `npm run check:index` | Synchronized |
 | `npm run check:conversions` | Synchronized |
+| `npm run check:ci-policy` | Pass |
 | `npm run test:unit` | 76/76 pass |
 | `npm run lint:html` | Pass |
 | `npm run test:a11y` | 0 axe violations across both pages, desktop/320, experiment form, comparison table, and import-error state; journeys pass |

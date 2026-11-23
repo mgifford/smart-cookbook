@@ -65,6 +65,7 @@ There is no backend, account, database, or server-side rendering. User data stay
 - `npm run validate:recipes` — project-specific field/quality checks.
 - `npm run check:index` — deterministic index comparison; fails with regeneration instructions.
 - `npm run test:unit` — Node fixtures for scaling, units, import/export, nutrition coverage, deep links, tombstones, exports.
+- `npm run check:ci-policy` — rejects `continue-on-error`, `|| true`, no-tests flags, missing required tests, or a11y checks that stop failing on runtime errors/violations. This runs in CI before the full gate.
 - `npm run lint:html` — HTML validation.
 - `npm run test:a11y` — Playwright journeys and axe at desktop/320 px on both pages, colour contrast enabled.
 - `npm run scan:security` — limited static HTML checks.

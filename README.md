@@ -92,6 +92,7 @@ The recipe view includes an optional experiment form for recording actual cookin
 - **conversions.yaml** — Reference data for densities and unit conversions
 - **nutrition.yaml** — Per-100g macros for 50+ common ingredients
 - **ingredients-glossary.yaml** — Maps ingredient name variations to canonical names
+- **scripts/check-ci-policy.js** — Fails if the quality gate stops running required tests or allows swallowed failures
 - **scripts/validate-schema.js** — JSON Schema, stable-ID, and duplicate-ID checks
 - **scripts/generate-schema-module.js** — Generates the browser schema module
 - **scripts/generate-conversions.js** — Generates browser conversion data from conversions.yaml
@@ -174,6 +175,7 @@ npm run check:schema-module # Browser schema copy is synchronized
 npm run validate:recipes   # Recipe quality checks
 npm run generate:conversions # Regenerate src/generated/conversions.js after YAML changes
 npm run check:conversions  # Fail if generated conversion data is stale
+npm run check:ci-policy    # Fail if CI/quality tests can be bypassed
 npm run build:bookmarklet   # Regenerate bookmarklet.js from the single source
 npm run check:bookmarklet  # Fail if the generated bookmarklet is stale
 npm run check:index        # Fail if recipes.json is stale

@@ -30,6 +30,7 @@ Follow-up added: focused static recipe pages and dietary clarity:
 - Vegetarian and Vegan are separate categories. Vegetarian allows dairy/eggs; vegan excludes all animal-derived ingredients.
 - The interactive suggestion selector uses `vegan`/`vegetarian`/`veg` tags; vegan mode never falls back to a dairy-only suggestion.
 - Generated pages are checked for staleness and included in axe/320 px tests.
+- Cooking Science and Nutrition share a responsive two-column row; nutrition displays rounded approximations rather than decimal lab-style precision.
 
 Follow-up added: shareable routes and anchors:
 
@@ -107,7 +108,7 @@ Release 1.2 added:
 | `npm run check:index` | Synchronized |
 | `npm run check:conversions` | Synchronized |
 | `npm run check:ci-policy` | Pass |
-| `npm run test:unit` | 84/84 pass |
+| `npm run test:unit` | 85/85 pass |
 | `npm run lint:html` | Pass |
 | `npm run test:a11y` | 0 axe violations across both pages, desktop/320, experiment form, comparison table, and import-error state; journeys pass |
 | `npm run scan:security` | Pass, including template content and SRI |

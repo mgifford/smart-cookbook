@@ -231,23 +231,25 @@
           </ol>
         </section>
 
-        <!-- Science Notes Section -->
-        <section id="science" x-show="scienceMode && current.science_notes && current.science_notes.length" class="mt-4 bg-blue-900-20 border border-blue-700">
-          <div class="heading-row">
-            <h3 id="science-heading" class="font-bold mb-2 text-blue-400">🔬 Cooking Science</h3>
-            <a class="permalink" href="#science"><span aria-hidden="true">#</span><span class="visually-hidden">Permalink to Cooking Science</span></a>
-          </div>
-          <ul class="space-y-2 text-sm">
-            <template x-for="(note, idx) in (current.science_notes || [])" :key="idx">
-              <li class="leading-relaxed">• <span x-text="note"></span></li>
-            </template>
-          </ul>
-        </section>
       </div>
     </article>
 
     <div x-show="!showHome" x-cloak>
-    <section id="nutrition">
+      <div class="science-nutrition-grid">
+      <!-- Science Notes Section -->
+      <section id="science" x-show="scienceMode && current.science_notes && current.science_notes.length" class="science-panel bg-blue-900-20 border border-blue-700">
+        <div class="heading-row">
+          <h2 id="science-heading" class="text-lg text-blue-400">🔬 Cooking Science</h2>
+          <a class="permalink" href="#science"><span aria-hidden="true">#</span><span class="visually-hidden">Permalink to Cooking Science</span></a>
+        </div>
+        <ul class="space-y-2 text-sm">
+          <template x-for="(note, idx) in (current.science_notes || [])" :key="idx">
+            <li class="leading-relaxed">• <span x-text="note"></span></li>
+          </template>
+        </ul>
+      </section>
+
+    <section id="nutrition" class="nutrition-panel">
       <div class="heading-row">
         <h2 id="nutrition-heading" class="text-lg">Nutrition</h2>
         <a class="permalink" href="#nutrition"><span aria-hidden="true">#</span><span class="visually-hidden">Permalink to Nutrition</span></a>
@@ -259,23 +261,24 @@
       <div x-show="nutritionLoaded && !nutritionError" class="grid-2col text-sm">
         <div class="nutrition-col">
           <h3 x-text="nutritionCoverageLabel() + ' (recipe)'"></h3>
-          <p x-text="`${nutritionSummary().total.calories} kcal`"></p>
-          <p x-text="`Protein: ${nutritionSummary().total.protein.toFixed(1)} g`"></p>
-          <p x-text="`Fat: ${nutritionSummary().total.fat.toFixed(1)} g`"></p>
-          <p x-text="`Carbs: ${nutritionSummary().total.carbs.toFixed(1)} g`"></p>
-          <p x-text="`Fiber: ${nutritionSummary().total.fiber.toFixed(1)} g`"></p>
+          <p x-text="formatNutrition(nutritionSummary().total.calories, 'kcal')"></p>
+          <p x-text="`Protein: ${formatNutrition(nutritionSummary().total.protein)}`"></p>
+          <p x-text="`Fat: ${formatNutrition(nutritionSummary().total.fat)}`"></p>
+          <p x-text="`Carbs: ${formatNutrition(nutritionSummary().total.carbs)}`"></p>
+          <p x-text="`Fiber: ${formatNutrition(nutritionSummary().total.fiber)}`"></p>
         </div>
         <div class="nutrition-col">
           <h3 x-text="nutritionCoverageLabel() + ' per serving'"></h3>
-          <p x-text="`${nutritionSummary().per.calories} kcal`"></p>
-          <p x-text="`Protein: ${nutritionSummary().per.protein.toFixed(1)} g`"></p>
-          <p x-text="`Fat: ${nutritionSummary().per.fat.toFixed(1)} g`"></p>
-          <p x-text="`Carbs: ${nutritionSummary().per.carbs.toFixed(1)} g`"></p>
-          <p x-text="`Fiber: ${nutritionSummary().per.fiber.toFixed(1)} g`"></p>
+          <p x-text="formatNutrition(nutritionSummary().per.calories, 'kcal')"></p>
+          <p x-text="`Protein: ${formatNutrition(nutritionSummary().per.protein)}`"></p>
+          <p x-text="`Fat: ${formatNutrition(nutritionSummary().per.fat)}`"></p>
+          <p x-text="`Carbs: ${formatNutrition(nutritionSummary().per.carbs)}`"></p>
+          <p x-text="`Fiber: ${formatNutrition(nutritionSummary().per.fiber)}`"></p>
         </div>
       </div>
       <p class="text-xs text-slate-400" x-show="nutritionLoaded && !nutritionError" aria-live="polite" x-text="nutritionCoverageText()"></p>
     </section>
+    </div>
 
     <section id="experiments">
       <div class="heading-row">
